@@ -4,15 +4,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.main.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vpMainPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="?actionBarSize" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
 
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottomAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:fabCradleMargin="14dp"
+            app:fabCradleRoundedCornerRadius="20dp">
+
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottomNavView"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:layout_marginEnd="16dp"
+                app:itemRippleColor="@color/transparent"
+                app:elevation="0dp"
+                android:background="@drawable/bg_bottom_appbar"
+                app:itemIconTint="@color/tab_ic_selector"
+                app:itemTextColor="@color/tab_ic_selector"
+                app:menu="@menu/bottom_menu">
+
+            </com.google.android.material.bottomnavigation.BottomNavigationView>
+        </com.google.android.material.bottomappbar.BottomAppBar>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:contentDescription="@string/app_name"
+            app:layout_anchor="@id/bottomNavView"
+            app:srcCompat="@drawable/ic_add" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

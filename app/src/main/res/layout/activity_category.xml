@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/ivBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_24"
+        android:src="@drawable/ic_arrow_back"
+        app:backgroundTint="@color/lynch_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_24"
+        android:fontFamily="@font/opensans_bold"
+        android:text="Quản lý danh mục"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintBottom_toBottomOf="@id/ivBack"
+        app:layout_constraintStart_toEndOf="@+id/ivBack"
+        app:layout_constraintTop_toTopOf="@id/ivBack" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/textView11"
+        tools:listitem="@layout/item_add_category" />
+
+    <TextView
+        android:id="@+id/tvAddCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dp_16"
+        android:drawablePadding="@dimen/dp_8"
+        android:fontFamily="@font/opensans_bold"
+        android:paddingVertical="@dimen/dp_8"
+        android:text="Tạo mới danh mục"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/sp_16"
+        app:drawableStartCompat="@drawable/ic_add"
+        app:drawableTint="@color/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@+id/rvCategory" />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

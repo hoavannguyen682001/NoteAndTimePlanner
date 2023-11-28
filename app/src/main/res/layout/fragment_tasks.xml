@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_8"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dp_16"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="@+id/ivOptionMenu"
+        app:layout_constraintEnd_toStartOf="@id/ivOptionMenu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/ivOptionMenu"
+        tools:listitem="@layout/item_category" />
+
+    <ImageView
+        android:id="@+id/ivOptionMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_4"
+        android:src="@drawable/ic_more_vert"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_24"
+        android:fontFamily="@font/opensans_bold"
+        android:text="Chưa hoàn thành"
+        android:textColor="@color/lynch_gray"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rvCategory" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTodoTask"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginEnd="@dimen/dp_16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/textView8"
+        app:layout_constraintTop_toBottomOf="@+id/textView8"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_task" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_24"
+        android:fontFamily="@font/opensans_bold"
+        android:text="Đã hoàn thành"
+        android:textColor="@color/lynch_gray"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintStart_toStartOf="@id/rvTodoTask"
+        app:layout_constraintTop_toBottomOf="@id/rvTodoTask" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        app:layout_constraintEnd_toEndOf="@+id/rvTodoTask"
+        app:layout_constraintStart_toStartOf="@+id/textView9"
+        app:layout_constraintTop_toBottomOf="@+id/textView9"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_task" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/itemTask"
+        android:icon="@drawable/ic_task_uncheck"
+        android:title="@string/title_task"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/itemCalendar"
+        android:icon="@drawable/ic_calendar_uncheck"
+        android:title="@string/title_calendar"
+        app:showAsAction="withText" />
+
+    <item android:title="" />
+
+    <item
+        android:id="@+id/itTemp"
+        android:icon="@drawable/ic_task_uncheck"
+        android:title="@string/title_task"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/itemPerson"
+        android:icon="@drawable/ic_person_uncheck"
+        android:title="@string/title_person"
+        app:showAsAction="withText" />
+</menu>

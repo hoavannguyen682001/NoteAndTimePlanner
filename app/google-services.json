@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "983025489739",
+    "project_id": "timeplaner-f8621",
+    "storage_bucket": "timeplaner-f8621.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983025489739:android:967b951108a2295baf3ace",
+        "android_client_info": {
+          "package_name": "com.hoanv.notetimeplanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClQcXn0nz5TCjGCQR6rW0cGjFDzoiWBr8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

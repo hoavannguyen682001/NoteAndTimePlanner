@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="@dimen/dp_56"
+        android:layout_height="@dimen/dp_56"
+        android:layout_marginStart="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_24"
+        android:src="@drawable/ic_person_uncheck"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:fontFamily="@font/opensans_bold"
+        android:text="Xin chào ..."
+        android:textColor="@color/lynch_gray"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintStart_toEndOf="@id/ivAvatar"
+        app:layout_constraintTop_toTopOf="@id/ivAvatar" />
+
+    <TextView
+        android:id="@+id/tvSignIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/opensans_regular"
+        android:text="@string/sign_in"
+        android:textColor="@color/lynch_gray"
+        android:textSize="@dimen/sp_16"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="@id/ivAvatar"
+        app:layout_constraintStart_toStartOf="@id/tvUserName" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_24"
+        android:fontFamily="@font/opensans_bold"
+        android:text="Tổng quan về nhiệm vụ"
+        android:textColor="@color/lynch_gray"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintStart_toStartOf="@id/ivAvatar"
+        app:layout_constraintTop_toBottomOf="@id/ivAvatar" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl50"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginEnd="@dimen/dp_4"
+        android:background="@drawable/bg_item_category_uncheck"
+        android:paddingVertical="@dimen/dp_24"
+        app:layout_constraintEnd_toStartOf="@id/gl50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10">
+
+        <TextView
+            android:id="@+id/tvNumbOfTodo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:fontFamily="@font/opensans_bold"
+            android:text="11"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_32"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:fontFamily="@font/opensans_medium"
+            android:text="Nhiệm vụ đã hoàn\nthành"
+            android:textAlignment="center"
+            android:textColor="@color/lynch_gray"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNumbOfTodo" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_4"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:background="@drawable/bg_item_category_uncheck"
+        android:paddingVertical="@dimen/dp_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/gl50"
+        app:layout_constraintTop_toTopOf="@+id/constraintLayout3">
+
+        <TextView
+            android:id="@+id/tvNumbOfDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:fontFamily="@font/opensans_bold"
+            android:text="11"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_32"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:fontFamily="@font/opensans_medium"
+            android:text="Nhiệm vụ chưa hoàn\nthành"
+            android:textAlignment="center"
+            android:textColor="@color/lynch_gray"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNumbOfDone" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
