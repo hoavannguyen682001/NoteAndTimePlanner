@@ -1,10 +1,15 @@
 package com.hoanv.notetimeplanner.ui.main.tasks.category
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
@@ -24,7 +29,7 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
     override val viewModel: CategoryVM by viewModels()
 
     private val categoryAdapter by lazy {
-        CategoryAdapter(this)
+        CategoryAdapter(this, ::handleOptionMenu)
     }
 
     override fun init(savedInstanceState: Bundle?) {
@@ -37,9 +42,7 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
         binding.run {
             rvCategory.run {
                 layoutManager = LinearLayoutManager(
-                    this@CategoryActivity,
-                    LinearLayoutManager.VERTICAL,
-                    false
+                    this@CategoryActivity, LinearLayoutManager.VERTICAL, false
                 )
                 adapter = categoryAdapter
             }
@@ -49,7 +52,7 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
     private fun initListener() {
         binding.run {
             tvAddCategory.setOnSingleClickListener {
-                dialogAddCategory()
+                dialogAddCategory(null)
             }
             ivBack.setOnSingleClickListener {
                 onBackPressedDispatcher.onBackPressed()
@@ -98,24 +101,82 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                         }
                     }
                 }
+
+                updateCategoryTriggerS.observe(this@CategoryActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {}
+
+                        is ResponseState.Success -> {
+                            toastSuccess(state.data)
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
+
+                deleteCategoryTriggerS.observe(this@CategoryActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {}
+
+                        is ResponseState.Success -> {
+                            toastSuccess(state.data)
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
             }
         }
     }
 
-    private fun dialogAddCategory() {
+    private fun handleOptionMenu(category: Category, view: View) {
+        val popupMenu = PopupMenu(this@CategoryActivity, view)
+        popupMenu.inflate(R.menu.category_menu)
+
+        popupMenu.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.itemUpdate -> {
+                    dialogAddCategory(category)
+                }
+
+                R.id.itemDelete -> {
+                    viewModel.deleteCategory(category)
+                    viewModel.getListCategory()
+                }
+            }
+            false
+        }
+
+        popupMenu.show()
+    }
+
+    private fun dialogAddCategory(item: Category?) {
         val dialogBinding = DialogAddCategoryBinding.inflate(LayoutInflater.from(this))
         val alertDialog =
-            AlertDialog.Builder(this, R.style.AppCompat_AlertDialog)
-                .setView(dialogBinding.root)
-                .setCancelable(false)
-                .create()
+            AlertDialog.Builder(this, R.style.AppCompat_AlertDialog).setView(dialogBinding.root)
+                .setCancelable(false).create()
 
         binding.run {
             dialogBinding.run {
-                tvSave.setOnSingleClickListener {
-                    val category = edtInputCate.text.toString()
-                    viewModel.addNewCategory(Category(title = category))
-                    alertDialog.dismiss()
+                if (item != null) {
+                    edtInputCate.setText(item.title)
+                    tvSave.setOnSingleClickListener {
+                        val category = edtInputCate.text.toString()
+                        viewModel.updateCategory(Category(id = item.id, title = category))
+                        viewModel.getListCategory()
+                        alertDialog.dismiss()
+                    }
+                } else {
+                    tvSave.setOnSingleClickListener {
+                        val category = edtInputCate.text.toString()
+                        viewModel.addNewCategory(Category(title = category))
+                        viewModel.getListCategory()
+                        alertDialog.dismiss()
+                    }
                 }
                 tvCancel.setOnSingleClickListener {
                     alertDialog.dismiss()

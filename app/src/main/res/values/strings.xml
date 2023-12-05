@@ -13,4 +13,6 @@
     <string name="sign_in">Bấm để đăng nhập</string>
     <string name="manage_category">Quản lý danh mục</string>
     <string name="search">Tìm kiếm</string>
+    <string name="delete">Xoá</string>
+    <string name="update">Chỉnh sửa</string>
 </resources>

@@ -9,26 +9,25 @@
         android:id="@+id/rvCategory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dp_8"
+        android:layout_marginTop="@dimen/dp_24"
         android:clipToPadding="false"
         android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingHorizontal="@dimen/dp_6"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="@+id/ivOptionMenu"
         app:layout_constraintEnd_toStartOf="@id/ivOptionMenu"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/ivOptionMenu"
+        app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/item_category" />
 
     <ImageView
         android:id="@+id/ivOptionMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_24"
         android:layout_marginEnd="@dimen/dp_4"
         android:src="@drawable/ic_more_vert"
+        app:layout_constraintBottom_toBottomOf="@+id/rvCategory"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/rvCategory" />
 
     <TextView
         android:id="@+id/textView8"
