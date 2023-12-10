@@ -5,17 +5,25 @@ import android.view.LayoutInflater
 import android.widget.TimePicker
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminography.primecalendar.civil.CivilCalendar
 import com.aminography.primedatepicker.picker.PrimeDatePicker
 import com.aminography.primedatepicker.picker.callback.RangeDaysPickCallback
 import com.hoanv.notetimeplanner.R
+import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.Todo
 import com.hoanv.notetimeplanner.databinding.ActivityAddTaskBinding
-import com.hoanv.notetimeplanner.databinding.DialogLabelBinding
+import com.hoanv.notetimeplanner.databinding.DialogCategoryBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
+import com.hoanv.notetimeplanner.ui.main.tasks.create.adapter.CategoryAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.create.dialog.TimePickerFragment
+import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.safeClickListener
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
@@ -24,9 +32,51 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     private val timePickerFrag = TimePickerFragment()
 
+    private val categoryAdapter by lazy {
+        CategoryAdapter(this, ::onCategoryClick)
+    }
+
+    private lateinit var dialogBinding: DialogCategoryBinding
+    private lateinit var alertDialog: AlertDialog
+
+    private val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.US)
+    private val date = Date()
+    private val current = formatter.format(date)
+    private var idTodo: String? = null
+
     override fun init(savedInstanceState: Bundle?) {
         timePickerFrag.setDataTimePicker(this@AddTaskActivity)
+        initView()
         initListener()
+        bindViewModel()
+    }
+
+    private fun initView() {
+        binding.run {
+            val todo = intent.getParcelableExtra<Todo>("TODO")
+            todo?.let {
+                idTodo = it.id
+                loadDataView(it)
+            }
+
+            dialogBinding =
+                DialogCategoryBinding.inflate(android.view.LayoutInflater.from(this@AddTaskActivity))
+            dialogBinding.run {
+                rvListCategory.run {
+                    adapter = categoryAdapter
+                    layoutManager = LinearLayoutManager(
+                        this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
+                    )
+                }
+            }
+
+            alertDialog = AlertDialog.Builder(this@AddTaskActivity, R.style.AppCompat_AlertDialog)
+                .setView(dialogBinding.root)
+                .setCancelable(false)
+                .create()
+
+            tvStartDay.text = current
+        }
     }
 
     private fun initListener() {
@@ -34,75 +84,135 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             ivClose.setOnSingleClickListener {
                 onBackPressedDispatcher.onBackPressed()
             }
+
             tvEstimate.safeClickListener {
                 dateRangePicker().show(supportFragmentManager, "DatePicker")
             }
+
             tvTimer.safeClickListener {
                 timePickerFrag.show(supportFragmentManager, "TimerPicker")
             }
-            tvLabel.safeClickListener {
-                dialogLabel()
+
+            tvCategory.safeClickListener {
+                alertDialog.show()
+            }
+
+            ivSubmit.setOnSingleClickListener {
+                addTask()
             }
         }
     }
 
-    override fun setupViewBinding(inflater: LayoutInflater): ActivityAddTaskBinding =
-        ActivityAddTaskBinding.inflate(inflater)
+    private fun bindViewModel() {
+        binding.run {
+            viewModel.run {
+                listCategory.observe(this@AddTaskActivity) {
+                    if (it.isNotEmpty()) {
+                        categoryAdapter.submitList(it)
+                    }
+                }
 
-    override fun timePickerListener(
-        view: TimePicker,
-        hourOfDay: Int,
-        minute: Int
-    ) {
-        binding.tvTimer.text = getString(R.string.time_picker, hourOfDay, minute)
+                addTaskTriggerS.observe(this@AddTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+
+                        }
+
+                        is ResponseState.Success -> {
+                            toastSuccess(state.data)
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
+
+                updateTaskTriggerS.observe(this@AddTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+
+                        }
+
+                        is ResponseState.Success -> {
+                            toastSuccess(state.data)
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadDataView(todo: Todo) {
+        binding.run {
+            edtTitle.setText(todo.title)
+            edtDescription.setText(todo.description)
+            tvStartDay.text = todo.startDay
+            tvEndDay.text = todo.endDay
+            tvTimeEnd.text = todo.timeEnd
+            tvTitLeCategory.text = todo.category
+        }
+    }
+
+    private fun addTask() {
+        binding.run {
+            val todo = Todo(
+                title = edtTitle.text.toString(),
+                description = edtDescription.text.toString(),
+                category = tvTitLeCategory.text.toString(),
+                timeEnd = tvTimeEnd.text.toString(),
+                startDay = tvStartDay.text.toString(),
+                endDay = tvEndDay.text.toString(),
+                taskState = false
+            )
+            if (!idTodo.isNullOrEmpty()) {
+                todo.id = idTodo!!
+                viewModel.updateCategory(todo)
+            } else {
+                viewModel.addNewTask(todo)
+            }
+        }
+    }
+
+    private fun onCategoryClick(category: Category) {
+        binding.run {
+            tvTitLeCategory.text = category.title ?: "Không có thể loại"
+        }
+        alertDialog.dismiss()
     }
 
     private fun dateRangePicker(): PrimeDatePicker {
         val callback = RangeDaysPickCallback { str, end ->
-            binding.tvEstimate.text =
-                getString(
+            binding.run {
+                tvStartDay.text = getString(
                     R.string.date_range_selected,
                     str.date,
-                    str.month,
-                    str.year,
+                    str.month + 1,
+                    str.year
+                )
+
+                tvEndDay.text = getString(
+                    R.string.date_range_selected,
                     end.date,
-                    end.month,
+                    end.month + 1,
                     end.year
                 )
-        }
-        return PrimeDatePicker.bottomSheetWith(CivilCalendar())
-            .pickRangeDays(callback)
-            .initiallyPickedStartDay(CivilCalendar())
-            .build()
-    }
-
-    private fun dialogLabel() {
-        val dialogBinding = DialogLabelBinding.inflate(LayoutInflater.from(this))
-        val alertDialog =
-            AlertDialog.Builder(this, R.style.AppCompat_AlertDialog)
-                .setView(dialogBinding.root)
-                .setCancelable(false)
-                .create()
-        binding.run {
-            dialogBinding.run {
-                tvTaskNew.setOnSingleClickListener {
-                    tvLabel.text = tvTaskNew.text
-                    alertDialog.dismiss()
-                }
-                tvTaskUpdate.setOnSingleClickListener {
-                    tvLabel.text = tvTaskUpdate.text
-                    alertDialog.dismiss()
-                }
-                tvResearch.setOnSingleClickListener {
-                    tvLabel.text = tvResearch.text
-                    alertDialog.dismiss()
-                }
-                tvTaskUrgent.setOnSingleClickListener {
-                    tvLabel.text = tvTaskUrgent.text
-                    alertDialog.dismiss()
-                }
             }
         }
-        alertDialog.show()
+        return PrimeDatePicker.bottomSheetWith(CivilCalendar()).pickRangeDays(callback)
+            .initiallyPickedStartDay(CivilCalendar(), pickEndDay = false).build()
     }
+
+    override fun timePickerListener(
+        view: TimePicker, hourOfDay: Int, minute: Int
+    ) {
+        binding.tvTimeEnd.text = getString(R.string.time_picker, hourOfDay, minute)
+    }
+
+    override fun setupViewBinding(inflater: LayoutInflater): ActivityAddTaskBinding =
+        ActivityAddTaskBinding.inflate(inflater)
 }

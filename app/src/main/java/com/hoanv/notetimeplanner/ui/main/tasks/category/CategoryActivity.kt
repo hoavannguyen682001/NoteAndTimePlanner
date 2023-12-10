@@ -1,12 +1,9 @@
 package com.hoanv.notetimeplanner.ui.main.tasks.category
 
-import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
@@ -17,12 +14,10 @@ import com.hoanv.notetimeplanner.databinding.ActivityCategoryBinding
 import com.hoanv.notetimeplanner.databinding.DialogAddCategoryBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.utils.ResponseState
-import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.UUID
 
 @AndroidEntryPoint
 class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {

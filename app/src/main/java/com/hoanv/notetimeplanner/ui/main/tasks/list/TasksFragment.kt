@@ -10,29 +10,33 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.Todo
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.main.tasks.category.CategoryActivity
+import com.hoanv.notetimeplanner.ui.main.tasks.create.AddTaskActivity
+import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskCategoryAdapter
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
-import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
-import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
-import java.text.FieldPosition
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     override val viewModel: TasksViewModel by viewModels()
 
     private val categoryAdapter by lazy {
-        TaskCategoryAdapter(requireContext(), ::onItemClick)
+        TaskCategoryAdapter(requireContext(), ::onItemCategoryClick)
+    }
+
+    private val taskAdapter by lazy {
+        TaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
     }
 
     private var mListCategoryS = MutableSharedFlow<List<Category>>(extraBufferCapacity = 64)
-    private var listCategory = listOf<Category>()
+    private var listCategoryS = listOf<Category>()
         set(value) {
             field = value
             mListCategoryS.tryEmit(value)
@@ -52,6 +56,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     override fun onStart() {
         super.onStart()
         viewModel.getListCategory()
+        viewModel.getListTask()
     }
 
     private fun initView() {
@@ -60,6 +65,12 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 layoutManager =
                     LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
                 adapter = categoryAdapter
+            }
+
+            rvTodoTask.run {
+                layoutManager =
+                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+                adapter = taskAdapter
             }
         }
     }
@@ -74,18 +85,36 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
     private fun bindViewModel() {
         binding.run {
-            viewModel.listCategory.observe(viewLifecycleOwner) { state ->
-                when (state) {
-                    ResponseState.Start -> {
-                    }
+            viewModel.run {
+                listCategory.observe(viewLifecycleOwner) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
 
-                    is ResponseState.Success -> {
-                        listCategory = state.data
-                    }
+                        is ResponseState.Success -> {
+                            listCategoryS = state.data
+                        }
 
-                    is ResponseState.Failure -> {
-                        toastError(state.throwable?.message)
-                        Log.d("###", "${state.throwable?.message}")
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
+
+                listTask.observe(viewLifecycleOwner) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            taskAdapter.submitList(state.data)
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
+                        }
                     }
                 }
             }
@@ -118,11 +147,22 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         popupMenu.show()
     }
 
-    private fun onItemClick(category: Category, position: Int) {
-        val newList = listCategory.map {
+    private fun onItemCategoryClick(category: Category, position: Int) {
+        val newList = listCategoryS.map {
             it.isSelected = it.id == category.id
             it
         }
-        listCategory = newList
+        listCategoryS = newList
+    }
+
+    private fun onTaskClick(todo: Todo) {
+        val intent = Intent(requireActivity(), AddTaskActivity::class.java)
+        intent.putExtra("TODO", todo)
+        startActivity(intent)
+    }
+
+    private fun onClickIconChecked(todo: Todo) {
+        viewModel.deleteCategory(todo)
+        viewModel.getListTask()
     }
 }

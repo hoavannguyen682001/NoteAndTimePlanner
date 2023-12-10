@@ -6,8 +6,8 @@
     <string name="new_task">Công việc</string>
     <string name="title">Tiêu đề</string>
     <string name="detail_task">Mô tả</string>
-    <string name="estimate_day">Ngày đến hạn</string>
-    <string name="date_range_selected">%1$d/%2$d/%3$d - %4$d/%5$d/%6$d</string>
+    <string name="estimate_day">Ngày</string>
+    <string name="date_range_selected">%1$d/%2$d/%3$d</string>
     <string name="time_picker">%1$d : %2$d</string>
     <string name="date_display">%1$s - %2$s</string>
     <string name="sign_in">Bấm để đăng nhập</string>
@@ -15,4 +15,5 @@
     <string name="search">Tìm kiếm</string>
     <string name="delete">Xoá</string>
     <string name="update">Chỉnh sửa</string>
+    <string name="title_pick_category">Chọn loại danh mục</string>
 </resources>
