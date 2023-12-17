@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.Category
-import com.hoanv.notetimeplanner.data.models.Todo
+import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
 import com.hoanv.notetimeplanner.utils.ResponseState
@@ -48,9 +48,9 @@ class AddTaskVM @Inject constructor(
         }
     }
 
-    fun addNewTask(todo: Todo) {
+    fun addNewTask(task: Task) {
         _addTaskTriggerS.value = ResponseState.Start
-        remoteRepo.addNewTask(todo) {
+        remoteRepo.addNewTask(task) {
             if (it) {
                 _addTaskTriggerS.value = ResponseState.Success("Tạo công việc mới thành công.")
             } else {
@@ -60,10 +60,10 @@ class AddTaskVM @Inject constructor(
         }
     }
 
-    fun updateCategory(todo: Todo) {
+    fun updateTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
             _updateTaskTriggerS.postValue(ResponseState.Start)
-            remoteRepo.updateTask(todo) {
+            remoteRepo.updateTask(task) {
                 if (it) {
                     _updateTaskTriggerS.postValue(ResponseState.Success("Chỉnh sửa công việc thành công."))
                 } else {

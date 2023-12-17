@@ -99,4 +99,8 @@ dependencies {
 
     // Toasty
     implementation 'com.github.GrenderG:Toasty:1.5.2'
+
+    //Custom Recyclerview
+    implementation 'com.ernestoyaquello.dragdropswiperecyclerview:drag-drop-swipe-recyclerview:1.2.0'
+    implementation 'com.github.WilliBoelke:simple-recycler-view-swipe-gestures:1.3'
 }

@@ -10,7 +10,7 @@ data class Category(
     var id: String = UUID.randomUUID().toString(),
     var title: String? = "",
     var createdAt: String = Calendar.getInstance().timeInMillis.toString(),
-    var listTodo: List<Todo> = mutableListOf(),
+    var listTask: List<Task> = mutableListOf(),
     var isSelected: Boolean = false
 ) : Parcelable {
     fun hashMap(): Map<String, Any?> {
@@ -18,7 +18,7 @@ data class Category(
             "id" to id,
             "title" to title,
             "createdAt" to createdAt,
-            "listTask" to listTodo
+            "listTask" to listTask
         )
     }
 

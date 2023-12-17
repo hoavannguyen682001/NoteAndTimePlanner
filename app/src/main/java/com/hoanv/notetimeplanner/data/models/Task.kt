@@ -7,7 +7,7 @@ import java.util.Calendar
 import java.util.UUID
 
 @Parcelize
-data class Todo(
+data class Task(
     var id: String = UUID.randomUUID().toString(),
     var title: String? = "",
     var description: String? = "",

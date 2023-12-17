@@ -11,15 +11,16 @@ import com.aminography.primedatepicker.picker.PrimeDatePicker
 import com.aminography.primedatepicker.picker.callback.RangeDaysPickCallback
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
-import com.hoanv.notetimeplanner.data.models.Todo
+import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.ActivityAddTaskBinding
 import com.hoanv.notetimeplanner.databinding.DialogCategoryBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.main.tasks.create.adapter.CategoryAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.create.dialog.TimePickerFragment
 import com.hoanv.notetimeplanner.utils.ResponseState
-import com.hoanv.notetimeplanner.utils.extension.safeClickListener
+import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -53,8 +54,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     private fun initView() {
         binding.run {
-            val todo = intent.getParcelableExtra<Todo>("TODO")
-            todo?.let {
+            val task = intent.getParcelableExtra<Task>("TODO")
+            task?.let {
                 idTodo = it.id
                 loadDataView(it)
             }
@@ -85,15 +86,15 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 onBackPressedDispatcher.onBackPressed()
             }
 
-            tvEstimate.safeClickListener {
+            tvEstimate.setOnSingleClickListener {
                 dateRangePicker().show(supportFragmentManager, "DatePicker")
             }
 
-            tvTimer.safeClickListener {
+            tvTimer.setOnSingleClickListener {
                 timePickerFrag.show(supportFragmentManager, "TimerPicker")
             }
 
-            tvCategory.safeClickListener {
+            tvCategory.setOnSingleClickListener {
                 alertDialog.show()
             }
 
@@ -115,11 +116,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 addTaskTriggerS.observe(this@AddTaskActivity) { state ->
                     when (state) {
                         ResponseState.Start -> {
-
+                            pbLoading.visible()
                         }
 
                         is ResponseState.Success -> {
+                            pbLoading.gone()
                             toastSuccess(state.data)
+                            finish()
                         }
 
                         is ResponseState.Failure -> {
@@ -131,11 +134,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 updateTaskTriggerS.observe(this@AddTaskActivity) { state ->
                     when (state) {
                         ResponseState.Start -> {
-
+                            pbLoading.visible()
                         }
 
                         is ResponseState.Success -> {
+                            pbLoading.gone()
                             toastSuccess(state.data)
+                            finish()
                         }
 
                         is ResponseState.Failure -> {
@@ -147,20 +152,20 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         }
     }
 
-    private fun loadDataView(todo: Todo) {
+    private fun loadDataView(task: Task) {
         binding.run {
-            edtTitle.setText(todo.title)
-            edtDescription.setText(todo.description)
-            tvStartDay.text = todo.startDay
-            tvEndDay.text = todo.endDay
-            tvTimeEnd.text = todo.timeEnd
-            tvTitLeCategory.text = todo.category
+            edtTitle.setText(task.title)
+            edtDescription.setText(task.description)
+            tvStartDay.text = task.startDay
+            tvEndDay.text = task.endDay
+            tvTimeEnd.text = task.timeEnd
+            tvTitLeCategory.text = task.category
         }
     }
 
     private fun addTask() {
         binding.run {
-            val todo = Todo(
+            val task = Task(
                 title = edtTitle.text.toString(),
                 description = edtDescription.text.toString(),
                 category = tvTitLeCategory.text.toString(),
@@ -170,10 +175,10 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 taskState = false
             )
             if (!idTodo.isNullOrEmpty()) {
-                todo.id = idTodo!!
-                viewModel.updateCategory(todo)
+                task.id = idTodo!!
+                viewModel.updateTask(task)
             } else {
-                viewModel.addNewTask(todo)
+                viewModel.addNewTask(task)
             }
         }
     }

@@ -1,50 +1,85 @@
 package com.hoanv.notetimeplanner.ui.main.tasks.list
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
-import com.hoanv.notetimeplanner.data.models.Todo
+import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.main.tasks.category.CategoryActivity
 import com.hoanv.notetimeplanner.ui.main.tasks.create.AddTaskActivity
+import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.DoneTaskAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskCategoryAdapter
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
+import com.hoanv.notetimeplanner.utils.extension.gone
+import com.hoanv.notetimeplanner.utils.extension.invisible
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
+import swipe.gestures.GestureManager
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     override val viewModel: TasksViewModel by viewModels()
 
     private val categoryAdapter by lazy {
-        TaskCategoryAdapter(requireContext(), ::onItemCategoryClick)
+        TaskCategoryAdapter(requireContext()) { category, position ->
+            selectedS.tryEmit(position)
+            if (position == 0) {
+                viewModel.getListTask()
+            } else {
+                viewModel.getListTaskByCategory(category)
+            }
+        }
     }
 
     private val taskAdapter by lazy {
         TaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
     }
 
-    private var mListCategoryS = MutableSharedFlow<List<Category>>(extraBufferCapacity = 64)
-    private var listCategoryS = listOf<Category>()
+    private val doneTaskAdapter by lazy {
+        DoneTaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
+    }
+
+    private var selectedS = MutableStateFlow(0)
+
+    private var mListTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
+    private var listTask = listOf<Task>()
         set(value) {
             field = value
-            mListCategoryS.tryEmit(value)
+            mListTaskS.tryEmit(value)
+        }
+
+    private var mListDoneS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
+    private var listDone = listOf<Task>()
+        set(value) {
+            field = value
+            mListDoneS.tryEmit(value)
         }
 
     override fun setupViewBinding(
-        inflater: LayoutInflater,
-        container: ViewGroup?
+        inflater: LayoutInflater, container: ViewGroup?
     ): FragmentTasksBinding = FragmentTasksBinding.inflate(inflater, container, false)
 
     override fun init(savedInstanceState: Bundle?) {
@@ -65,12 +100,19 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 layoutManager =
                     LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
                 adapter = categoryAdapter
+                itemAnimator = null
             }
 
             rvTodoTask.run {
                 layoutManager =
                     LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
                 adapter = taskAdapter
+            }
+
+            rvDoneTask.run {
+                layoutManager =
+                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+                adapter = doneTaskAdapter
             }
         }
     }
@@ -86,13 +128,23 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
-                listCategory.observe(viewLifecycleOwner) { state ->
+                selectedS.combine(listCategory.asFlow()) { selected, list ->
+                    Pair(selected, list)
+                }.collectInViewLifecycle(this@TasksFragment) { item ->
+                    val (select, state) = item
+
                     when (state) {
                         ResponseState.Start -> {
                         }
 
                         is ResponseState.Success -> {
-                            listCategoryS = state.data
+                            val listCate = state.data.toMutableList()
+                            listCate.add(0, Category(title = "Tất cả"))
+
+                            listCate.mapIndexed { index, category ->
+                                category.isSelected = index == select
+                            }
+                            categoryAdapter.submitList(listCate.map { it.ownCopy() })
                         }
 
                         is ResponseState.Failure -> {
@@ -102,13 +154,36 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     }
                 }
 
-                listTask.observe(viewLifecycleOwner) { state ->
+                listTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
                     when (state) {
                         ResponseState.Start -> {
+                            pbLoading.visible()
+                            nsvListTask.invisible()
                         }
 
                         is ResponseState.Success -> {
-                            taskAdapter.submitList(state.data)
+                            val task = mutableListOf<Task>()
+                            val done = mutableListOf<Task>()
+
+                            state.data.forEach {
+                                if (it.taskState) {
+                                    done.add(it)
+                                } else {
+                                    task.add(it)
+                                }
+                            }
+                            this@TasksFragment.listTask = task
+                            listDone = done
+
+                            onItemSwipe(this@TasksFragment.listTask.toMutableList(), rvTodoTask)
+                            onItemSwipe(listDone.toMutableList(), rvDoneTask)
+
+                            lifecycleScope.launch {
+                                delay(500)
+                                pbLoading.gone()
+                                nsvListTask.visible()
+                                ivOptionMenu.visible()
+                            }
                         }
 
                         is ResponseState.Failure -> {
@@ -119,14 +194,19 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 }
             }
 
-            mListCategoryS.collectInViewLifecycle(this@TasksFragment) { list ->
-                categoryAdapter.submitList(list.map { it.ownCopy() }) {
-                    Log.d("###", "${list}")
-                }
+            mListTaskS.collectInViewLifecycle(this@TasksFragment) { list ->
+                taskAdapter.submitList(list)
+            }
+
+            mListDoneS.collectInViewLifecycle(this@TasksFragment) { list ->
+                doneTaskAdapter.submitList(list)
             }
         }
     }
 
+    /**
+     * Handle option menu
+     */
     private fun handleOptionMenu() {
         val popupMenu = PopupMenu(requireContext(), binding.ivOptionMenu)
         popupMenu.inflate(R.menu.top_menu)
@@ -147,22 +227,60 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         popupMenu.show()
     }
 
-    private fun onItemCategoryClick(category: Category, position: Int) {
-        val newList = listCategoryS.map {
-            it.isSelected = it.id == category.id
-            it
+    /**
+     * On item task swipe
+     */
+    private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
+        val leftCallback = GestureManager.SwipeCallbackLeft {
+            viewModel.deleteCategory(list[it])
+            if (list[it].taskState) {
+                list.remove(list[it])
+                listDone = list
+            } else {
+                list.remove(list[it])
+                listTask = list
+            }
         }
-        listCategoryS = newList
+
+        val gestureManager = GestureManager(leftCallback)
+        gestureManager.setBackgroundColorLeft(ColorDrawable(Color.GREEN))
+        gestureManager.setIconLeft(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.ic_delete
+            )
+        )
+        ItemTouchHelper(gestureManager).attachToRecyclerView(recyclerView)
     }
 
-    private fun onTaskClick(todo: Todo) {
+    /**
+     * On task click
+     */
+    private fun onTaskClick(task: Task) {
         val intent = Intent(requireActivity(), AddTaskActivity::class.java)
-        intent.putExtra("TODO", todo)
+        intent.putExtra("TODO", task)
         startActivity(intent)
     }
 
-    private fun onClickIconChecked(todo: Todo) {
-        viewModel.deleteCategory(todo)
-        viewModel.getListTask()
+    /**
+     * On icon check click
+     */
+    private fun onClickIconChecked(task: Task) {
+        val tempListTodo = listTask.toMutableList()
+        val tempListDone = listDone.toMutableList()
+
+        task.taskState = !task.taskState
+        viewModel.updateTask(task)
+
+        if (task.taskState) {
+            tempListTodo.remove(task)
+            tempListDone.add(task)
+        } else {
+            tempListTodo.add(task)
+            tempListDone.remove(task)
+        }
+
+        listTask = tempListTodo
+        listDone = tempListDone
     }
 }
