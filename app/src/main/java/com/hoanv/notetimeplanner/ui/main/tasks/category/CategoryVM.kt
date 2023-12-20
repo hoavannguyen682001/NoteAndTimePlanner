@@ -68,10 +68,10 @@ class CategoryVM
         }
     }
 
-    fun updateCategory(category: Category) {
+    fun updateCategory(category: Category, field: String) {
         viewModelScope.launch(Dispatchers.IO) {
             _updateCategoryTriggerS.postValue(ResponseState.Start)
-            remoteRepo.updateCategory(category) {
+            remoteRepo.updateCategory(category, field) {
                 if (it) {
                     _updateCategoryTriggerS.postValue(ResponseState.Success("Chỉnh sửa thể loại thành công."))
                 } else {

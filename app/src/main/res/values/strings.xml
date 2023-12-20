@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Note&amp;TimePlanner</string>
-    <string name="title_task">Công việc</string>
+    <string name="title_task">Trang chủ</string>
     <string name="title_person">Cá Nhân</string>
     <string name="title_calendar">Lịch</string>
     <string name="new_task">Công việc</string>
@@ -16,4 +16,5 @@
     <string name="delete">Xoá</string>
     <string name="update">Chỉnh sửa</string>
     <string name="title_pick_category">Chọn loại danh mục</string>
+    <string name="member_number">(%s)</string>
 </resources>

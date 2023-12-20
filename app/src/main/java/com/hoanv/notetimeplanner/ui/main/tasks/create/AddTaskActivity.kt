@@ -45,6 +45,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private val current = formatter.format(date)
     private var idTodo: String? = null
 
+    private lateinit var mCategory: Category
+
     override fun init(savedInstanceState: Bundle?) {
         timePickerFrag.setDataTimePicker(this@AddTaskActivity)
         initView()
@@ -159,7 +161,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             tvStartDay.text = task.startDay
             tvEndDay.text = task.endDay
             tvTimeEnd.text = task.timeEnd
-            tvTitLeCategory.text = task.category
+            tvTitLeCategory.text = task.category.title
         }
     }
 
@@ -168,7 +170,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             val task = Task(
                 title = edtTitle.text.toString(),
                 description = edtDescription.text.toString(),
-                category = tvTitLeCategory.text.toString(),
+                category = mCategory,
                 timeEnd = tvTimeEnd.text.toString(),
                 startDay = tvStartDay.text.toString(),
                 endDay = tvEndDay.text.toString(),
@@ -179,11 +181,14 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 viewModel.updateTask(task)
             } else {
                 viewModel.addNewTask(task)
+                mCategory.listTask++
+                viewModel.updateCategory(mCategory, "listTask")
             }
         }
     }
 
     private fun onCategoryClick(category: Category) {
+        mCategory = category
         binding.run {
             tvTitLeCategory.text = category.title ?: "Không có thể loại"
         }

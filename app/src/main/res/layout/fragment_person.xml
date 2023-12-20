@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/ivAvatar"
+        android:id="@+id/tvMember"
         android:layout_width="@dimen/dp_56"
         android:layout_height="@dimen/dp_56"
         android:layout_marginStart="@dimen/dp_16"
@@ -23,8 +23,8 @@
         android:text="Xin chào ..."
         android:textColor="@color/lynch_gray"
         android:textSize="@dimen/sp_20"
-        app:layout_constraintStart_toEndOf="@id/ivAvatar"
-        app:layout_constraintTop_toTopOf="@id/ivAvatar" />
+        app:layout_constraintStart_toEndOf="@id/tvMember"
+        app:layout_constraintTop_toTopOf="@id/tvMember" />
 
     <TextView
         android:id="@+id/tvSignIn"
@@ -35,7 +35,7 @@
         android:textColor="@color/lynch_gray"
         android:textSize="@dimen/sp_16"
         android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="@id/ivAvatar"
+        app:layout_constraintBottom_toBottomOf="@id/tvMember"
         app:layout_constraintStart_toStartOf="@id/tvUserName" />
 
     <TextView
@@ -47,8 +47,8 @@
         android:text="Tổng quan về nhiệm vụ"
         android:textColor="@color/lynch_gray"
         android:textSize="@dimen/sp_20"
-        app:layout_constraintStart_toStartOf="@id/ivAvatar"
-        app:layout_constraintTop_toBottomOf="@id/ivAvatar" />
+        app:layout_constraintStart_toStartOf="@id/tvMember"
+        app:layout_constraintTop_toBottomOf="@id/tvMember" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/gl50"

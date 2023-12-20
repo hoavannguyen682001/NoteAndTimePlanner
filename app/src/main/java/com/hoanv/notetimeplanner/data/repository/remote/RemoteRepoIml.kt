@@ -45,9 +45,11 @@ class RemoteRepoIml(
             }
     }
 
-    override fun updateCategory(category: Category, result: (Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.CATEGORY_TBL_NAME).document(category.id)
-            .update("title", category.title).addOnSuccessListener {
+    override fun updateCategory(category: Category, field: String, result: (Boolean) -> Unit) {
+        fireStore.collection(CommonConstant.CATEGORY_TBL_NAME)
+            .document(category.id)
+            .set(category.hashMap(), SetOptions.mergeFields(field))
+            .addOnSuccessListener {
                 result.invoke(true)
             }.addOnFailureListener {
                 result.invoke(false)
@@ -110,7 +112,7 @@ class RemoteRepoIml(
      */
     override fun getListTaskByCategory(category: Category, result: (List<Task>, Boolean) -> Unit) {
         fireStore.collection(CommonConstant.TASK_TBL_NAME)
-            .whereEqualTo("category", category.title)
+            .whereEqualTo("category.title", category.title)
             .get()
             .addOnSuccessListener {
                 val task = mutableListOf<Task>()

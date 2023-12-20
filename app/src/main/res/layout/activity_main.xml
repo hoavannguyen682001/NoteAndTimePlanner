@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cultured"
     tools:context=".ui.main.MainActivity">
 
     <androidx.viewpager2.widget.ViewPager2
@@ -14,7 +15,7 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="@dimen/dp_96"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -30,13 +31,14 @@
             <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:id="@+id/bottomNavView"
                 android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
+                android:layout_height="@dimen/dp_60"
                 android:layout_marginEnd="16dp"
-                app:itemRippleColor="@color/transparent"
-                app:elevation="0dp"
                 android:background="@drawable/bg_bottom_appbar"
+                app:elevation="0dp"
                 app:itemIconTint="@color/tab_ic_selector"
+                app:itemRippleColor="@color/transparent"
                 app:itemTextColor="@color/tab_ic_selector"
+                app:labelVisibilityMode="auto"
                 app:menu="@menu/bottom_menu">
 
             </com.google.android.material.bottomnavigation.BottomNavigationView>
@@ -46,7 +48,7 @@
             android:id="@+id/fabAdd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTint="@color/black"
             android:contentDescription="@string/app_name"
             app:layout_anchor="@id/bottomNavView"
             app:srcCompat="@drawable/ic_add" />

@@ -11,7 +11,7 @@ interface RemoteRepo {
     fun addNewCategory(category: Category, result: (Boolean) -> Unit)
     fun getListCategory(result: (List<Category>, Boolean) -> Unit)
     fun deleteCategory(category: Category, result: (Boolean) -> Unit)
-    fun updateCategory(category: Category, result: (Boolean) -> Unit)
+    fun updateCategory(category: Category, field: String, result: (Boolean) -> Unit)
 
     /*
     * CRUD Task

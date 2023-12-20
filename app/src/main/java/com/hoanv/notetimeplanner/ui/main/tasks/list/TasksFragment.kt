@@ -65,7 +65,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     private var selectedS = MutableStateFlow(0)
 
     private var mListTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
-    private var listTask = listOf<Task>()
+    private var listTodo = listOf<Task>()
         set(value) {
             field = value
             mListTaskS.tryEmit(value)
@@ -96,32 +96,32 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
     private fun initView() {
         binding.run {
-            rvCategory.run {
-                layoutManager =
-                    LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-                adapter = categoryAdapter
-                itemAnimator = null
-            }
-
-            rvTodoTask.run {
-                layoutManager =
-                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-                adapter = taskAdapter
-            }
-
-            rvDoneTask.run {
-                layoutManager =
-                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-                adapter = doneTaskAdapter
-            }
+//            rvCategory.run {
+//                layoutManager =
+//                    LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+//                adapter = categoryAdapter
+//                itemAnimator = null
+//            }
+//
+//            rvTodoTask.run {
+//                layoutManager =
+//                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+//                adapter = taskAdapter
+//            }
+//
+//            rvDoneTask.run {
+//                layoutManager =
+//                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+//                adapter = doneTaskAdapter
+//            }
         }
     }
 
     private fun intiListener() {
         binding.run {
-            ivOptionMenu.setOnSingleClickListener {
-                handleOptionMenu()
-            }
+//            ivOptionMenu.setOnSingleClickListener {
+//                handleOptionMenu()
+//            }
         }
     }
 
@@ -155,41 +155,41 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 }
 
                 listTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
-                    when (state) {
-                        ResponseState.Start -> {
-                            pbLoading.visible()
-                            nsvListTask.invisible()
-                        }
-
-                        is ResponseState.Success -> {
-                            val task = mutableListOf<Task>()
-                            val done = mutableListOf<Task>()
-
-                            state.data.forEach {
-                                if (it.taskState) {
-                                    done.add(it)
-                                } else {
-                                    task.add(it)
-                                }
-                            }
-                            this@TasksFragment.listTask = task
-                            listDone = done
-
-                            onItemSwipe(this@TasksFragment.listTask.toMutableList(), rvTodoTask)
-                            onItemSwipe(listDone.toMutableList(), rvDoneTask)
-
-                            lifecycleScope.launch {
-                                delay(500)
-                                pbLoading.gone()
-                                nsvListTask.visible()
-                                ivOptionMenu.visible()
-                            }
-                        }
-
-                        is ResponseState.Failure -> {
-                            toastError(state.throwable?.message)
-                            Log.d("###", "${state.throwable?.message}")
-                        }
+//                    when (state) {
+//                        ResponseState.Start -> {
+//                            pbLoading.visible()
+//                            nsvListTask.invisible()
+//                        }
+//
+//                        is ResponseState.Success -> {
+//                            val task = mutableListOf<Task>()
+//                            val done = mutableListOf<Task>()
+//
+//                            state.data.forEach {
+//                                if (it.taskState) {
+//                                    done.add(it)
+//                                } else {
+//                                    task.add(it)
+//                                }
+//                            }
+//                            listTodo = task
+//                            listDone = done
+//
+//                            onItemSwipe(listTodo.toMutableList(), rvTodoTask)
+//                            onItemSwipe(listDone.toMutableList(), rvDoneTask)
+//
+//                            lifecycleScope.launch {
+//                                delay(500)
+//                                pbLoading.gone()
+//                                nsvListTask.visible()
+//                                ivOptionMenu.visible()
+//                            }
+//                        }
+//
+//                        is ResponseState.Failure -> {
+//                            toastError(state.throwable?.message)
+//                            Log.d("###", "${state.throwable?.message}")
+//                        }
                     }
                 }
             }
@@ -207,80 +207,85 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     /**
      * Handle option menu
      */
-    private fun handleOptionMenu() {
-        val popupMenu = PopupMenu(requireContext(), binding.ivOptionMenu)
-        popupMenu.inflate(R.menu.top_menu)
-
-        popupMenu.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.itemCategory -> {
-                    startActivity(Intent(requireContext(), CategoryActivity::class.java))
-                }
-
-                R.id.itemSearch -> {
-                    toastSuccess("searchhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-                }
-            }
-            false
-        }
-
-        popupMenu.show()
-    }
+//    private fun handleOptionMenu() {
+//        val popupMenu = PopupMenu(requireContext(), binding.ivOptionMenu)
+//        popupMenu.inflate(R.menu.top_menu)
+//
+//        popupMenu.setOnMenuItemClickListener {
+//            when (it.itemId) {
+//                R.id.itemCategory -> {
+//                    startActivity(Intent(requireContext(), CategoryActivity::class.java))
+//                }
+//
+//                R.id.itemSearch -> {
+//                    toastSuccess("searchhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+//                }
+//            }
+//            false
+//        }
+//
+//        popupMenu.show()
+//    }
 
     /**
      * On item task swipe
      */
-    private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
-        val leftCallback = GestureManager.SwipeCallbackLeft {
-            viewModel.deleteCategory(list[it])
-            if (list[it].taskState) {
-                list.remove(list[it])
-                listDone = list
-            } else {
-                list.remove(list[it])
-                listTask = list
-            }
-        }
+//    private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
+//        val leftCallback = GestureManager.SwipeCallbackLeft {
+//            viewModel.deleteCategory(list[it])
+//            if (list[it].taskState) {
+//                list.remove(list[it])
+//                listDone = list
+//            } else {
+//                list.remove(list[it])
+//                listTodo = list
+//            }
+//        }
 
-        val gestureManager = GestureManager(leftCallback)
-        gestureManager.setBackgroundColorLeft(ColorDrawable(Color.GREEN))
-        gestureManager.setIconLeft(
-            ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.ic_delete
-            )
-        )
-        ItemTouchHelper(gestureManager).attachToRecyclerView(recyclerView)
-    }
+//        val gestureManager = GestureManager(leftCallback)
+//        gestureManager.setBackgroundColorLeft(ColorDrawable(Color.GREEN))
+//        gestureManager.setIconLeft(
+//            ContextCompat.getDrawable(
+//                requireContext(),
+//                R.drawable.ic_delete
+//            )
+//        )
+//        ItemTouchHelper(gestureManager).attachToRecyclerView(recyclerView)
+//    }
 
     /**
      * On task click
      */
     private fun onTaskClick(task: Task) {
-        val intent = Intent(requireActivity(), AddTaskActivity::class.java)
-        intent.putExtra("TODO", task)
-        startActivity(intent)
+//        val intent = Intent(requireActivity(), AddTaskActivity::class.java)
+//        intent.putExtra("TODO", task)
+//        startActivity(intent)
     }
 
     /**
      * On icon check click
      */
     private fun onClickIconChecked(task: Task) {
-        val tempListTodo = listTask.toMutableList()
-        val tempListDone = listDone.toMutableList()
-
-        task.taskState = !task.taskState
-        viewModel.updateTask(task)
-
-        if (task.taskState) {
-            tempListTodo.remove(task)
-            tempListDone.add(task)
-        } else {
-            tempListTodo.add(task)
-            tempListDone.remove(task)
-        }
-
-        listTask = tempListTodo
-        listDone = tempListDone
+//        val tempListTodo = mutableListOf<Task>()
+//        val tempListDone = mutableListOf<Task>()
+//
+//        tempListTodo.addAll(listTodo)
+//        tempListDone.addAll(listDone)
+//
+//        if (task.taskState) {
+//            tempListTodo.add(task)
+//            tempListDone.remove(task)
+//        } else {
+//            tempListTodo.remove(task)
+//            tempListDone.add(task)
+//        }
+//
+//        task.taskState = !task.taskState
+//        viewModel.updateTask(task)
+//
+//        Log.d("Todoooo", "$tempListTodo")
+//        Log.d("Todoooo done", "$tempListDone")
+//
+//        listTodo = tempListTodo
+//        listDone = tempListDone
     }
-}

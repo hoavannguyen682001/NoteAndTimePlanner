@@ -3,103 +3,312 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/cultured">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_24"
-        android:clipToPadding="false"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/dp_6"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintEnd_toStartOf="@id/ivOptionMenu"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/item_category" />
-
-    <ImageView
-        android:id="@+id/ivOptionMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dp_4"
-        android:src="@drawable/ic_more_vert"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/rvCategory"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rvCategory" />
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nsvListTask"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_header_task"
+        android:elevation="@dimen/dp_1"
+        android:paddingVertical="@dimen/dp_24"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_16"
+            android:fontFamily="@font/opensans_bold"
+            android:text="Chào,\n John Nathan"
+            android:textColor="@color/arsenic"
+            android:textSize="@dimen/dp_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivNotification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:background="@drawable/bg_item_task"
+            android:padding="@dimen/dp_8"
+            android:src="@drawable/ic_notification"
+            app:layout_constraintBottom_toBottomOf="@+id/tvUserName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvUserName" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
         android:layout_marginTop="@dimen/dp_24"
-        android:visibility="invisible"
-        app:layout_constraintTop_toBottomOf="@id/rvCategory">
+        android:fontFamily="@font/opensans_bold"
+        android:text="Công việc nhóm"
+        android:textColor="@color/arsenic"
+        android:textSize="@dimen/dp_20"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout4" />
+
+    <TextView
+        android:id="@+id/tvSeeAllPr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:fontFamily="@font/opensans_semibold"
+        android:text="Tất cả"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/textView8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView8" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout7"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginEnd="@dimen/dp_8"
+        android:background="@drawable/bg_container_edt_category"
+        android:elevation="@dimen/dp_2"
+        android:maxHeight="@dimen/dp_200"
+        android:minHeight="@dimen/dp_200"
+        app:layout_constraintEnd_toEndOf="@id/gl50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView8">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout5"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_head_group_task"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/textView8"
+            <ImageView
+                android:id="@+id/imageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp_16"
-                android:fontFamily="@font/opensans_bold"
-                android:text="Chưa hoàn thành"
-                android:textColor="@color/lynch_gray"
-                android:textSize="@dimen/sp_18"
+                android:layout_marginStart="@dimen/dp_12"
+                android:layout_marginTop="@dimen/dp_12"
+                android:background="@drawable/bg_item_task"
+                android:backgroundTint="@color/medium_purple"
+                android:padding="@dimen/dp_12"
+                android:src="@drawable/ic_work_bag"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvTodoTask"
+            <TextView
+                android:id="@+id/tvTaskName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
-                android:layout_marginEnd="@dimen/dp_16"
+                android:layout_marginEnd="@dimen/dp_8"
+                android:ellipsize="end"
+                android:fontFamily="@font/opensans_bold"
+                android:lines="2"
+                android:maxLines="2"
+                android:text="Expense Mobile App"
+                android:textSize="@dimen/dp_18"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/textView8"
-                app:layout_constraintTop_toBottomOf="@+id/textView8"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_task" />
+                app:layout_constraintStart_toStartOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/tvTaskNumb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_24"
+                android:layout_marginVertical="@dimen/dp_8"
                 android:fontFamily="@font/opensans_bold"
-                android:text="Đã hoàn thành"
-                android:textColor="@color/lynch_gray"
-                android:textSize="@dimen/sp_18"
-                app:layout_constraintStart_toStartOf="@id/rvTodoTask"
-                app:layout_constraintTop_toBottomOf="@id/rvTodoTask" />
+                android:text="15 Tasks"
+                android:textColor="@color/arsenic"
+                android:textSize="@dimen/dp_12"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvTaskName"
+                app:layout_constraintTop_toBottomOf="@id/tvTaskName" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvDoneTask"
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_4"
+                android:layout_marginEnd="@dimen/dp_8"
+                android:fontFamily="@font/opensans_bold"
+                android:text="20-12 to 31-12"
+                android:textColor="@color/dolphin_gray"
+                android:textSize="@dimen/dp_12"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvTaskNumb" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tvMember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/dp_6"
+            android:layout_marginStart="@dimen/dp_10"
+            android:text="@string/member_number"
+            app:drawableStartCompat="@drawable/img_avatar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout5" />
+
+        <ImageView
+            android:id="@+id/ivNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_8"
+            android:src="@drawable/ic_next_around"
+            app:layout_constraintBottom_toBottomOf="@id/tvMember"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvMember" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_8"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:background="@drawable/bg_container_edt_category"
+        android:elevation="@dimen/dp_2"
+        android:maxHeight="@dimen/dp_200"
+        android:minHeight="@dimen/dp_200"
+        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/gl50"
+        app:layout_constraintTop_toBottomOf="@id/textView8">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_head_group_task"
+            android:backgroundTint="@color/aero_blue"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imageViewR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_12"
+                android:layout_marginTop="@dimen/dp_12"
+                android:background="@drawable/bg_item_task"
+                android:backgroundTint="@color/light_green"
+                android:padding="@dimen/dp_12"
+                android:src="@drawable/ic_bicycle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvTaskNameR"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
-                app:layout_constraintEnd_toEndOf="@+id/rvTodoTask"
-                app:layout_constraintStart_toStartOf="@+id/textView9"
-                app:layout_constraintTop_toBottomOf="@+id/textView9"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_task" />
+                android:layout_marginEnd="@dimen/dp_8"
+                android:ellipsize="end"
+                android:fontFamily="@font/opensans_bold"
+                android:lines="2"
+                android:maxLines="2"
+                android:text="Expense Mobile App"
+                android:textSize="@dimen/dp_18"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/imageViewR"
+                app:layout_constraintTop_toBottomOf="@+id/imageViewR" />
 
+            <TextView
+                android:id="@+id/tvTaskNumbR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/dp_8"
+                android:fontFamily="@font/opensans_bold"
+                android:text="15 Tasks"
+                android:textColor="@color/arsenic"
+                android:textSize="@dimen/dp_12"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvTaskNameR"
+                app:layout_constraintTop_toBottomOf="@id/tvTaskNameR" />
+
+            <TextView
+                android:id="@+id/tvDateR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_4"
+                android:layout_marginEnd="@dimen/dp_8"
+                android:fontFamily="@font/opensans_bold"
+                android:text="20-12 to 31-12"
+                android:textColor="@color/dolphin_gray"
+                android:textSize="@dimen/dp_12"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvTaskNumbR" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        <TextView
+            android:id="@+id/tvMemberR"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/dp_6"
+            android:layout_marginStart="@dimen/dp_10"
+            android:text="@string/member_number"
+            app:drawableStartCompat="@drawable/img_avatar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout6" />
 
-    <ProgressBar
-        android:id="@+id/pbLoading"
+        <ImageView
+            android:id="@+id/ivNextR"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_8"
+            android:src="@drawable/ic_next_around"
+            app:layout_constraintBottom_toBottomOf="@id/tvMemberR"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvMemberR"
+            app:tint="@color/light_green" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="@dimen/dp_24"
+        android:fontFamily="@font/opensans_bold"
+        android:text="Công việc của bạn"
+        android:textColor="@color/arsenic"
+        android:textSize="@dimen/dp_20"
+        app:layout_constraintStart_toStartOf="@+id/constraintLayout7"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout7" />
+
+    <TextView
+        android:id="@+id/tvSeeAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:fontFamily="@font/opensans_semibold"
+        android:text="Tất cả"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/textView9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/textView9" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvListTask"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9"
+        tools:listitem="@layout/item_task" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

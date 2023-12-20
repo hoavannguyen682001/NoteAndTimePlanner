@@ -4,13 +4,13 @@
 
     <item
         android:id="@+id/itemTask"
-        android:icon="@drawable/ic_task_uncheck"
+        android:icon="@drawable/ic_home"
         android:title="@string/title_task"
         app:showAsAction="withText" />
 
     <item
         android:id="@+id/itemCalendar"
-        android:icon="@drawable/ic_calendar_uncheck"
+        android:icon="@drawable/ic_calendar"
         android:title="@string/title_calendar"
         app:showAsAction="withText" />
 
@@ -18,13 +18,13 @@
 
     <item
         android:id="@+id/itTemp"
-        android:icon="@drawable/ic_task_uncheck"
+        android:icon="@drawable/ic_task_checked"
         android:title="@string/title_task"
         app:showAsAction="withText" />
 
     <item
         android:id="@+id/itemPerson"
-        android:icon="@drawable/ic_person_uncheck"
+        android:icon="@drawable/ic_person"
         android:title="@string/title_person"
         app:showAsAction="withText" />
 </menu>

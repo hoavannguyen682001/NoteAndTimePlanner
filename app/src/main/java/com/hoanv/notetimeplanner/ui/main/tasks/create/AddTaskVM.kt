@@ -30,6 +30,7 @@ class AddTaskVM @Inject constructor(
         MutableLiveData<ResponseState<String>>()
     val updateTaskTriggerS: LiveData<ResponseState<String>>
         get() = _updateTaskTriggerS
+
     init {
         getListCategory()
     }
@@ -72,6 +73,12 @@ class AddTaskVM @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    fun updateCategory(category: Category, field: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            remoteRepo.updateCategory(category, field) {}
         }
     }
 }

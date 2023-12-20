@@ -161,7 +161,7 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                     edtInputCate.setText(item.title)
                     tvSave.setOnSingleClickListener {
                         val category = edtInputCate.text.toString()
-                        viewModel.updateCategory(Category(id = item.id, title = category))
+                        viewModel.updateCategory(Category(id = item.id, title = category), "title")
                         viewModel.getListCategory()
                         alertDialog.dismiss()
                     }

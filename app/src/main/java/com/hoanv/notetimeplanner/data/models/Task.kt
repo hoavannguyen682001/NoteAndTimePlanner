@@ -11,7 +11,7 @@ data class Task(
     var id: String = UUID.randomUUID().toString(),
     var title: String? = "",
     var description: String? = "",
-    var category: String? = "",
+    var category: Category = Category(title = "Không có thể loại"),
     var subTask: List<SubTask> = mutableListOf(),
     var startDay: String? = CivilCalendar.toString(),
     var endDay: String? = CivilCalendar.toString(),

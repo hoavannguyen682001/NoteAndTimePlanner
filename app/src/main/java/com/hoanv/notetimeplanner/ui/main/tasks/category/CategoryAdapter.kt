@@ -13,7 +13,7 @@ import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 
 class CategoryAdapter(
     val context: Context,
-    val onOptionClick: (item:Category ,view: View) -> Unit
+    val onOptionClick: (item: Category, view: View) -> Unit
 ) : ListAdapter<Category, CategoryAdapter.VH>(CategoryCallBack) {
 
     object CategoryCallBack : DiffUtil.ItemCallback<Category>() {
@@ -39,6 +39,7 @@ class CategoryAdapter(
         fun onBind(item: Category) {
             binding.run {
                 tvTitleCat.text = item.title ?: "a"
+                tvNumber.text = item.listTask.toString()
                 ivOption.setOnSingleClickListener {
                     onOptionClick.invoke(item, it)
                 }
