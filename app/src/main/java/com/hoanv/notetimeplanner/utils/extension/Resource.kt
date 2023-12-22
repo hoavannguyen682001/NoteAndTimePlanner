@@ -43,7 +43,7 @@ fun Fragment.resourceDrawable(@DrawableRes res: Int): Drawable {
 
 fun View.setBackground(startColor: Int, endColor: Int, cornerRadius: Float) {
     val gradientDrawable = GradientDrawable(
-        GradientDrawable.Orientation.TOP_BOTTOM,
+        GradientDrawable.Orientation.LEFT_RIGHT,
         intArrayOf(startColor, endColor)
     );
     gradientDrawable.cornerRadius = cornerRadius;

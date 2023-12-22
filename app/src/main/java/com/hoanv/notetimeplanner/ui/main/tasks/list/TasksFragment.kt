@@ -103,11 +103,11 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 //                itemAnimator = null
 //            }
 //
-//            rvTodoTask.run {
-//                layoutManager =
-//                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-//                adapter = taskAdapter
-//            }
+            rvListTask.run {
+                layoutManager =
+                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+                adapter = taskAdapter
+            }
 //
 //            rvDoneTask.run {
 //                layoutManager =
@@ -155,41 +155,41 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 }
 
                 listTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
-//                    when (state) {
-//                        ResponseState.Start -> {
+                    when (state) {
+                        ResponseState.Start -> {
 //                            pbLoading.visible()
 //                            nsvListTask.invisible()
-//                        }
-//
-//                        is ResponseState.Success -> {
-//                            val task = mutableListOf<Task>()
-//                            val done = mutableListOf<Task>()
-//
-//                            state.data.forEach {
-//                                if (it.taskState) {
-//                                    done.add(it)
-//                                } else {
-//                                    task.add(it)
-//                                }
-//                            }
-//                            listTodo = task
-//                            listDone = done
-//
-//                            onItemSwipe(listTodo.toMutableList(), rvTodoTask)
+                        }
+
+                        is ResponseState.Success -> {
+                            val task = mutableListOf<Task>()
+                            val done = mutableListOf<Task>()
+
+                            state.data.forEach {
+                                if (it.taskState) {
+                                    done.add(it)
+                                } else {
+                                    task.add(it)
+                                }
+                            }
+                            listTodo = task
+                            listDone = done
+
+                            onItemSwipe(listTodo.toMutableList(), rvListTask)
 //                            onItemSwipe(listDone.toMutableList(), rvDoneTask)
-//
-//                            lifecycleScope.launch {
-//                                delay(500)
+
+                            lifecycleScope.launch {
+                                delay(500)
 //                                pbLoading.gone()
 //                                nsvListTask.visible()
 //                                ivOptionMenu.visible()
-//                            }
-//                        }
-//
-//                        is ResponseState.Failure -> {
-//                            toastError(state.throwable?.message)
-//                            Log.d("###", "${state.throwable?.message}")
-//                        }
+                            }
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
+                        }
                     }
                 }
             }
@@ -230,28 +230,28 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     /**
      * On item task swipe
      */
-//    private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
-//        val leftCallback = GestureManager.SwipeCallbackLeft {
-//            viewModel.deleteCategory(list[it])
-//            if (list[it].taskState) {
-//                list.remove(list[it])
-//                listDone = list
-//            } else {
-//                list.remove(list[it])
-//                listTodo = list
-//            }
-//        }
+    private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
+        val leftCallback = GestureManager.SwipeCallbackLeft {
+            viewModel.deleteCategory(list[it])
+            if (list[it].taskState) {
+                list.remove(list[it])
+                listDone = list
+            } else {
+                list.remove(list[it])
+                listTodo = list
+            }
+        }
 
-//        val gestureManager = GestureManager(leftCallback)
-//        gestureManager.setBackgroundColorLeft(ColorDrawable(Color.GREEN))
-//        gestureManager.setIconLeft(
-//            ContextCompat.getDrawable(
-//                requireContext(),
-//                R.drawable.ic_delete
-//            )
-//        )
-//        ItemTouchHelper(gestureManager).attachToRecyclerView(recyclerView)
-//    }
+        val gestureManager = GestureManager(leftCallback)
+        gestureManager.setBackgroundColorLeft(ColorDrawable(Color.GREEN))
+        gestureManager.setIconLeft(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.ic_delete
+            )
+        )
+        ItemTouchHelper(gestureManager).attachToRecyclerView(recyclerView)
+    }
 
     /**
      * On task click
@@ -288,4 +288,4 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 //
 //        listTodo = tempListTodo
 //        listDone = tempListDone
-    }
+    }}

@@ -9,7 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.ItemTaskBinding
+import com.hoanv.notetimeplanner.utils.extension.dp
+import com.hoanv.notetimeplanner.utils.extension.dpToPx
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import fxc.dev.common.extension.resourceColor
+import fxc.dev.common.extension.setBackground
 
 class TaskAdapter(
     val context: Context,
@@ -41,10 +45,14 @@ class TaskAdapter(
                 tvTitleTask.text = task.title
                 tvEstDay.text = context.getString(R.string.date_display, task.startDay, task.endDay)
                 tvTimeEnd.text = task.timeEnd
+                tvCategory.text = task.category.title
                 root.setOnSingleClickListener {
                     onClick.invoke(task)
                 }
-                ivCheck.setOnSingleClickListener {
+
+
+
+                ivCategory.setOnSingleClickListener {
                     onIconCheckClick.invoke(task)
                 }
             }

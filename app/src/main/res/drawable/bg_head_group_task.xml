@@ -4,6 +4,8 @@
     <corners
         android:topLeftRadius="@dimen/dp_16"
         android:topRightRadius="@dimen/dp_16" />
-    <solid android:color="@color/lavender_blue" />
+    <gradient
+        android:angle="130"
+        android:startColor="@color/lavender_blue" />
 
 </shape>

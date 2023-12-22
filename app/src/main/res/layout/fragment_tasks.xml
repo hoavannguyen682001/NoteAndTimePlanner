@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_header_task"
         android:elevation="@dimen/dp_1"
-        android:paddingVertical="@dimen/dp_24"
+        android:paddingVertical="@dimen/dp_16"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -23,7 +23,7 @@
             android:fontFamily="@font/opensans_bold"
             android:text="Chào,\n John Nathan"
             android:textColor="@color/arsenic"
-            android:textSize="@dimen/dp_24"
+            android:textSize="@dimen/dp_20"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_16"
-            android:background="@drawable/bg_item_task"
+            android:background="@drawable/bg_image_item_task"
             android:padding="@dimen/dp_8"
             android:src="@drawable/ic_notification"
             app:layout_constraintBottom_toBottomOf="@+id/tvUserName"
@@ -48,11 +48,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginTop="@dimen/dp_20"
         android:fontFamily="@font/opensans_bold"
         android:text="Công việc nhóm"
         android:textColor="@color/arsenic"
-        android:textSize="@dimen/dp_20"
+        android:textSize="@dimen/dp_16"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout4" />
 
@@ -103,7 +103,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp_12"
                 android:layout_marginTop="@dimen/dp_12"
-                android:background="@drawable/bg_item_task"
+                android:background="@drawable/bg_image_item_task"
                 android:backgroundTint="@color/medium_purple"
                 android:padding="@dimen/dp_12"
                 android:src="@drawable/ic_work_bag"
@@ -205,7 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp_12"
                 android:layout_marginTop="@dimen/dp_12"
-                android:background="@drawable/bg_item_task"
+                android:background="@drawable/bg_image_item_task"
                 android:backgroundTint="@color/light_green"
                 android:padding="@dimen/dp_12"
                 android:src="@drawable/ic_bicycle"
@@ -283,11 +283,11 @@
         android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginTop="@dimen/dp_20"
         android:fontFamily="@font/opensans_bold"
         android:text="Công việc của bạn"
         android:textColor="@color/arsenic"
-        android:textSize="@dimen/dp_20"
+        android:textSize="@dimen/dp_16"
         app:layout_constraintStart_toStartOf="@+id/constraintLayout7"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout7" />
 
@@ -307,6 +307,10 @@
         android:id="@+id/rvListTask"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_12"
+        android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingBottom="@dimen/dp_16"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView9"
         tools:listitem="@layout/item_task" />

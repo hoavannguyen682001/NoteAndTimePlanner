@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/itemCalendar"
-        android:icon="@drawable/ic_calendar"
+        android:icon="@drawable/ic_calendar_uncheck"
         android:title="@string/title_calendar"
         app:showAsAction="withText" />
 
@@ -24,7 +24,7 @@
 
     <item
         android:id="@+id/itemPerson"
-        android:icon="@drawable/ic_person"
+        android:icon="@drawable/ic_profile"
         android:title="@string/title_person"
         app:showAsAction="withText" />
 </menu>
