@@ -1,5 +1,6 @@
 package com.hoanv.notetimeplanner.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepoIml
@@ -15,7 +16,7 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideRemoteRepository(fireStore: FirebaseFirestore): RemoteRepo {
-        return RemoteRepoIml(fireStore)
+    fun provideRemoteRepository(fireStore: FirebaseFirestore, auth: FirebaseAuth): RemoteRepo {
+        return RemoteRepoIml(fireStore, auth)
     }
 }

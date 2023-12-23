@@ -1,5 +1,6 @@
 package com.hoanv.notetimeplanner.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -15,5 +16,10 @@ object FirebaseModule {
     @Singleton
     fun providerFireStoreInstance(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()
+    }
+    @Provides
+    @Singleton
+    fun providerFireBaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
     }
 }
