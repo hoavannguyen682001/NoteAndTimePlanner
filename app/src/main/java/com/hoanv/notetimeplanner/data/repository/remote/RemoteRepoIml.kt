@@ -1,15 +1,49 @@
 package com.hoanv.notetimeplanner.data.repository.remote
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.utils.CommonConstant
 
 class RemoteRepoIml(
-    private val fireStore: FirebaseFirestore
+    private val fireStore: FirebaseFirestore,
+    private val auth: FirebaseAuth
 ) : RemoteRepo {
+    /**
+     * Authentication
+     */
+    override fun registerUserAccount(userInfo: UserInfo, result: (Boolean) -> Unit) {
+        auth.createUserWithEmailAndPassword(userInfo.userEmail, userInfo.userPassword)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    fireStore.collection(CommonConstant.USER_TBL_NAME)
+                        .document(userInfo.uid)
+                        .set(userInfo.hashMap())
+
+                    result.invoke(true)
+                } else {
+                    result.invoke(false)
+                    Log.d("CREATE_USER_ACCOUNT", "${it.exception}")
+                }
+            }
+    }
+
+    override fun signInUserAccount(userInfo: UserInfo, result: (Boolean) -> Unit) {
+        auth.signInWithEmailAndPassword(userInfo.userEmail, userInfo.userPassword)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    result.invoke(true)
+                } else {
+                    result.invoke(false)
+                    Log.d("SIGN_IN_USER_ACCOUNT", "${it.exception}")
+                }
+            }
+    }
+
     /**
      * Category
      */
