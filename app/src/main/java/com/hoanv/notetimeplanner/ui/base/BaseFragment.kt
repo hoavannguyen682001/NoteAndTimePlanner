@@ -5,13 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import es.dmoral.toasty.Toasty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.hoanv.notetimeplanner.utils.widget.LoadingDialog
 
 abstract class BaseFragment<ViewBindingType : ViewBinding, ViewModelType : BaseViewModel> :
     Fragment(),
@@ -25,6 +21,10 @@ abstract class BaseFragment<ViewBindingType : ViewBinding, ViewModelType : BaseV
 
     protected val binding: ViewBindingType
         get() = requireBinding()
+
+    private val loadingDialog: LoadingDialog by lazy {
+        LoadingDialog()
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -76,5 +76,13 @@ abstract class BaseFragment<ViewBindingType : ViewBinding, ViewModelType : BaseV
 
     fun toastError(content: String?) {
         baseActivity?.toastError(content)
+    }
+
+    fun showLoadingDialog() {
+        loadingDialog.show(childFragmentManager)
+    }
+
+    fun dismissLoadingDialog() {
+        loadingDialog.dismiss()
     }
 }

@@ -56,6 +56,7 @@
         app:boxCornerRadiusTopEnd="@dimen/dp_8"
         app:boxCornerRadiusTopStart="@dimen/dp_8"
         app:boxStrokeColor="@color/bg_stroke_color"
+        app:boxStrokeErrorColor="@color/bg_stroke_error_color"
         app:boxStrokeWidth="1dp"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,6 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
+            android:maxLines="1"
             android:padding="@dimen/dp_16"
             android:textColor="@color/arsenic" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -81,11 +83,11 @@
         android:textColor="@color/arsenic"
         android:textSize="@dimen/dp_16"
         app:layout_constraintBottom_toBottomOf="@+id/textView17"
-        app:layout_constraintEnd_toEndOf="@+id/txtLayout"
+        app:layout_constraintEnd_toEndOf="@+id/tilPassword"
         app:layout_constraintTop_toTopOf="@+id/textView17" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/txtLayout"
+        android:id="@+id/tilPassword"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -99,6 +101,7 @@
         app:boxCornerRadiusTopEnd="@dimen/dp_8"
         app:boxCornerRadiusTopStart="@dimen/dp_8"
         app:boxStrokeColor="@color/bg_stroke_color"
+        app:boxStrokeErrorColor="@color/bg_stroke_error_color"
         app:boxStrokeWidth="1dp"
         app:endIconMode="password_toggle"
         app:layout_constraintEnd_toEndOf="parent"
@@ -111,19 +114,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
+            android:maxLines="1"
             android:padding="@dimen/dp_16"
             android:textColor="@color/arsenic" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
-        android:id="@+id/ivPassCheck"
+        android:id="@+id/ivSaveLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_20"
         android:src="@drawable/item_pass_check"
-        app:layout_constraintStart_toStartOf="@id/txtLayout"
-        app:layout_constraintTop_toBottomOf="@+id/txtLayout" />
+        app:layout_constraintStart_toStartOf="@id/tilPassword"
+        app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
 
     <TextView
         android:id="@+id/textView17"
@@ -131,12 +135,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_8"
         android:fontFamily="@font/opensans_medium"
-        android:text="Nhớ mật khẩu"
+        android:text="Lưu đăng nhập"
         android:textColor="@color/arsenic"
         android:textSize="@dimen/dp_14"
-        app:layout_constraintBottom_toBottomOf="@+id/ivPassCheck"
-        app:layout_constraintStart_toEndOf="@+id/ivPassCheck"
-        app:layout_constraintTop_toTopOf="@+id/ivPassCheck" />
+        app:layout_constraintBottom_toBottomOf="@+id/ivSaveLogin"
+        app:layout_constraintStart_toEndOf="@+id/ivSaveLogin"
+        app:layout_constraintTop_toTopOf="@+id/ivSaveLogin" />
 
     <View
         android:id="@+id/view"
@@ -158,7 +162,7 @@
         android:textColor="@color/ghost_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivPassCheck" />
+        app:layout_constraintTop_toBottomOf="@+id/ivSaveLogin" />
 
     <View
         android:id="@+id/view2"

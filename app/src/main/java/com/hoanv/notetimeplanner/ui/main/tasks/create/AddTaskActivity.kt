@@ -79,6 +79,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 .create()
 
             tvStartDay.text = current
+
+            rvListCategory.run {
+                adapter = categoryAdapter
+                layoutManager = LinearLayoutManager(
+                    this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
+                )
+            }
         }
     }
 
@@ -88,17 +95,17 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 onBackPressedDispatcher.onBackPressed()
             }
 
-            tvEstimate.setOnSingleClickListener {
-                dateRangePicker().show(supportFragmentManager, "DatePicker")
-            }
-
-            tvTimer.setOnSingleClickListener {
-                timePickerFrag.show(supportFragmentManager, "TimerPicker")
-            }
-
-            tvCategory.setOnSingleClickListener {
-                alertDialog.show()
-            }
+//            tvEstimate.setOnSingleClickListener {
+//                dateRangePicker().show(supportFragmentManager, "DatePicker")
+//            }
+//
+//            tvTimer.setOnSingleClickListener {
+//                timePickerFrag.show(supportFragmentManager, "TimerPicker")
+//            }
+//
+//            tvCategory.setOnSingleClickListener {
+//                alertDialog.show()
+//            }
 
             ivSubmit.setOnSingleClickListener {
                 addTask()
@@ -116,39 +123,39 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 }
 
                 addTaskTriggerS.observe(this@AddTaskActivity) { state ->
-                    when (state) {
-                        ResponseState.Start -> {
-                            pbLoading.visible()
-                        }
-
-                        is ResponseState.Success -> {
-                            pbLoading.gone()
-                            toastSuccess(state.data)
-                            finish()
-                        }
-
-                        is ResponseState.Failure -> {
-                            toastError(state.throwable?.message)
-                        }
-                    }
+//                    when (state) {
+//                        ResponseState.Start -> {
+//                            pbLoading.visible()
+//                        }
+//
+//                        is ResponseState.Success -> {
+//                            pbLoading.gone()
+//                            toastSuccess(state.data)
+//                            finish()
+//                        }
+//
+//                        is ResponseState.Failure -> {
+//                            toastError(state.throwable?.message)
+//                        }
+//                    }
                 }
 
                 updateTaskTriggerS.observe(this@AddTaskActivity) { state ->
-                    when (state) {
-                        ResponseState.Start -> {
-                            pbLoading.visible()
-                        }
+//                    when (state) {
+//                        ResponseState.Start -> {
+//                            pbLoading.visible()
+//                        }
+//
+//                        is ResponseState.Success -> {
+//                            pbLoading.gone()
+//                            toastSuccess(state.data)
+//                            finish()
+//                        }
 
-                        is ResponseState.Success -> {
-                            pbLoading.gone()
-                            toastSuccess(state.data)
-                            finish()
-                        }
-
-                        is ResponseState.Failure -> {
-                            toastError(state.throwable?.message)
-                        }
-                    }
+//                        is ResponseState.Failure -> {
+//                            toastError(state.throwable?.message)
+//                        }
+//                    }
                 }
             }
         }
@@ -161,7 +168,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             tvStartDay.text = task.startDay
             tvEndDay.text = task.endDay
             tvTimeEnd.text = task.timeEnd
-            tvTitLeCategory.text = task.category.title
+//            tvTitLeCategory.text = task.category.title
         }
     }
 
@@ -190,7 +197,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private fun onCategoryClick(category: Category) {
         mCategory = category
         binding.run {
-            tvTitLeCategory.text = category.title ?: "Không có thể loại"
+//            tvTitLeCategory.text = category.title ?: "Không có thể loại"
         }
         alertDialog.dismiss()
     }

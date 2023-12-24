@@ -9,8 +9,10 @@ interface RemoteRepo {
      * Authentication
      */
     fun registerUserAccount(userInfo: UserInfo, result: (Boolean) -> Unit)
-
     fun signInUserAccount(userInfo: UserInfo, result: (Boolean) -> Unit)
+    fun signInWithGoogle(idToken: String, result: (Boolean) -> Unit)
+    fun getUserInfo(email: String, result: (UserInfo?) -> Unit)
+
 
     /**
      * CURD Category

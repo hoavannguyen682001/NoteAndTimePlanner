@@ -18,4 +18,5 @@
     <string name="title_pick_category">Chọn loại danh mục</string>
     <string name="member_number">(%s)</string>
     <string name="forgot_password"><u>Quên mật khẩu?</u></string>
+    <string name="hello_user">Xin chào,\n%s</string>
 </resources>

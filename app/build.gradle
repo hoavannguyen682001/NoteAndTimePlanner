@@ -63,9 +63,10 @@ dependencies {
 
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-    implementation ("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-auth")
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-firestore'
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Room
     def room_version = "2.5.1"
@@ -73,6 +74,11 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
+
+    //Kotpref
+    implementation 'com.chibatching.kotpref:kotpref:2.13.1'
+    implementation 'com.chibatching.kotpref:initializer:2.13.1'
+    implementation 'com.chibatching.kotpref:enum-support:2.13.1'
 
     // Coroutine
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:{latest-version}"

@@ -2,6 +2,7 @@ package com.hoanv.notetimeplanner.data.repository.remote
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.hoanv.notetimeplanner.data.models.Category
@@ -41,6 +42,38 @@ class RemoteRepoIml(
                     result.invoke(false)
                     Log.d("SIGN_IN_USER_ACCOUNT", "${it.exception}")
                 }
+            }
+    }
+
+    override fun signInWithGoogle(idToken: String, result: (Boolean) -> Unit) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    result.invoke(true)
+                } else {
+                    result.invoke(false)
+                    Log.d("SIGN_IN_USER_ACCOUNT", "${it.exception}")
+                }
+            }
+    }
+
+    override fun getUserInfo(email: String, result: (UserInfo?) -> Unit) {
+        fireStore.collection(CommonConstant.USER_TBL_NAME)
+            .whereEqualTo("userEmail", email)
+            .get()
+            .addOnSuccessListener {
+                var task: UserInfo? = null
+                for (doc in it) {
+                    task = doc.toObject(UserInfo::class.java)
+                    Log.d("GET_USER_INFO1", "${task}")
+                }
+                result.invoke(task)
+
+                Log.d("GET_USER_INFO2", "${task}")
+            }.addOnFailureListener {
+                result.invoke(null)
+                Log.d("GET_USER_INFO", "${it.message}")
             }
     }
 

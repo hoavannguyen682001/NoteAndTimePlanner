@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,19 @@ class LoginVM @Inject constructor(
             if (it) {
                 _signInTriggerS.postValue(ResponseState.Success("Thành công."))
             } else {
-                _signInTriggerS.postValue(ResponseState.Failure(Throwable("Xoá công việc thất bại. Thử lại sau !!")))
+                _signInTriggerS.postValue(ResponseState.Failure(Throwable("Thất bại. Thử lại sau !!")))
+            }
+        }
+    }
+
+    fun signInWithGoogle(idToken: String) {
+        _signInTriggerS.postValue(ResponseState.Start)
+        remoteRepo.signInWithGoogle(idToken) {
+            if (it) {
+                _signInTriggerS.postValue(ResponseState.Success("Thành công."))
+                Pref.isSaveLogin = true
+            } else {
+                _signInTriggerS.postValue(ResponseState.Failure(Throwable("Thất bại. Thử lại sau !!")))
             }
         }
     }
