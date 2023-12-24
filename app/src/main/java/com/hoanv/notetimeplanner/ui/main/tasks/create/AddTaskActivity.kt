@@ -2,9 +2,13 @@ package com.hoanv.notetimeplanner.ui.main.tasks.create
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TimePicker
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.asFlow
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminography.primecalendar.civil.CivilCalendar
 import com.aminography.primedatepicker.picker.PrimeDatePicker
@@ -17,11 +21,11 @@ import com.hoanv.notetimeplanner.databinding.DialogCategoryBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.main.tasks.create.adapter.CategoryAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.create.dialog.TimePickerFragment
-import com.hoanv.notetimeplanner.utils.ResponseState
-import com.hoanv.notetimeplanner.utils.extension.gone
+import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
-import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,18 +38,24 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private val timePickerFrag = TimePickerFragment()
 
     private val categoryAdapter by lazy {
-        CategoryAdapter(this, ::onCategoryClick)
+        CategoryAdapter(this) { category, position ->
+            selectedS.tryEmit(position)
+        }
     }
+
+    private var selectedS = MutableStateFlow(0)
 
     private lateinit var dialogBinding: DialogCategoryBinding
     private lateinit var alertDialog: AlertDialog
 
-    private val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.US)
+    private val formatter = SimpleDateFormat("dd.MM.yyyy", Locale.US)
     private val date = Date()
-    private val current = formatter.format(date)
+    private val currentDay = formatter.format(date)
     private var idTodo: String? = null
 
     private lateinit var mCategory: Category
+
+    private val items = arrayOf("Item 1", "Item 2")
 
     override fun init(savedInstanceState: Bundle?) {
         timePickerFrag.setDataTimePicker(this@AddTaskActivity)
@@ -62,30 +72,39 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 loadDataView(it)
             }
 
-            dialogBinding =
-                DialogCategoryBinding.inflate(android.view.LayoutInflater.from(this@AddTaskActivity))
-            dialogBinding.run {
-                rvListCategory.run {
-                    adapter = categoryAdapter
-                    layoutManager = LinearLayoutManager(
-                        this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
-                    )
-                }
-            }
+//            dialogBinding =
+//                DialogCategoryBinding.inflate(android.view.LayoutInflater.from(this@AddTaskActivity))
+//            dialogBinding.run {
+//                rvListCategory.run {
+//                    adapter = categoryAdapter
+//                    layoutManager = LinearLayoutManager(
+//                        this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
+//                    )
+//                }
+//            }
+//
+//            alertDialog = AlertDialog.Builder(this@AddTaskActivity, R.style.AppCompat_AlertDialog)
+//                .setView(dialogBinding.root)
+//                .setCancelable(false)
+//                .create()
 
-            alertDialog = AlertDialog.Builder(this@AddTaskActivity, R.style.AppCompat_AlertDialog)
-                .setView(dialogBinding.root)
-                .setCancelable(false)
-                .create()
-
-            tvStartDay.text = current
+            tvStartDay.text = currentDay
+            tvEndDay.text = currentDay
 
             rvListCategory.run {
                 adapter = categoryAdapter
                 layoutManager = LinearLayoutManager(
                     this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
                 )
+                itemAnimator = null
             }
+
+
+            val adapter =
+                ArrayAdapter(this@AddTaskActivity, android.R.layout.simple_spinner_item, items)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spnNotification.adapter = adapter
+
         }
     }
 
@@ -95,17 +114,24 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 onBackPressedDispatcher.onBackPressed()
             }
 
-//            tvEstimate.setOnSingleClickListener {
-//                dateRangePicker().show(supportFragmentManager, "DatePicker")
-//            }
-//
-//            tvTimer.setOnSingleClickListener {
-//                timePickerFrag.show(supportFragmentManager, "TimerPicker")
-//            }
-//
-//            tvCategory.setOnSingleClickListener {
-//                alertDialog.show()
-//            }
+            spnNotification.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    // Xử lý khi một item được chọn
+                    val selectedItem = parent.getItemAtPosition(position).toString()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                }
+            }
+
+            tvTimeEnd.setOnSingleClickListener {
+                timePickerFrag.show(supportFragmentManager, "TimerPicker")
+            }
 
             ivSubmit.setOnSingleClickListener {
                 addTask()
@@ -116,11 +142,21 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
-                listCategory.observe(this@AddTaskActivity) {
-                    if (it.isNotEmpty()) {
-                        categoryAdapter.submitList(it)
+
+                selectedS
+                    .combine(listCategory.asFlow()) { selected, list -> Pair(selected, list) }
+                    .collectIn(this@AddTaskActivity) { item ->
+                        val (select, state) = item
+                        val listCate = mutableListOf<Category>()
+                        listCate.add(0, Category(title = "Không thể loại"))
+
+                        listCate.addAll(state)
+                        listCate.mapIndexed { index, category ->
+                            category.isSelected = index == select
+                            mCategory = listCate[select]
+                        }
+                        categoryAdapter.submitList(listCate.map { it.ownCopy() })
                     }
-                }
 
                 addTaskTriggerS.observe(this@AddTaskActivity) { state ->
 //                    when (state) {
@@ -168,7 +204,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             tvStartDay.text = task.startDay
             tvEndDay.text = task.endDay
             tvTimeEnd.text = task.timeEnd
-//            tvTitLeCategory.text = task.category.title
         }
     }
 
@@ -192,14 +227,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 viewModel.updateCategory(mCategory, "listTask")
             }
         }
-    }
-
-    private fun onCategoryClick(category: Category) {
-        mCategory = category
-        binding.run {
-//            tvTitLeCategory.text = category.title ?: "Không có thể loại"
-        }
-        alertDialog.dismiss()
     }
 
     private fun dateRangePicker(): PrimeDatePicker {
