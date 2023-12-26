@@ -8,7 +8,7 @@ import com.google.firebase.firestore.SetOptions
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
-import com.hoanv.notetimeplanner.utils.CommonConstant
+import com.hoanv.notetimeplanner.utils.AppConstant
 
 class RemoteRepoIml(
     private val fireStore: FirebaseFirestore,
@@ -21,7 +21,7 @@ class RemoteRepoIml(
         auth.createUserWithEmailAndPassword(userInfo.userEmail, userInfo.userPassword)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    fireStore.collection(CommonConstant.USER_TBL_NAME)
+                    fireStore.collection(AppConstant.USER_TBL_NAME)
                         .document(userInfo.uid)
                         .set(userInfo.hashMap())
 
@@ -59,7 +59,7 @@ class RemoteRepoIml(
     }
 
     override fun getUserInfo(email: String, result: (UserInfo?) -> Unit) {
-        fireStore.collection(CommonConstant.USER_TBL_NAME)
+        fireStore.collection(AppConstant.USER_TBL_NAME)
             .whereEqualTo("userEmail", email)
             .get()
             .addOnSuccessListener {
@@ -81,7 +81,7 @@ class RemoteRepoIml(
      * Category
      */
     override fun addNewCategory(category: Category, result: (Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.CATEGORY_TBL_NAME).document(category.id)
+        fireStore.collection(AppConstant.CATEGORY_TBL_NAME).document(category.id)
             .set(category.hashMap()).addOnSuccessListener {
                 result.invoke(true)
             }.addOnFailureListener {
@@ -91,7 +91,7 @@ class RemoteRepoIml(
     }
 
     override fun getListCategory(result: (List<Category>, Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.CATEGORY_TBL_NAME).get().addOnSuccessListener {
+        fireStore.collection(AppConstant.CATEGORY_TBL_NAME).get().addOnSuccessListener {
             val categories = mutableListOf<Category>()
             for (doc in it) {
                 categories.add(doc.toObject(Category::class.java))
@@ -103,7 +103,7 @@ class RemoteRepoIml(
     }
 
     override fun deleteCategory(category: Category, result: (Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.CATEGORY_TBL_NAME).document(category.id).delete()
+        fireStore.collection(AppConstant.CATEGORY_TBL_NAME).document(category.id).delete()
             .addOnSuccessListener {
                 result.invoke(true)
             }.addOnFailureListener {
@@ -113,7 +113,7 @@ class RemoteRepoIml(
     }
 
     override fun updateCategory(category: Category, field: String, result: (Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.CATEGORY_TBL_NAME)
+        fireStore.collection(AppConstant.CATEGORY_TBL_NAME)
             .document(category.id)
             .set(category.hashMap(), SetOptions.mergeFields(field))
             .addOnSuccessListener {
@@ -128,7 +128,7 @@ class RemoteRepoIml(
      * Task
      */
     override fun addNewTask(task: Task, result: (Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.TASK_TBL_NAME).document(task.id).set(task.hashMap())
+        fireStore.collection(AppConstant.TASK_TBL_NAME).document(task.id).set(task.hashMap())
             .addOnSuccessListener {
                 result.invoke(true)
             }.addOnFailureListener {
@@ -139,7 +139,7 @@ class RemoteRepoIml(
 
     override fun getListTask(result: (List<Task>, Boolean) -> Unit) {
         val task = mutableListOf<Task>()
-        fireStore.collection(CommonConstant.TASK_TBL_NAME)
+        fireStore.collection(AppConstant.TASK_TBL_NAME)
             .get()
             .addOnSuccessListener {
                 for (doc in it) {
@@ -153,7 +153,7 @@ class RemoteRepoIml(
     }
 
     override fun deleteTask(task: Task, result: (Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.TASK_TBL_NAME).document(task.id)
+        fireStore.collection(AppConstant.TASK_TBL_NAME).document(task.id)
             .delete()
             .addOnSuccessListener {
                 result.invoke(true)
@@ -164,7 +164,7 @@ class RemoteRepoIml(
     }
 
     override fun updateTask(task: Task, result: (Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.TASK_TBL_NAME).document(task.id)
+        fireStore.collection(AppConstant.TASK_TBL_NAME).document(task.id)
             .set(task.hashMap(), SetOptions.merge())// Merge object
             .addOnSuccessListener {
                 result.invoke(true)
@@ -178,7 +178,7 @@ class RemoteRepoIml(
      * Task by Category
      */
     override fun getListTaskByCategory(category: Category, result: (List<Task>, Boolean) -> Unit) {
-        fireStore.collection(CommonConstant.TASK_TBL_NAME)
+        fireStore.collection(AppConstant.TASK_TBL_NAME)
             .whereEqualTo("category.title", category.title)
             .get()
             .addOnSuccessListener {
