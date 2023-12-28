@@ -37,11 +37,14 @@ android {
     buildFeatures {
         viewBinding true
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -72,6 +75,9 @@ dependencies {
     //OAuth2
     implementation 'com.google.auth:google-auth-library-oauth2-http:1.19.0'
 
+    // Work Manager
+    implementation("androidx.work:work-runtime-ktx:2.8.0")
+
     // Room
     def room_version = "2.5.1"
     implementation "androidx.room:room-runtime:$room_version"
@@ -93,8 +99,7 @@ dependencies {
     kapt 'com.google.dagger:hilt-android-compiler:2.48'
 
     // Glide
-    implementation 'com.github.bumptech.glide:glide:4.14.2'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
 
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -118,4 +123,7 @@ dependencies {
 
     //Lottie
     implementation 'com.airbnb.android:lottie:6.2.0'
+
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }

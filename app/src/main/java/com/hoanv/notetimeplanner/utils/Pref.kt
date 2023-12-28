@@ -4,4 +4,5 @@ import com.chibatching.kotpref.KotprefModel
 
 object Pref: KotprefModel() {
     var isSaveLogin by booleanPref(false)
+    var valueToken by stringPref(default = "")
 }
