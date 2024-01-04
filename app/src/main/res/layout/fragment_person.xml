@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <ImageView
-        android:id="@+id/tvMember"
+        android:id="@+id/ivProfile"
         android:layout_width="@dimen/dp_56"
         android:layout_height="@dimen/dp_56"
         android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginTop="@dimen/dp_16"
         android:src="@drawable/ic_profile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,107 +23,338 @@
         android:layout_marginStart="@dimen/dp_16"
         android:fontFamily="@font/opensans_bold"
         android:text="@string/hello_user"
-        android:textColor="@color/lynch_gray"
+        android:textColor="@color/arsenic"
         android:textSize="@dimen/sp_20"
-        app:layout_constraintStart_toEndOf="@id/tvMember"
-        app:layout_constraintTop_toTopOf="@id/tvMember" />
+        app:layout_constraintStart_toEndOf="@id/ivProfile"
+        app:layout_constraintTop_toTopOf="@id/ivProfile" />
 
-    <TextView
-        android:id="@+id/textView10"
+    <ImageView
+        android:id="@+id/ivSignOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_24"
-        android:fontFamily="@font/opensans_bold"
-        android:text="Tổng quan về nhiệm vụ"
-        android:textColor="@color/lynch_gray"
-        android:textSize="@dimen/sp_20"
-        app:layout_constraintStart_toStartOf="@id/tvMember"
-        app:layout_constraintTop_toBottomOf="@id/tvMember" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/gl50"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout3"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginTop="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_4"
-        android:background="@drawable/bg_item_category_uncheck"
-        android:paddingVertical="@dimen/dp_24"
-        app:layout_constraintEnd_toStartOf="@id/gl50"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView10">
-
-        <TextView
-            android:id="@+id/tvNumbOfTodo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:fontFamily="@font/opensans_bold"
-            android:text="11"
-            android:textColor="@color/black"
-            android:textSize="@dimen/sp_32"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:fontFamily="@font/opensans_medium"
-            android:text="Nhiệm vụ đã hoàn\nthành"
-            android:textAlignment="center"
-            android:textColor="@color/lynch_gray"
-            android:textSize="@dimen/sp_16"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvNumbOfTodo" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_4"
         android:layout_marginEnd="@dimen/dp_16"
-        android:background="@drawable/bg_item_category_uncheck"
-        android:paddingVertical="@dimen/dp_24"
+        android:src="@drawable/ic_sign_out"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/gl50"
-        app:layout_constraintTop_toTopOf="@+id/constraintLayout3">
+        app:layout_constraintTop_toTopOf="@+id/tvUserName" />
 
-        <TextView
-            android:id="@+id/tvNumbOfDone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:fontFamily="@font/opensans_bold"
-            android:text="11"
-            android:textColor="@color/black"
-            android:textSize="@dimen/sp_32"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_12"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/dp_30"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivProfile">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:fontFamily="@font/opensans_medium"
-            android:text="Nhiệm vụ chưa hoàn\nthành"
-            android:textAlignment="center"
-            android:textColor="@color/lynch_gray"
-            android:textSize="@dimen/sp_16"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvNumbOfDone" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_20"
+                android:fontFamily="@font/opensans_bold"
+                android:text="Tổng quan về công việc"
+                android:textColor="@color/arsenic"
+                android:textSize="@dimen/sp_18"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl50"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginEnd="@dimen/dp_4"
+                android:background="@drawable/bg_item_category_uncheck"
+                app:layout_constraintEnd_toStartOf="@id/gl50"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView10">
+
+                <TextView
+                    android:id="@+id/textView23"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/dp_12"
+                    android:layout_marginTop="@dimen/dp_12"
+                    android:fontFamily="@font/opensans_bold"
+                    android:text="Tổng công việc"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/dp_16"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvNumbOfSum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:fontFamily="@font/opensans_regular"
+                    android:text="11 công việc"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/sp_14"
+                    app:layout_constraintStart_toStartOf="@id/textView23"
+                    app:layout_constraintTop_toBottomOf="@+id/textView23" />
+
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="130dp"
+                    android:src="@drawable/ic_done_illustration"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvNumbOfSum" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_4"
+                android:layout_marginEnd="@dimen/dp_16"
+                android:background="@drawable/bg_item_category_uncheck"
+                android:backgroundTint="@color/colorSecondPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/gl50"
+                app:layout_constraintTop_toTopOf="@+id/constraintLayout3">
+
+                <TextView
+                    android:id="@+id/textView24"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/dp_12"
+                    android:layout_marginTop="@dimen/dp_12"
+                    android:fontFamily="@font/opensans_bold"
+                    android:text="Đã hoàn thành"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/dp_16"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvNumbOfDone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:fontFamily="@font/opensans_regular"
+                    android:text="11 công việc"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/sp_14"
+                    app:layout_constraintStart_toStartOf="@id/textView24"
+                    app:layout_constraintTop_toBottomOf="@+id/textView24" />
+
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="130dp"
+                    android:src="@drawable/ic_todo_illustration"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvNumbOfDone" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_16"
+                android:background="@drawable/bg_head_group_task"
+                android:padding="@dimen/dp_16"
+                app:layout_constraintTop_toBottomOf="@id/constraintLayout3">
+
+                <TextView
+                    android:id="@+id/textView28"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/opensans_medium"
+                    android:text="Công việc đã hoàn thành"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/dp_12"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ProgressBar
+                    android:id="@+id/pbTaskDone"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="@dimen/dp_4"
+                    android:max="100"
+                    android:progress="30"
+                    android:progressDrawable="@drawable/custom_progress_horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/textView28"
+                    app:layout_constraintTop_toBottomOf="@+id/textView28" />
+
+                <TextView
+                    android:id="@+id/tvProgressDone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/dp_16"
+                    android:text="30"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/dp_12"
+                    app:layout_constraintBottom_toBottomOf="@id/pbTaskDone"
+                    app:layout_constraintEnd_toEndOf="@id/pbTaskDone"
+                    app:layout_constraintTop_toTopOf="@id/pbTaskDone" />
+
+                <TextView
+                    android:id="@+id/textView29"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:fontFamily="@font/opensans_medium"
+                    android:text="Công việc chưa hoàn thành"
+                    android:textColor="@color/teal_700"
+                    android:textSize="@dimen/dp_12"
+                    app:layout_constraintStart_toStartOf="@+id/pbTaskDone"
+                    app:layout_constraintTop_toBottomOf="@+id/pbTaskDone" />
+
+                <ProgressBar
+                    android:id="@+id/pbTaskTodo"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="@dimen/dp_4"
+                    android:max="100"
+                    android:progress="90"
+                    android:progressDrawable="@drawable/custom_progress_horizontal"
+                    android:progressTint="@color/light_green"
+                    app:layout_constraintEnd_toEndOf="@+id/pbTaskDone"
+                    app:layout_constraintStart_toStartOf="@+id/textView29"
+                    app:layout_constraintTop_toBottomOf="@+id/textView29" />
+
+                <TextView
+                    android:id="@+id/tvProgressTodo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/dp_16"
+                    android:text="90"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/dp_12"
+                    app:layout_constraintBottom_toBottomOf="@id/pbTaskTodo"
+                    app:layout_constraintEnd_toEndOf="@id/pbTaskTodo"
+                    app:layout_constraintTop_toTopOf="@id/pbTaskTodo" />
+
+                <TextView
+                    android:id="@+id/textView30"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:fontFamily="@font/opensans_medium"
+                    android:text="Công việc đã quá hạn"
+                    android:textColor="@color/orange_crayola"
+                    android:textSize="@dimen/dp_12"
+                    app:layout_constraintStart_toStartOf="@+id/pbTaskTodo"
+                    app:layout_constraintTop_toBottomOf="@+id/pbTaskTodo" />
+
+                <ProgressBar
+                    android:id="@+id/pbExpire"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="@dimen/dp_4"
+                    android:max="100"
+                    android:progress="60"
+                    android:progressDrawable="@drawable/custom_progress_horizontal"
+                    android:progressTint="@color/orange_crayola"
+                    app:layout_constraintEnd_toEndOf="@+id/pbTaskTodo"
+                    app:layout_constraintStart_toStartOf="@+id/textView30"
+                    app:layout_constraintTop_toBottomOf="@+id/textView30" />
+
+                <TextView
+                    android:id="@+id/tvProgressExpire"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/dp_16"
+                    android:text="60"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/dp_12"
+                    app:layout_constraintBottom_toBottomOf="@id/pbExpire"
+                    app:layout_constraintEnd_toEndOf="@id/pbExpire"
+                    app:layout_constraintTop_toTopOf="@id/pbExpire" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_12"
+                android:background="@drawable/bg_container_edt_category"
+                android:backgroundTint="@color/colorSecondPrimary"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout10"
+                tools:layout_editor_absoluteX="16dp">
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pieChartStatistical"
+                    android:layout_width="@dimen/dp_200"
+                    android:layout_height="@dimen/dp_200"
+                    android:layout_marginTop="@dimen/dp_16"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView26"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/dp_8"
+                    android:gravity="center_vertical"
+                    android:text="Cá nhân"
+                    android:textColor="@color/arsenic"
+                    app:drawableStartCompat="@drawable/ic_circle"
+                    app:drawableTint="@color/colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@+id/textView27"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/pieChartStatistical"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="@dimen/dp_8"
+                    android:gravity="center_vertical"
+                    android:text="Dự án"
+                    android:textColor="@color/arsenic"
+                    app:drawableStartCompat="@drawable/ic_circle"
+                    app:drawableTint="@color/picton_blue"
+                    app:layout_constraintEnd_toEndOf="@+id/textView26"
+                    app:layout_constraintStart_toStartOf="@+id/textView26"
+                    app:layout_constraintTop_toBottomOf="@+id/textView26" />
+
+                <TextView
+                    android:id="@+id/textView27"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_8"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Phân loại công việc chưa hoàn thành"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pieChartStatistical" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
