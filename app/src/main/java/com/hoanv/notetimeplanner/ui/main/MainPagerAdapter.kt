@@ -6,6 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.hoanv.notetimeplanner.ui.main.calendar.CalendarFragment
 import com.hoanv.notetimeplanner.ui.main.person.PersonFragment
+import com.hoanv.notetimeplanner.ui.main.tasks.dashboard.DashBoardFragment
 import com.hoanv.notetimeplanner.ui.main.tasks.list.TasksFragment
 
 class MainPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
@@ -13,7 +14,7 @@ class MainPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     private val listFragment: Map<Int, () -> Fragment> = mapOf(
         TASK to { TasksFragment() },
         CALENDAR to { CalendarFragment() },
-        TEMP to { TasksFragment() },
+        DASHBOARD to { DashBoardFragment() },
         PERSON to { PersonFragment() },
     )
 
@@ -26,7 +27,7 @@ class MainPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     companion object {
         private const val TASK = 0
         private const val CALENDAR = 1
-        private const val TEMP = 2
+        private const val DASHBOARD = 2
         private const val PERSON = 3
     }
 }

@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.databinding.ItemCategoryBinding
-import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskCategoryAdapter
 import com.hoanv.notetimeplanner.utils.extension.safeClickListener
+import fxc.dev.common.extension.resourceColor
 
 class CategoryAdapter(
     val context: Context,
@@ -51,14 +52,21 @@ class CategoryAdapter(
         fun onBind(item: Category, position: Int) {
             binding.run {
                 tvCategoryTitle.text = item.title ?: ""
+                ivIcon.backgroundTintList = context.getColorStateList(R.color.black)
                 root.safeClickListener {
                     onClick.invoke(item, position)
                 }
             }
             bindStateItem(item.isSelected)
         }
+
         fun bindStateItem(isSelected: Boolean) {
             binding.cslItemCategory.isSelected = isSelected
+            if (isSelected) {
+                binding.tvCategoryTitle.setTextColor(context.resourceColor(R.color.white))
+            } else {
+                binding.tvCategoryTitle.setTextColor(context.resourceColor(R.color.black))
+            }
         }
     }
 }

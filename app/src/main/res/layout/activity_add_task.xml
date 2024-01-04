@@ -147,6 +147,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_12"
                 android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dp_8"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -27,6 +27,14 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
         CategoryAdapter(this, ::handleOptionMenu)
     }
 
+    private val iconAdapter by lazy {
+        IconCategoryAdapter(this) {}
+    }
+
+    private lateinit var dialogBinding: DialogAddCategoryBinding
+    private lateinit var alertDialog: AlertDialog
+
+
     override fun init(savedInstanceState: Bundle?) {
         initView()
         initListener()
@@ -40,6 +48,24 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                     this@CategoryActivity, LinearLayoutManager.VERTICAL, false
                 )
                 adapter = categoryAdapter
+            }
+
+            dialogBinding =
+                DialogAddCategoryBinding.inflate(LayoutInflater.from(this@CategoryActivity))
+            alertDialog =
+                AlertDialog.Builder(this@CategoryActivity, R.style.AppCompat_AlertDialog)
+                    .setView(dialogBinding.root)
+                    .setCancelable(false).create()
+
+            dialogBinding.run {
+                rvIconCategory.run {
+                    adapter = iconAdapter
+                    layoutManager = LinearLayoutManager(
+                        this@CategoryActivity,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
+                    )
+                }
             }
         }
     }
@@ -58,6 +84,11 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
+                iconCategory.observe(this@CategoryActivity) {
+                    iconAdapter.submitList(it)
+                    Log.d("LISTTTTTTTTTTTTT", "$it")
+                }
+
                 addCategoryTriggerS.observe(this@CategoryActivity) { state ->
                     when (state) {
                         ResponseState.Start -> {}
@@ -150,11 +181,6 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
     }
 
     private fun dialogAddCategory(item: Category?) {
-        val dialogBinding = DialogAddCategoryBinding.inflate(LayoutInflater.from(this))
-        val alertDialog =
-            AlertDialog.Builder(this, R.style.AppCompat_AlertDialog).setView(dialogBinding.root)
-                .setCancelable(false).create()
-
         binding.run {
             dialogBinding.run {
                 if (item != null) {

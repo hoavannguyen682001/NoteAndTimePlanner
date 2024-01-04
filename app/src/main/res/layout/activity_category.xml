@@ -23,7 +23,7 @@
         android:layout_marginStart="@dimen/dp_24"
         android:fontFamily="@font/opensans_bold"
         android:text="Quản lý danh mục"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/arsenic"
         android:textSize="@dimen/sp_20"
         app:layout_constraintBottom_toBottomOf="@id/ivBack"
         app:layout_constraintStart_toEndOf="@+id/ivBack"
@@ -33,6 +33,8 @@
         android:id="@+id/rvCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        tools:itemCount="3"
+        android:paddingHorizontal="@dimen/dp_8"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/textView11"
         tools:listitem="@layout/item_add_category" />
@@ -46,10 +48,10 @@
         android:fontFamily="@font/opensans_bold"
         android:paddingVertical="@dimen/dp_8"
         android:text="Tạo mới danh mục"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/arsenic"
         android:textSize="@dimen/sp_16"
         app:drawableStartCompat="@drawable/ic_add"
-        app:drawableTint="@color/colorPrimary"
+        app:drawableTint="@color/arsenic"
         app:layout_constraintTop_toBottomOf="@+id/rvCategory" />
 
     <ProgressBar

@@ -72,10 +72,12 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginVM>() {
                     when (state) {
                         ResponseState.Start -> {
                             showLoadingDialog()
+                            Log.d("###", "${state}")
                         }
 
                         is ResponseState.Success -> {
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                            Log.d("###", "${state}")
                             dismissLoadingDialog()
                             finish()
                         }

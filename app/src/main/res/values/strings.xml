@@ -7,8 +7,8 @@
     <string name="title">Tiêu đề</string>
     <string name="detail_task">Mô tả</string>
     <string name="estimate_day">Ngày</string>
-    <string name="date_range_selected">%1$d/%2$d/%3$d</string>
-    <string name="time_picker">%1$d : %2$d</string>
+    <string name="date_range_selected">%1$d-%2$d-%3$d</string>
+    <string name="time_picker">%1$d:%2$d</string>
     <string name="date_display">%1$s to %2$s</string>
     <string name="sign_in">Bấm để đăng nhập</string>
     <string name="manage_category">Quản lý danh mục</string>
@@ -19,4 +19,15 @@
     <string name="member_number">(%s)</string>
     <string name="forgot_password"><u>Quên mật khẩu?</u></string>
     <string name="hello_user">Xin chào,\n%s</string>
+
+    <string name="action_today">Hôm Nay</string>
+    <string name="action_cancel">Trở về</string>
+    <string name="action_select">Chọn</string>
+
+    <string name="prime_date_picker_selected_day">Ngày đã chọn</string>
+    <string name="prime_date_picker_from">Bắt Đầu</string>
+    <string name="prime_date_picker_to">Kết Thúc</string>
+    <string name="no_range_is_selected">Vui lòng chọn cả ngày bắt đầu và kết thúc!</string>
+    <string name="no_day_is_selected">Không có ngày nào được chọn!</string>
+    <string name="board">Bảng</string>
 </resources>

@@ -7,8 +7,11 @@ import android.content.Intent
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.NOTIFICATION_MESSAGE
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.NOTIFICATION_TITLE
+import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.notification.NotificationUtil
 import com.hoanv.notetimeplanner.utils.notification.isTimeAutomatic
 import java.text.SimpleDateFormat
@@ -22,9 +25,17 @@ class NoteTimePlannerService : FirebaseMessagingService() {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
 
             // Get Message details
-            val title = remoteMessage.data["title"]
-            val message = remoteMessage.data["message"]
+            val id = remoteMessage.data["taskId"]
 
+            val dataTask = DataTask(
+                taskId = id ?: "",
+                title = remoteMessage.data["title"]!!,
+                content = remoteMessage.data["content"]!!,
+                isScheduled = remoteMessage.data["isScheduled"]!!,
+                scheduledTime = remoteMessage.data["scheduledTime"]!!
+            )
+
+            Log.d("INTENTTTT", "$dataTask")
             // Check that 'Automatic Date and Time' settings are turned ON.
             // If it's not turned on, Return
             if (!isTimeAutomatic(applicationContext)) {
@@ -38,30 +49,25 @@ class NoteTimePlannerService : FirebaseMessagingService() {
                 if (it) {
                     // This is Scheduled Notification, Schedule it
                     val scheduledTime = remoteMessage.data["scheduledTime"]
-                    scheduleAlarm(scheduledTime, title, message)
+                    scheduleAlarm(scheduledTime, dataTask)
                 } else {
                     // This is not scheduled notification, show it now
-                    showNotification(title!!, message!!)
+                    showNotification(dataTask)
                 }
             }
-        }
-
-        val data = remoteMessage.notification
-        data?.let {
-            showNotification(it.title!!, data.body!!)
         }
     }
 
     private fun scheduleAlarm(
         scheduledTimeString: String?,
-        title: String?,
-        message: String?
+        dataTask: DataTask,
     ) {
         val alarmMgr = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent =
             Intent(applicationContext, NotificationBroadcastReceiver::class.java).let { intent ->
-                intent.putExtra(NOTIFICATION_TITLE, title)
-                intent.putExtra(NOTIFICATION_MESSAGE, message)
+                intent.putExtra(TASK_ID, dataTask.taskId)
+                intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
+                intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
                 PendingIntent.getBroadcast(
                     applicationContext, 0, intent,
                     PendingIntent.FLAG_IMMUTABLE
@@ -69,9 +75,10 @@ class NoteTimePlannerService : FirebaseMessagingService() {
             }
 
         // Parse Schedule time
-        val scheduledTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val scheduledTime = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
             .parse(scheduledTimeString!!)
 
+        Log.d("SCHEDULEEEEEEEEEEEEEEE", "$scheduledTime")
         scheduledTime?.let {
             // With set(), it'll set non repeating one time alarm.
             alarmMgr.set(
@@ -82,12 +89,17 @@ class NoteTimePlannerService : FirebaseMessagingService() {
         }
     }
 
-    private fun showNotification(title: String, message: String) {
-        NotificationUtil(applicationContext).showNotification(title, message)
+    private fun showNotification(dataTask: DataTask) {
+        NotificationUtil(applicationContext).showNotification(
+            dataTask.taskId,
+            dataTask.title,
+            dataTask.content
+        )
     }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
+        Pref.deviceToken = token
     }
 
     companion object {

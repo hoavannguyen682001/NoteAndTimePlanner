@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/dp_16">
@@ -11,7 +12,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/opensans_bold"
         android:text="Tạo danh mục mới"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/arsenic"
         android:textSize="@dimen/sp_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
         android:background="@drawable/bg_container_edt_category"
+        android:backgroundTint="@color/cultured"
         android:fontFamily="@font/opensans_semibold"
         android:gravity="top"
         android:hint="Nhập danh mục ..."
@@ -33,17 +35,29 @@
         android:textColorHint="@color/ghost_gray"
         app:layout_constraintTop_toBottomOf="@+id/textView12" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvIconCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="@+id/edtInputCate"
+        app:layout_constraintStart_toStartOf="@+id/edtInputCate"
+        app:layout_constraintTop_toBottomOf="@+id/edtInputCate"
+        tools:listitem="@layout/item_icon_category" />
+
     <TextView
         android:id="@+id/tvSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_16"
         android:fontFamily="@font/opensans_semibold"
         android:text="LƯU"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/sp_20"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edtInputCate" />
+        app:layout_constraintTop_toTopOf="@+id/tvCancel" />
 
     <TextView
         android:id="@+id/tvCancel"
@@ -53,8 +67,8 @@
         android:layout_marginEnd="@dimen/dp_16"
         android:fontFamily="@font/opensans_semibold"
         android:text="HUỶ"
-        android:textColor="#B8D7D7"
+        android:textColor="@color/ghost_gray"
         android:textSize="@dimen/sp_20"
         app:layout_constraintEnd_toStartOf="@id/tvSave"
-        app:layout_constraintTop_toBottomOf="@id/edtInputCate" />
+        app:layout_constraintTop_toBottomOf="@+id/rvIconCategory" />
 </androidx.constraintlayout.widget.ConstraintLayout>

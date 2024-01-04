@@ -3,6 +3,10 @@ package com.hoanv.notetimeplanner.data.repository.remote
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
+import com.hoanv.notetimeplanner.data.models.notification.NotificationData
+import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
+import kotlinx.coroutines.flow.Flow
+import java.io.InputStream
 
 interface RemoteRepo {
     /**
@@ -30,8 +34,27 @@ interface RemoteRepo {
     fun deleteTask(task: Task, result: (Boolean) -> Unit)
     fun updateTask(task: Task, result: (Boolean) -> Unit)
 
+    fun getDetailTask(taskId: String, result: (Task?) -> Unit)
+
     /**
      * Get List Task by Category
      */
     fun getListTaskByCategory(category: Category, result: (List<Task>, Boolean) -> Unit)
+
+    fun getIconCategories(result: (List<String>) -> Unit)
+
+    /**
+     * Get access token of service-account.json
+     */
+    fun getAccessToken(scope: MutableList<String>, path: InputStream): Flow<String>
+
+    /**
+     * Get device token
+     */
+    fun getDeviceToken(result: (String) -> Unit)
+
+    /**
+     * Send notification
+     */
+    fun sendNotification(body: NotificationData): Flow<ResponseNoti>
 }

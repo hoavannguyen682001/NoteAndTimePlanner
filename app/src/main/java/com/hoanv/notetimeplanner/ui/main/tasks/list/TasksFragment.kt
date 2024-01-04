@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asFlow
@@ -20,17 +19,12 @@ import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
-import com.hoanv.notetimeplanner.ui.main.tasks.category.CategoryActivity
 import com.hoanv.notetimeplanner.ui.main.tasks.create.AddTaskActivity
 import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.DoneTaskAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskAdapter
 import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskCategoryAdapter
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
-import com.hoanv.notetimeplanner.utils.extension.gone
-import com.hoanv.notetimeplanner.utils.extension.invisible
-import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
-import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -257,9 +251,9 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
      * On task click
      */
     private fun onTaskClick(task: Task) {
-//        val intent = Intent(requireActivity(), AddTaskActivity::class.java)
-//        intent.putExtra("TODO", task)
-//        startActivity(intent)
+        val intent = Intent(requireActivity(), AddTaskActivity::class.java)
+        intent.putExtra("TODO", task)
+        startActivity(intent)
     }
 
     /**

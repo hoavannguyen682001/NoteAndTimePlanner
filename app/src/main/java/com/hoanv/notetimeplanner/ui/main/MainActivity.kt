@@ -2,12 +2,16 @@ package com.hoanv.notetimeplanner.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.activity.viewModels
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.databinding.ActivityMainBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
-import com.hoanv.notetimeplanner.ui.main.tasks.create.AddTaskActivity
+import com.hoanv.notetimeplanner.ui.main.tasks.category.CategoryActivity
+import com.hoanv.notetimeplanner.utils.Pref
+import com.hoanv.notetimeplanner.utils.ResponseState
+import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.safeClickListener
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,20 +22,61 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
         MainPagerAdapter(supportFragmentManager, lifecycle)
     }
     override val viewModel: MainViewModel by viewModels()
+    private val TAG = "TAGGGGGGGGGGGGGGGGGGGGG"
+    private val scopes = mutableListOf(
+        "https://www.googleapis.com/auth/firebase.messaging"
+    )
 
     override fun init(savedInstanceState: Bundle?) = binding.run {
-        vpMainPager.run {
-            adapter = mainAdapter
-            offscreenPageLimit = 4
-            isUserInputEnabled = false
-            isSaveEnabled = false
+        initView()
+        initListener()
+        bindViewModel()
+    }
+
+    private fun initView() {
+        val filePath = assets.open("service_account.json")
+        viewModel.getAccessToken(scopes, filePath)
+
+        binding.run {
+            vpMainPager.run {
+                adapter = mainAdapter
+                offscreenPageLimit = 4
+                isUserInputEnabled = false
+                isSaveEnabled = false
+            }
         }
-        bottomNavView.setOnItemSelectedListener {
-            setViewPagerSelected(it.itemId)
-            true
+    }
+
+    private fun initListener() {
+        binding.run {
+            bottomNavView.setOnItemSelectedListener {
+                setViewPagerSelected(it.itemId)
+                true
+            }
+            fabAdd.safeClickListener {
+                startActivity(Intent(this@MainActivity, CategoryActivity::class.java))
+            }
         }
-        fabAdd.safeClickListener {
-            startActivity(Intent(this@MainActivity, AddTaskActivity::class.java))
+    }
+
+    private fun bindViewModel() {
+        viewModel.run {
+            accessToken.collectIn(this@MainActivity) { state ->
+                when (state) {
+                    ResponseState.Start -> {
+                    }
+
+                    is ResponseState.Success -> {
+                        Pref.accessToken = state.data
+                        Log.d(TAG, Pref.accessToken)
+                    }
+
+                    is ResponseState.Failure -> {
+                        toastError(state.throwable?.message)
+                        Log.d("###", "${state.throwable?.message}")
+                    }
+                }
+            }
         }
     }
 
@@ -46,5 +91,4 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
     override fun setupViewBinding(inflater: LayoutInflater): ActivityMainBinding =
         ActivityMainBinding.inflate(inflater)
-
 }

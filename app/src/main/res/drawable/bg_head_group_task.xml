@@ -5,7 +5,9 @@
         android:topLeftRadius="@dimen/dp_16"
         android:topRightRadius="@dimen/dp_16" />
     <gradient
-        android:angle="130"
-        android:startColor="@color/lavender_blue" />
+        android:angle="270"
+        android:type="linear"
+        android:startColor="@color/lavender_blue"
+        android:endColor="@color/transparent"/>
 
 </shape>

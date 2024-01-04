@@ -1,15 +1,25 @@
 package com.hoanv.notetimeplanner.ui.main.tasks.create
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.notification.NotificationData
+import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
 import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,6 +40,14 @@ class AddTaskVM @Inject constructor(
         MutableLiveData<ResponseState<String>>()
     val updateTaskTriggerS: LiveData<ResponseState<String>>
         get() = _updateTaskTriggerS
+
+    private val _detailTask = MutableLiveData<Task>()
+    val detailTask: LiveData<Task>
+        get() = _detailTask
+
+    private val _sendNotiTriggerS =
+        MutableSharedFlow<ResponseState<ResponseNoti>>(extraBufferCapacity = 64)
+    val sendNotiTriggerS = _sendNotiTriggerS.asSharedFlow()
 
     init {
         getListCategory()
@@ -79,6 +97,26 @@ class AddTaskVM @Inject constructor(
     fun updateCategory(category: Category, field: String) {
         viewModelScope.launch(Dispatchers.IO) {
             remoteRepo.updateCategory(category, field) {}
+        }
+    }
+
+    fun sendNotification(body: NotificationData) {
+        remoteRepo.sendNotification(body)
+            .map {
+                Log.d("TAGGGGGGGGGGGGG", "$it")
+                ResponseState.Success(it) as ResponseState<ResponseNoti>
+            }.onStart {
+                emit(ResponseState.Start)
+            }.catch {
+                Log.d("TAGGGGGGGGGGGGG", "${it.message}")
+                emit(ResponseState.Failure(it))
+            }.onEach(_sendNotiTriggerS::tryEmit)
+            .launchIn(viewModelScope)
+    }
+
+    fun getDetailTask(taskId: String) = viewModelScope.launch(Dispatchers.IO) {
+        remoteRepo.getDetailTask(taskId) {
+            _detailTask.postValue(it)
         }
     }
 }

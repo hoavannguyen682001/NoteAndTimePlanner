@@ -3,7 +3,9 @@ package com.hoanv.notetimeplanner.data.models
 import android.os.Parcelable
 import com.aminography.primecalendar.civil.CivilCalendar
 import kotlinx.parcelize.Parcelize
-import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 @Parcelize
@@ -15,7 +17,7 @@ data class Task(
     var subTask: List<SubTask> = mutableListOf(),
     var startDay: String? = CivilCalendar.toString(),
     var endDay: String? = CivilCalendar.toString(),
-    var timeEnd: String? = Calendar.getInstance().time.toString(),
+    var timeEnd: String? = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()),
     var listAttach: List<Attach> = mutableListOf(),
     var taskState: Boolean = false
 ) : Parcelable {

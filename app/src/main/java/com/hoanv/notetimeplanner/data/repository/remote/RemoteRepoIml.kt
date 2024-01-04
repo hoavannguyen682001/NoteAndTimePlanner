@@ -1,20 +1,32 @@
 package com.hoanv.notetimeplanner.data.repository.remote
 
 import android.util.Log
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.storage.FirebaseStorage
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
+import com.hoanv.notetimeplanner.data.models.notification.NotificationData
+import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
+import com.hoanv.notetimeplanner.data.remote.AppApi
 import com.hoanv.notetimeplanner.utils.AppConstant
-import java.io.FileInputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import java.io.InputStream
 
 class RemoteRepoIml(
     private val fireStore: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val appApi: AppApi,
+    private val firebaseStorage: FirebaseStorage
 ) : RemoteRepo {
     /**
      * Authentication
@@ -176,6 +188,20 @@ class RemoteRepoIml(
             }
     }
 
+    override fun getDetailTask(taskId: String, result: (Task?) -> Unit) {
+        fireStore.collection(AppConstant.TASK_TBL_NAME).document(taskId)
+            .get()
+            .addOnSuccessListener {
+                it?.let {
+                    result.invoke(it.toObject(Task::class.java)!!)
+                }
+            }
+            .addOnFailureListener {
+                result.invoke(null)
+                Log.d("GET_DETAIL_TASK", "${it.message}")
+            }
+    }
+
     /**
      * Task by Category
      */
@@ -195,14 +221,58 @@ class RemoteRepoIml(
             }
     }
 
-    val SCOPES = mutableListOf(
-        "https://www.googleapis.com/auth/firebase.messaging"
-    )
-    fun getAccessToken(): String {
-        val googleCredentials = GoogleCredentials
-            .fromStream(FileInputStream("./service-account.json"))
-            .createScoped(SCOPES)
-        googleCredentials.refresh()
-        return googleCredentials.accessToken.tokenValue
+    /**
+     * Get icons category
+     */
+    override fun getIconCategories(result: (List<String>) -> Unit) {
+        firebaseStorage.reference.child("icons")
+            .listAll()
+            .addOnSuccessListener { list ->
+                val listUri = mutableListOf<String>()
+                for (item in list.items) {
+                    item.downloadUrl
+                        .addOnSuccessListener {
+                            listUri.add(it.toString())
+                            Log.d("DownloadUrl", "$listUri")
+                            if (listUri.size == list.items.size) {
+                                result.invoke(listUri)
+                            }
+                        }
+                        .addOnFailureListener {
+                            Log.d("DownloadUrl", "${it.message}")
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.d("GetIconCategories", "${e.message}")
+            }
     }
+
+    /**
+     * Token
+     */
+    override fun getAccessToken(scope: MutableList<String>, path: InputStream): Flow<String> =
+        flow {
+            val googleCredentials = GoogleCredentials.fromStream(path).createScoped(scope)
+            googleCredentials.refresh()
+            emit(googleCredentials.refreshAccessToken().tokenValue)
+        }.flowOn(Dispatchers.IO)
+
+    override fun getDeviceToken(result: (String) -> Unit) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.d("TAGGGGGGGG", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+            // Get new FCM registration token
+            result.invoke(task.result)
+        })
+    }
+
+    /**
+     * Send notification
+     */
+    override fun sendNotification(body: NotificationData): Flow<ResponseNoti> = flow {
+        emit(appApi.sendNotification(body))
+    }.flowOn(Dispatchers.IO)
 }

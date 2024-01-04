@@ -7,19 +7,30 @@
     android:layout_marginVertical="@dimen/dp_8"
     android:padding="@dimen/dp_10">
 
+    <ImageView
+        android:id="@+id/ivIcon"
+        android:layout_width="@dimen/dp_32"
+        android:layout_height="@dimen/dp_32"
+        android:background="@drawable/bg_image_item_task"
+        android:backgroundTint="@color/maximum_blue_purple"
+        android:padding="@dimen/dp_4"
+        android:src="@drawable/ic_bicycle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
     <TextView
         android:id="@+id/tvTitleCat"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/opensans_bold"
-        android:paddingHorizontal="@dimen/dp_8"
+        android:paddingHorizontal="@dimen/dp_16"
         android:text="Công việc"
-        android:textColor="@color/lynch_gray"
+        android:textColor="@color/arsenic"
         android:textSize="@dimen/sp_16"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvNumber"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/ivIcon"
+        app:layout_constraintTop_toTopOf="@id/ivIcon"
+        app:layout_constraintBottom_toBottomOf="@id/ivIcon"/>
 
     <TextView
         android:id="@+id/tvNumber"

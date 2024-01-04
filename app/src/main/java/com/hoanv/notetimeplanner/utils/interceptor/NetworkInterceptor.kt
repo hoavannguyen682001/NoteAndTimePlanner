@@ -14,8 +14,7 @@ open class NetworkInterceptor @Inject constructor() : Interceptor {
             .build()
 
         val requestBuilder = original.newBuilder()
-            .addHeader("Authorization", "Bearer " + Pref.valueToken)
-            .addHeader("Content-Type","application/json")
+            .addHeader("Authorization", "Bearer " + Pref.accessToken)
             .url(url)
 
         val request = requestBuilder.build()

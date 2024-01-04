@@ -37,8 +37,19 @@ class CategoryVM
     val deleteCategoryTriggerS: LiveData<ResponseState<String>>
         get() = _deleteCategoryTriggerS
 
+    private val _iconCategory = MutableLiveData<List<String>>()
+    val iconCategory: LiveData<List<String>>
+        get() = _iconCategory
+
     init {
         getListCategory()
+        getIconCategories()
+    }
+
+    private fun getIconCategories() = viewModelScope.launch(Dispatchers.IO) {
+        remoteRepo.getIconCategories {
+            _iconCategory.postValue(it.sorted())
+        }
     }
 
     fun addNewCategory(category: Category) {
