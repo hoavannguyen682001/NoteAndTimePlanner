@@ -86,7 +86,6 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
             viewModel.run {
                 iconCategory.observe(this@CategoryActivity) {
                     iconAdapter.submitList(it)
-                    Log.d("LISTTTTTTTTTTTTT", "$it")
                 }
 
                 addCategoryTriggerS.observe(this@CategoryActivity) { state ->

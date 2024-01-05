@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_container_add_task"
+    android:background="@drawable/bg_border_gray"
     android:paddingBottom="@dimen/dp_16">
 
     <TextView
