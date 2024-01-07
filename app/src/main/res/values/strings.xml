@@ -11,7 +11,7 @@
     <string name="time_picker">%1$d:%2$d</string>
     <string name="date_display">%1$s to %2$s</string>
     <string name="sign_in">Bấm để đăng nhập</string>
-    <string name="manage_category">Quản lý danh mục</string>
+    <string name="filter_by_day">Hôm nay</string>
     <string name="search">Tìm kiếm</string>
     <string name="delete">Xoá</string>
     <string name="update">Chỉnh sửa</string>
@@ -30,4 +30,7 @@
     <string name="no_range_is_selected">Vui lòng chọn cả ngày bắt đầu và kết thúc!</string>
     <string name="no_day_is_selected">Không có ngày nào được chọn!</string>
     <string name="board">Bảng</string>
+    <string name="text_done">Hoàn thành</string>
+    <string name="text_todo">Thực hiện</string>
+    <string name="text_expire">Quá hạn</string>
 </resources>

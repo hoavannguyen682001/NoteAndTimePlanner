@@ -9,7 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
-import com.hoanv.notetimeplanner.ui.main.tasks.create.AddTaskActivity
+import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.utils.AppConstant
 import kotlin.random.Random
 

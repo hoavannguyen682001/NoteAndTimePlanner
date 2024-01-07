@@ -1,4 +1,4 @@
-package com.hoanv.notetimeplanner.ui.main.tasks.dashboard
+package com.hoanv.notetimeplanner.ui.main.home.dashboard
 
 import android.os.Bundle
 import android.view.LayoutInflater

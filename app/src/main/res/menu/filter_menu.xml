@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/itemCategory"
-        android:title="@string/manage_category" />
+        android:title="@string/filter_by_day" />
     <item
         android:id="@+id/itemSearch"
         android:title="@string/search" />

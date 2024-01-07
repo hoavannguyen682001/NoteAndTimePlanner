@@ -34,11 +34,12 @@
     <color name="denim_blue">#1464c7</color>
     <color name="tufts_blue">#4092E2</color>
     <color name="maximum_blue_purple">#B0B0EC</color>
+    <color name="iris">#6146c6</color>
 
     <color name="seashell">#FFF2EB</color>
     <color name="unbleached_silk">#FEDCD2</color>
     <color name="orange_crayola">#F7773B</color>
-
+    <color name="awesome">#FD1C59 </color>
     <color name="magnolia">#F8EEFC</color>
     <color name="brilliant_lavender">#E5C2F4</color>
     <color name="rich_lilac">#b762cc</color>

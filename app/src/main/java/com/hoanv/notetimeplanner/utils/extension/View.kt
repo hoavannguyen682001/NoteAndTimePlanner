@@ -3,6 +3,7 @@ package com.hoanv.notetimeplanner.utils.extension
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +11,13 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.DimenRes
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.hoanv.notetimeplanner.R
+import com.hoanv.notetimeplanner.utils.widget.swipe.GestureManager
+import fxc.dev.common.extension.resourceColor
 import kotlin.math.abs
 
 fun View.visible() {
@@ -122,6 +128,47 @@ fun CardView.simulateClick(delay: Long = ANIMATION_FAST_MILLIS) {
         isPressed = false
     }, delay)
 }
+
+fun RecyclerView.onItemSwipeLeft(
+    gestureManager: GestureManager,
+    callBack: () -> Unit
+) {
+    val leftCallback = GestureManager.SwipeCallbackLeft {
+        callBack.invoke()
+    }
+
+    gestureManager.setBackgroundColorRight(ColorDrawable(context.resourceColor(R.color.awesome)))
+    gestureManager.setIconLeft(
+        ContextCompat.getDrawable(
+            context,
+            R.drawable.ic_delete
+        )
+    )
+    gestureManager.setTextLeft("Xoá")
+    gestureManager.setIconColor(context.resourceColor(R.color.white))
+}
+
+fun RecyclerView.onItemSwipeRight(
+    gestureManager: GestureManager,
+    callBack: () -> Unit
+) {
+    val rightCallback = GestureManager.SwipeCallbackRight {
+        callBack.invoke()
+    }
+
+    gestureManager.setBackgroundColorLeft(ColorDrawable(context.resourceColor(R.color.light_green)))
+
+    gestureManager.setIconRight(
+        ContextCompat.getDrawable(
+            context,
+            R.drawable.ic_circle_checked
+        )
+    )
+    gestureManager.setTextRight("Hoàn thành")
+    gestureManager.setIconColor(context.resourceColor(R.color.white))
+}
+
+
 
 
 

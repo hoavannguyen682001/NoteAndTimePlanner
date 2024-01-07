@@ -29,13 +29,31 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dp_12"
         android:background="@color/transparent"
+        android:ellipsize="end"
         android:fontFamily="@font/opensans_bold"
+        android:maxLines="1"
         android:text="Cong viec"
         android:textColor="@color/black"
         android:textSize="@dimen/sp_16"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tvStateTask"
         app:layout_constraintStart_toEndOf="@id/ivCategory"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvStateTask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_container_edt_category"
+        android:backgroundTint="@color/light_green"
+        android:fontFamily="@font/opensans_medium"
+        android:paddingHorizontal="@dimen/dp_8"
+        android:paddingVertical="@dimen/dp_2"
+        android:text="@string/text_done"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_12"
+        app:layout_constraintBottom_toBottomOf="@+id/tvTitleTask"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvTitleTask" />
 
     <TextView
         android:id="@+id/tvCategory"
@@ -70,7 +88,7 @@
         android:layout_marginStart="@dimen/dp_16"
         android:drawablePadding="@dimen/dp_4"
         android:fontFamily="@font/opensans_semibold"
-        android:text="21:49"
+        android:text="@string/time_picker"
         android:textColor="@color/black"
         android:textSize="@dimen/sp_12"
         app:drawableStartCompat="@drawable/ic_timer"

@@ -1,6 +1,5 @@
-package com.hoanv.notetimeplanner.ui.main.tasks.list
+package com.hoanv.notetimeplanner.ui.main.home.list
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -44,7 +43,6 @@ class TasksViewModel @Inject constructor(
             remoteRepo.getListCategory { list, state ->
                 if (state) {
                     _listCategory.postValue(ResponseState.Success(list.toMutableList()))
-                    Log.d("CategoryList", "$list")
                 } else {
                     _listCategory.postValue(
                         ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))
@@ -76,7 +74,6 @@ class TasksViewModel @Inject constructor(
             remoteRepo.getListTask { list, state ->
                 if (state) {
                     _listTask.postValue(ResponseState.Success(list))
-                    Log.d("MuTaBleList", "$list")
                 } else {
                     _listTask.postValue(
                         ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))
@@ -107,7 +104,6 @@ class TasksViewModel @Inject constructor(
             remoteRepo.getListTaskByCategory(category) { list, state ->
                 if (state) {
                     _listTask.postValue(ResponseState.Success(list.toMutableList()))
-                    Log.d("MuTaBleList", "$list")
                 } else {
                     _listTask.postValue(
                         ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))

@@ -1,4 +1,4 @@
-package com.hoanv.notetimeplanner.ui.main.tasks.create
+package com.hoanv.notetimeplanner.ui.main.home.create
 
 import android.os.Bundle
 import android.util.SparseIntArray
@@ -27,8 +27,8 @@ import com.hoanv.notetimeplanner.databinding.ActivityAddTaskBinding
 import com.hoanv.notetimeplanner.databinding.DialogCategoryBinding
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
-import com.hoanv.notetimeplanner.ui.main.tasks.create.adapter.CategoryAdapter
-import com.hoanv.notetimeplanner.ui.main.tasks.create.dialog.TimePickerFragment
+import com.hoanv.notetimeplanner.ui.main.home.create.adapter.CategoryAdapter
+import com.hoanv.notetimeplanner.ui.main.home.create.dialog.TimePickerFragment
 import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
