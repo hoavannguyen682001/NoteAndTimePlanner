@@ -1,4 +1,4 @@
-package com.hoanv.notetimeplanner.ui.main.tasks.list.adapter
+package com.hoanv.notetimeplanner.ui.main.home.create.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,14 +6,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.databinding.ItemCategoryBinding
 import com.hoanv.notetimeplanner.utils.extension.safeClickListener
+import fxc.dev.common.extension.resourceColor
 
-class TaskCategoryAdapter(
+class CategoryAdapter(
     val context: Context,
     val onClick: (Category, Int) -> Unit,
-) : ListAdapter<Category, TaskCategoryAdapter.VH>(CategoryCallBack) {
+) : ListAdapter<Category, CategoryAdapter.VH>(CategoryCallBack) {
 
     object CategoryCallBack : DiffUtil.ItemCallback<Category>() {
         override fun areItemsTheSame(oldItem: Category, newItem: Category): Boolean {
@@ -50,6 +52,7 @@ class TaskCategoryAdapter(
         fun onBind(item: Category, position: Int) {
             binding.run {
                 tvCategoryTitle.text = item.title ?: ""
+                ivIcon.backgroundTintList = context.getColorStateList(R.color.black)
                 root.safeClickListener {
                     onClick.invoke(item, position)
                 }
@@ -59,6 +62,11 @@ class TaskCategoryAdapter(
 
         fun bindStateItem(isSelected: Boolean) {
             binding.cslItemCategory.isSelected = isSelected
+            if (isSelected) {
+                binding.tvCategoryTitle.setTextColor(context.resourceColor(R.color.white))
+            } else {
+                binding.tvCategoryTitle.setTextColor(context.resourceColor(R.color.black))
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.databinding.ActivityMainBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
-import com.hoanv.notetimeplanner.ui.main.tasks.category.CategoryActivity
+import com.hoanv.notetimeplanner.ui.main.home.category.CategoryActivity
 import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn

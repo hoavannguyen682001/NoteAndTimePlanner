@@ -36,4 +36,10 @@ data class Task(
             "taskState" to taskState
         )
     }
+
+    fun ownCopy(): Task {
+        return this.copy().apply {
+            taskState = this@Task.taskState
+        }
+    }
 }

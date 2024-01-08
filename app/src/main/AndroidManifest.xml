@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
     <application
         android:name=".Application"
         android:allowBackup="true"
@@ -15,12 +18,15 @@
         android:theme="@style/Theme.NoteTimePlanner"
         tools:targetApi="31">
         <activity
+            android:name=".ui.main.listTask.ListAllTaskActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.main.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity">
-
-        </activity>
+            tools:ignore="LockedOrientationActivity" />
 
         <activity
             android:name=".ui.main.splash.SplashActivity"
@@ -37,31 +43,26 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <activity
             android:name=".ui.main.login.register.RegisterActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
-
         <activity
             android:name=".ui.main.login.signin.LoginActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity"></activity>
-
+            tools:ignore="LockedOrientationActivity" />
         <activity
-            android:name=".ui.main.tasks.create.AddTaskActivity"
+            android:name=".ui.main.home.create.AddTaskActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
-
         <activity
-            android:name=".ui.main.tasks.category.CategoryActivity"
+            android:name=".ui.main.home.category.CategoryActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
-
         <activity
             android:name=".ui.main.person.activity.EditProfileActivity"
             android:exported="false"

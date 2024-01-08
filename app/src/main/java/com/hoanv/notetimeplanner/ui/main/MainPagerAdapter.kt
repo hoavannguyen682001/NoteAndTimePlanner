@@ -6,8 +6,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.hoanv.notetimeplanner.ui.main.calendar.CalendarFragment
 import com.hoanv.notetimeplanner.ui.main.person.PersonFragment
-import com.hoanv.notetimeplanner.ui.main.tasks.dashboard.DashBoardFragment
-import com.hoanv.notetimeplanner.ui.main.tasks.list.TasksFragment
+import com.hoanv.notetimeplanner.ui.main.home.dashboard.DashBoardFragment
+import com.hoanv.notetimeplanner.ui.main.home.list.TasksFragment
 
 class MainPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fragmentManager, lifecycle) {

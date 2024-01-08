@@ -1,7 +1,6 @@
-package com.hoanv.notetimeplanner.ui.main.tasks.list
+package com.hoanv.notetimeplanner.ui.main.home.list
 
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
@@ -15,23 +14,26 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hoanv.notetimeplanner.R
-import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
-import com.hoanv.notetimeplanner.ui.main.tasks.create.AddTaskActivity
-import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.DoneTaskAdapter
-import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskAdapter
-import com.hoanv.notetimeplanner.ui.main.tasks.list.adapter.TaskCategoryAdapter
+import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
+import com.hoanv.notetimeplanner.ui.main.home.list.adapter.DoneTaskAdapter
+import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskAdapter
+import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskCategoryAdapter
+import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
+import com.hoanv.notetimeplanner.utils.extension.gone
+import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import com.hoanv.notetimeplanner.utils.extension.visible
+import com.hoanv.notetimeplanner.utils.widget.swipe.GestureManager
 import dagger.hilt.android.AndroidEntryPoint
+import fxc.dev.common.extension.resourceColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import swipe.gestures.GestureManager
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
@@ -84,75 +86,35 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.getListCategory()
         viewModel.getListTask()
     }
 
     private fun initView() {
         binding.run {
-//            rvCategory.run {
-//                layoutManager =
-//                    LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-//                adapter = categoryAdapter
-//                itemAnimator = null
-//            }
-//
             rvListTask.run {
                 layoutManager =
                     LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
                 adapter = taskAdapter
             }
-//
-//            rvDoneTask.run {
-//                layoutManager =
-//                    LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-//                adapter = doneTaskAdapter
-//            }
         }
     }
 
     private fun intiListener() {
         binding.run {
-//            ivOptionMenu.setOnSingleClickListener {
-//                handleOptionMenu()
-//            }
+            tvSeeAll.setOnSingleClickListener {
+                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java))
+            }
         }
     }
 
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
-                selectedS.combine(listCategory.asFlow()) { selected, list ->
-                    Pair(selected, list)
-                }.collectInViewLifecycle(this@TasksFragment) { item ->
-                    val (select, state) = item
-
-                    when (state) {
-                        ResponseState.Start -> {
-                        }
-
-                        is ResponseState.Success -> {
-                            val listCate = state.data.toMutableList()
-                            listCate.add(0, Category(title = "Tất cả"))
-
-                            listCate.mapIndexed { index, category ->
-                                category.isSelected = index == select
-                            }
-                            categoryAdapter.submitList(listCate.map { it.ownCopy() })
-                        }
-
-                        is ResponseState.Failure -> {
-                            toastError(state.throwable?.message)
-                            Log.d("###", "${state.throwable?.message}")
-                        }
-                    }
-                }
-
                 listTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
                     when (state) {
                         ResponseState.Start -> {
-//                            pbLoading.visible()
-//                            nsvListTask.invisible()
+                            lottieAnim.visible()
+                            rvListTask.gone()
                         }
 
                         is ResponseState.Success -> {
@@ -170,17 +132,10 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                             listDone = done
 
                             onItemSwipe(listTodo.toMutableList(), rvListTask)
-//                            onItemSwipe(listDone.toMutableList(), rvDoneTask)
-
-                            lifecycleScope.launch {
-                                delay(500)
-//                                pbLoading.gone()
-//                                nsvListTask.visible()
-//                                ivOptionMenu.visible()
-                            }
                         }
 
                         is ResponseState.Failure -> {
+                            lottieAnim.gone()
                             toastError(state.throwable?.message)
                             Log.d("###", "${state.throwable?.message}")
                         }
@@ -189,7 +144,13 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
             }
 
             mListTaskS.collectInViewLifecycle(this@TasksFragment) { list ->
-                taskAdapter.submitList(list)
+                taskAdapter.submitList(list) {
+                    lifecycleScope.launch {
+                        delay(1000)
+                        lottieAnim.gone()
+                        rvListTask.visible()
+                    }
+                }
             }
 
             mListDoneS.collectInViewLifecycle(this@TasksFragment) { list ->
@@ -226,25 +187,50 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
      */
     private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
         val leftCallback = GestureManager.SwipeCallbackLeft {
-            viewModel.deleteCategory(list[it])
-            if (list[it].taskState) {
-                list.remove(list[it])
-                listDone = list
-            } else {
-                list.remove(list[it])
-                listTodo = list
-            }
+//            viewModel.deleteCategory(list[it])
+//            if (list[it].taskState) {
+//                list.remove(list[it])
+//                listDone = list
+//            } else {
+//                list.remove(list[it])
+//                listTodo = list
+//            }
+        }
+        val rightCallback = GestureManager.SwipeCallbackRight {
+//            viewModel.deleteCategory(list[it])
+//            if (list[it].taskState) {
+//                list.remove(list[it])
+//                listDone = list
+//            } else {
+//                list.remove(list[it])
+//                listTodo = list
+//            }
         }
 
-        val gestureManager = GestureManager(leftCallback)
-        gestureManager.setBackgroundColorLeft(ColorDrawable(Color.GREEN))
+
+        val gestureManager = GestureManager(rightCallback, leftCallback)
+        gestureManager.setBackgroundColorLeft(ColorDrawable(resourceColor(R.color.light_green)))
+        gestureManager.setBackgroundColorRight(ColorDrawable(resourceColor(R.color.awesome)))
+
         gestureManager.setIconLeft(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.ic_delete
             )
         )
-        ItemTouchHelper(gestureManager).attachToRecyclerView(recyclerView)
+        gestureManager.setTextLeft("Xoá")
+        gestureManager.setIconRight(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.ic_circle_checked
+            )
+        )
+        gestureManager.setTextRight("Hoàn thành")
+
+        gestureManager.setIconColor(resourceColor(R.color.white), resourceColor(R.color.white))
+
+        val itemTouchHelper = ItemTouchHelper(gestureManager)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     /**
@@ -282,4 +268,5 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 //
 //        listTodo = tempListTodo
 //        listDone = tempListDone
-    }}
+    }
+}

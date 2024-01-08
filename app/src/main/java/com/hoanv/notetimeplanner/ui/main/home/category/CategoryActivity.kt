@@ -1,4 +1,4 @@
-package com.hoanv.notetimeplanner.ui.main.tasks.category
+package com.hoanv.notetimeplanner.ui.main.home.category
 
 import android.os.Bundle
 import android.util.Log
