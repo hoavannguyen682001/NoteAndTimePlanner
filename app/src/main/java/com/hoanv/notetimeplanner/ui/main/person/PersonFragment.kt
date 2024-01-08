@@ -3,26 +3,25 @@ package com.hoanv.notetimeplanner.ui.main.person
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.databinding.FragmentPersonBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
+import com.hoanv.notetimeplanner.ui.evenbus.UserInfoEvent
 import com.hoanv.notetimeplanner.ui.main.person.activity.EditProfileActivity
-import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import fxc.dev.common.extension.resourceColor
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
@@ -39,11 +38,10 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
         initView()
         initListener()
         bindViewModel()
+        EventBus.getDefault().register(this)
     }
 
     private fun initView() {
-        binding.run {
-        }
     }
 
     private fun initListener() {
@@ -61,22 +59,6 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
-                userInfo.observe(viewLifecycleOwner) { state ->
-                    when (state) {
-                        ResponseState.Start -> {}
-
-                        is ResponseState.Success -> {
-                            user = state.data
-                            tvUserName.text = getString(R.string.hello_user, user.userName)
-                        }
-
-                        is ResponseState.Failure -> {
-                            toastError(state.throwable?.message)
-                            Log.d("###", "${state.throwable?.message}")
-                        }
-                    }
-                }
-
                 listCategories.observe(viewLifecycleOwner) {
                     listCategoriesS.addAll(it)
                     setupPieChart()
@@ -117,5 +99,18 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
                 invalidate()
             }
         }
+    }
+
+    @Subscribe
+    fun getUserInfo(event: UserInfoEvent) {
+        user = event.userInfo
+        binding.run {
+            tvUserName.text = getString(R.string.hello_user, user.userName)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
     }
 }

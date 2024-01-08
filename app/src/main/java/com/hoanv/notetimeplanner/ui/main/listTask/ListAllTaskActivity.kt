@@ -189,7 +189,7 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
 
     private fun checkExpireDay(task: Task): Boolean {
         val endDay = task.endDay?.let { day ->
-            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(
+            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(
                 day
             )
         }

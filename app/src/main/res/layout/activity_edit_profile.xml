@@ -107,7 +107,7 @@
         app:layout_constraintTop_toBottomOf="@+id/edtUserName" />
 
     <TextView
-        android:id="@+id/tvCalendar"
+        android:id="@+id/tvBirthDay"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_8"
@@ -116,7 +116,7 @@
         android:drawableEnd="@drawable/ic_calendar_uncheck"
         android:paddingHorizontal="@dimen/dp_16"
         android:paddingVertical="@dimen/dp_12"
-        android:text="29.12.2023"
+        android:text="@string/date_selected"
         android:textColor="@color/arsenic"
         app:layout_constraintEnd_toEndOf="@+id/edtUserName"
         app:layout_constraintStart_toStartOf="@+id/gl50"

@@ -3,12 +3,8 @@ package com.hoanv.notetimeplanner.ui.main.home.create
 import android.os.Bundle
 import android.util.SparseIntArray
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.TimePicker
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.asFlow
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminography.primecalendar.civil.CivilCalendar
@@ -24,9 +20,9 @@ import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.data.models.notification.MessageTask
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.databinding.ActivityAddTaskBinding
-import com.hoanv.notetimeplanner.databinding.DialogCategoryBinding
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
+import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.CategoryAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.dialog.TimePickerFragment
 import com.hoanv.notetimeplanner.utils.Pref
@@ -34,8 +30,10 @@ import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
+import fxc.dev.common.extension.resourceColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import org.greenrobot.eventbus.EventBus
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -47,6 +45,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     override val viewModel: AddTaskVM by viewModels()
 
     private val timePickerFrag = TimePickerFragment()
+    private val timeNotiPicker = TimePickerFragment()
 
     private val categoryAdapter by lazy {
         CategoryAdapter(this) { category, position ->
@@ -55,9 +54,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     }
 
     private var selectedS = MutableStateFlow(0)
-
-    private lateinit var dialogBinding: DialogCategoryBinding
-    private lateinit var alertDialog: AlertDialog
 
     private val formatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     private val date = Date()
@@ -69,11 +65,36 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private var endDay = CivilCalendar()
     private var startDay = CivilCalendar()
 
+    private val timeNotification = object : TimePickerFragment.TimePickerListener {
+        override fun timePickerListener(view: TimePicker, hourOfDay: Int, minute: Int) {
+            binding.tvTimeNotification.text =
+                getString(
+                    R.string.time_picker,
+                    "$hourOfDay",
+                    if (minute < 10) "0" else "",
+                    "$minute"
+                )
 
-    private val items = arrayOf("Trước 5 phút", "Trước 15 phút", "Trước 1 ngày")
+            val timeNoti = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
+                binding.tvTimeNotification.text.toString()
+            )
+
+            val timeEnd = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
+                binding.tvTimeEnd.text.toString()
+            )
+
+            if (timeNoti != null) {
+                if (timeNoti > timeEnd) {
+                    toastError("Vui lòng chọn thời gian thông báo trước thời gian kết thúc!")
+                    binding.tvTimeNotification.text = getString(R.string.pick_time)
+                }
+            }
+        }
+    }
 
     override fun init(savedInstanceState: Bundle?) {
         timePickerFrag.setDataTimePicker(this@AddTaskActivity)
+        timeNotiPicker.setDataTimePicker(timeNotification)
         initView()
         initListener()
         bindViewModel()
@@ -81,12 +102,15 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     private fun initView() {
         binding.run {
+            /* id from task list */
             val task = intent.getParcelableExtra<Task>("TODO")
-            val taskId = intent.getStringExtra(TASK_ID)
             task?.let {
                 idTodo = it.id
                 loadDataView(it)
             }
+
+            /* id from notification */
+            val taskId = intent.getStringExtra(TASK_ID)
             taskId?.let {
                 idTodo = it
                 viewModel.getDetailTask(it)
@@ -105,12 +129,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 )
                 itemAnimator = null
             }
-
-            val adapter =
-                ArrayAdapter(this@AddTaskActivity, android.R.layout.simple_spinner_item, items)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spnNotification.adapter = adapter
-
         }
     }
 
@@ -118,21 +136,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         binding.run {
             ivClose.setOnSingleClickListener {
                 onBackPressedDispatcher.onBackPressed()
-            }
-
-            spnNotification.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    // Xử lý khi một item được chọn
-                    val selectedItem = parent.getItemAtPosition(position).toString()
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>) {
-                }
             }
 
             tvStartDay.setOnSingleClickListener {
@@ -150,6 +153,27 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             ivSubmit.setOnSingleClickListener {
                 addTask()
             }
+
+            swcNotification.setOnCheckedChangeListener { _, isChecked ->
+                swcNotification.isChecked = isChecked
+                tvTimeNotification.isEnabled = isChecked
+
+                if (isChecked) {
+                    tvTimeNotification.run {
+                        setTextColor(resourceColor(R.color.black))
+                        backgroundTintList = getColorStateList(R.color.white)
+                    }
+                } else {
+                    tvTimeNotification.run {
+                        setTextColor(resourceColor(R.color.dark_gray))
+                        backgroundTintList = getColorStateList(R.color.cultured)
+                    }
+                }
+            }
+
+            tvTimeNotification.setOnSingleClickListener {
+                timeNotiPicker.show(supportFragmentManager, "TimerPicker")
+            }
         }
     }
 
@@ -162,7 +186,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     .collectIn(this@AddTaskActivity) { item ->
                         val (select, state) = item
                         val listCate = mutableListOf<Category>()
-                        listCate.add(0, Category(title = "Không thể loại"))
 
                         listCate.addAll(state)
                         listCate.mapIndexed { index, category ->
@@ -173,21 +196,22 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     }
 
                 addTaskTriggerS.observe(this@AddTaskActivity) { state ->
-//                    when (state) {
-//                        ResponseState.Start -> {
+                    when (state) {
+                        ResponseState.Start -> {
 //                            pbLoading.visible()
-//                        }
-//
-//                        is ResponseState.Success -> {
+                        }
+
+                        is ResponseState.Success -> {
 //                            pbLoading.gone()
-//                            toastSuccess(state.data)
-//                            finish()
-//                        }
-//
-//                        is ResponseState.Failure -> {
-//                            toastError(state.throwable?.message)
-//                        }
-//                    }
+                            toastSuccess(state.data)
+                            EventBus.getDefault().post(CheckReloadListTask(true))
+                            finish()
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
                 }
 
                 sendNotiTriggerS.collectIn(this@AddTaskActivity) { state ->
@@ -252,38 +276,43 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 endDay = tvEndDay.text.toString(),
                 taskState = false
             )
-//            if (!idTodo.isNullOrEmpty()) {
-//                task.id = idTodo!!
-//                viewModel.updateTask(task)
-//            } else {
-//                viewModel.addNewTask(task)
-//                mCategory.listTask++
-//                viewModel.updateCategory(mCategory, "listTask")
-//            }
-
-            val scheduledTime = "${task.endDay} ${task.timeEnd}:00"
-
-            /**
-             * Setup object to send notification
-             */
-            val data = DataTask(
-                taskId = task.id,
-                title = "Bạn có công việc sắp đến hạn",
-                content = task.title.toString(),
-                isScheduled = "true",
-                scheduledTime = scheduledTime
-            )
-            val messageTask = MessageTask(
-                token = Pref.deviceToken,
-                data = data
-            )
-
-            val notificationData = NotificationData(
-                message = messageTask
-            )
-
-            viewModel.sendNotification(notificationData)
+            if (!idTodo.isNullOrEmpty()) {
+                task.id = idTodo!!
+                viewModel.updateTask(task)
+            } else {
+                viewModel.addNewTask(task)
+                mCategory.listTask++
+                viewModel.updateCategory(mCategory, "listTask")
+            }
+            if (swcNotification.isChecked) {
+                setNotification(task)
+            }
         }
+    }
+
+    private fun setNotification(task: Task) {
+        val scheduledTime = "${task.endDay} ${binding.tvTimeNotification.text}:00"
+
+        /**
+         * Setup object to send notification
+         */
+        val data = DataTask(
+            taskId = task.id,
+            title = "Bạn có công việc sắp đến hạn",
+            content = task.title.toString(),
+            isScheduled = "true",
+            scheduledTime = scheduledTime
+        )
+        val messageTask = MessageTask(
+            token = Pref.deviceToken,
+            data = data
+        )
+
+        val notificationData = NotificationData(
+            message = messageTask
+        )
+
+        viewModel.sendNotification(notificationData)
     }
 
     private val themeFactory = object : LightThemeFactory() {
@@ -349,18 +378,18 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         val callback = RangeDaysPickCallback { str, end ->
             binding.run {
                 tvStartDay.text = getString(
-                    R.string.date_range_selected,
-                    str.date,
-                    str.month + 1,
-                    str.year
+                    R.string.date_selected,
+                    if (str.date < 10) "0${str.date}" else "${str.date}",
+                    if (str.month < 9) "0${str.month + 1}" else "${str.month + 1}",
+                    "${str.year}"
                 )
                 startDay = str.toCivil()
 
                 tvEndDay.text = getString(
-                    R.string.date_range_selected,
-                    end.date,
-                    end.month + 1,
-                    end.year
+                    R.string.date_selected,
+                    if (end.date < 9) "0${end.date}" else "${end.date}",
+                    if (end.month < 9) "0${end.month + 1}" else "${end.month + 1}",
+                    "${end.year}"
                 )
                 endDay = end.toCivil()
             }
@@ -377,7 +406,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     override fun timePickerListener(
         view: TimePicker, hourOfDay: Int, minute: Int
     ) {
-        binding.tvTimeEnd.text = getString(R.string.time_picker, hourOfDay, minute)
+        binding.tvTimeEnd.text = getString(
+            R.string.time_picker, "$hourOfDay",
+            if (minute < 10) "0" else "",
+            "$minute"
+        )
     }
 
     override fun setupViewBinding(inflater: LayoutInflater): ActivityAddTaskBinding =

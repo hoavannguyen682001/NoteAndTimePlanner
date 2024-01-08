@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cultured">
+    android:background="@color/ghost_white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
@@ -265,14 +265,21 @@
                 app:layout_constraintStart_toStartOf="@+id/tvEndDay"
                 app:layout_constraintTop_toTopOf="@id/textView13" />
 
-            <Spinner
-                android:id="@+id/spnNotification"
+            <TextView
+                android:id="@+id/tvTimeNotification"
                 android:layout_width="0dp"
-                android:layout_height="?attr/dropdownListPreferredItemHeight"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_12"
                 android:background="@drawable/bg_solid_white"
-                android:popupBackground="@drawable/bg_dropdown_spinner"
-                android:spinnerMode="dropdown"
+                android:backgroundTint="@color/cultured"
+                android:fontFamily="@font/opensans_medium"
+                android:gravity="center_horizontal"
+                android:paddingHorizontal="@dimen/dp_18"
+                android:paddingVertical="@dimen/dp_12"
+                android:text="@string/pick_time"
+                android:textColor="@color/dark_gray"
+                android:textSize="@dimen/dp_16"
+                app:drawableStartCompat="@drawable/ic_clock"
                 app:layout_constraintEnd_toEndOf="@+id/tvEndDay"
                 app:layout_constraintStart_toStartOf="@+id/textView15"
                 app:layout_constraintTop_toBottomOf="@+id/textView15" />
@@ -281,9 +288,9 @@
                 android:id="@+id/swcNotification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 app:layout_constraintBottom_toBottomOf="@+id/textView15"
-                app:layout_constraintEnd_toEndOf="@+id/spnNotification"
+                app:layout_constraintEnd_toEndOf="@+id/tvTimeNotification"
                 app:layout_constraintTop_toTopOf="@+id/textView15" />
 
             <TextView

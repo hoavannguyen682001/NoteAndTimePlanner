@@ -105,8 +105,6 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                             listIcon.add(Icon(iconUrl = url, isSelected = select == index))
                         }
 
-                        Log.d("Iconnnnnn", "$mIcon")
-
                         //TODO bug when scroll to end and click item icon
                         iconAdapter.submitList(listIcon.map { it.ownCopy() })
                     }

@@ -1,11 +1,14 @@
 package com.hoanv.notetimeplanner.ui.main.home.create.adapter
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.databinding.ItemCategoryBinding
@@ -52,7 +55,11 @@ class CategoryAdapter(
         fun onBind(item: Category, position: Int) {
             binding.run {
                 tvCategoryTitle.text = item.title ?: ""
-                ivIcon.backgroundTintList = context.getColorStateList(R.color.black)
+                Glide.with(context)
+                    .load(item.icon.iconUrl)
+                    .into(ivIcon)
+                ivIcon.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor(item.icon.iconColor))
                 root.safeClickListener {
                     onClick.invoke(item, position)
                 }

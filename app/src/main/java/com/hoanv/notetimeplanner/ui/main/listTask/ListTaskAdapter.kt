@@ -1,12 +1,15 @@
 package com.hoanv.notetimeplanner.ui.main.listTask
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.ItemTaskBinding
@@ -53,14 +56,19 @@ class ListTaskAdapter(
         fun onBind(task: Task, position: Int) {
             binding.run {
                 tvTitleTask.text = task.title
-                tvEstDay.text = context.getString(R.string.date_display, task.startDay, task.endDay)
+                tvEstDay.text = context.getString(R.string.date_display, task.endDay)
                 tvTimeEnd.text = task.timeEnd
                 tvCategory.text = task.category.title
+                Glide.with(context)
+                    .load(task.category.icon.iconUrl)
+                    .into(ivIcon)
+                ivIcon.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor(task.category.icon.iconColor))
                 root.setOnSingleClickListener {
                     onClick.invoke(task)
                 }
 
-                ivCategory.setOnSingleClickListener {
+                ivIcon.setOnSingleClickListener {
                     onIconCheckClick.invoke(task)
                 }
                 bindStateItem(task)
@@ -92,7 +100,7 @@ class ListTaskAdapter(
 
     private fun expireDay(task: Task): Boolean {
         val endDay = task.endDay?.let { day ->
-            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(
+            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(
                 day
             )
         }

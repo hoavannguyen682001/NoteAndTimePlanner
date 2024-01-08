@@ -17,6 +17,8 @@ import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
+import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
+import com.hoanv.notetimeplanner.ui.evenbus.UserInfoEvent
 import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.ui.main.home.list.adapter.DoneTaskAdapter
 import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskAdapter
@@ -34,6 +36,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
@@ -82,11 +86,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         initView()
         intiListener()
         bindViewModel()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.getListTask()
+        EventBus.getDefault().register(this)
     }
 
     private fun initView() {
@@ -110,6 +110,24 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
+                userInfo.observe(viewLifecycleOwner) { state ->
+                    when (state) {
+                        ResponseState.Start -> {}
+
+                        is ResponseState.Success -> {
+                            /* Event bus user info */
+                            EventBus.getDefault().post(UserInfoEvent(state.data))
+
+                            tvUserName.text = getString(R.string.hello_user, state.data.userName)
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
+
                 listTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
                     when (state) {
                         ResponseState.Start -> {
@@ -228,6 +246,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         gestureManager.setTextRight("Hoàn thành")
 
         gestureManager.setIconColor(resourceColor(R.color.white), resourceColor(R.color.white))
+        gestureManager.setTextColor(resourceColor(R.color.white), resourceColor(R.color.white))
 
         val itemTouchHelper = ItemTouchHelper(gestureManager)
         itemTouchHelper.attachToRecyclerView(recyclerView)
@@ -268,5 +287,17 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 //
 //        listTodo = tempListTodo
 //        listDone = tempListDone
+    }
+
+    @Subscribe
+    fun reloadListTask(checked: CheckReloadListTask) {
+        if(checked.isReload){
+            viewModel.getListTask()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
     }
 }
