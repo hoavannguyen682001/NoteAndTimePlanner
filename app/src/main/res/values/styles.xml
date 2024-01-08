@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppCompat.AlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/bg_container_add_task</item>
+        <item name="android:windowBackground">@drawable/bg_border_gray</item>
     </style>
 
     <style name="ProgressLoading" parent="Theme.AppCompat.DayNight.Dialog.Alert">

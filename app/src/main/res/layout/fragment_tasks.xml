@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cultured">
+    android:background="@color/ghost_white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout4"
@@ -22,7 +22,7 @@
             android:layout_marginStart="@dimen/dp_16"
             android:fontFamily="@font/opensans_bold"
             android:text="Chào,\n John Nathan"
-            android:textColor="@color/arsenic"
+            android:textColor="@color/black"
             android:textSize="@dimen/dp_20"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,7 +50,7 @@
         android:layout_marginStart="@dimen/dp_16"
         android:layout_marginTop="@dimen/dp_20"
         android:fontFamily="@font/opensans_bold"
-        android:text="Công việc nhóm"
+        android:text="Dự Án"
         android:textColor="@color/arsenic"
         android:textSize="@dimen/dp_16"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,7 +82,7 @@
         android:layout_marginStart="@dimen/dp_16"
         android:layout_marginTop="@dimen/dp_16"
         android:layout_marginEnd="@dimen/dp_8"
-        android:background="@drawable/bg_container_edt_category"
+        android:background="@drawable/bg_solid_white"
         android:elevation="@dimen/dp_2"
         android:maxHeight="@dimen/dp_200"
         android:minHeight="@dimen/dp_200"
@@ -94,7 +94,7 @@
             android:id="@+id/constraintLayout5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_head_group_task"
+            android:background="@drawable/bg_radius_top_gradient"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
@@ -182,7 +182,7 @@
         android:layout_marginStart="@dimen/dp_8"
         android:layout_marginTop="@dimen/dp_16"
         android:layout_marginEnd="@dimen/dp_16"
-        android:background="@drawable/bg_container_edt_category"
+        android:background="@drawable/bg_solid_white"
         android:elevation="@dimen/dp_2"
         android:maxHeight="@dimen/dp_200"
         android:minHeight="@dimen/dp_200"
@@ -195,7 +195,7 @@
             android:id="@+id/constraintLayout6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_head_group_task"
+            android:background="@drawable/bg_radius_top_gradient"
             android:backgroundTint="@color/aero_blue"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -285,7 +285,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_20"
         android:fontFamily="@font/opensans_bold"
-        android:text="Công việc của bạn"
+        android:text="Cá Nhân"
         android:textColor="@color/arsenic"
         android:textSize="@dimen/dp_16"
         app:layout_constraintStart_toStartOf="@+id/constraintLayout7"
