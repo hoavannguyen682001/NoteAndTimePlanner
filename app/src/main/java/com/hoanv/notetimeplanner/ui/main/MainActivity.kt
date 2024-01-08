@@ -9,6 +9,7 @@ import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.databinding.ActivityMainBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.main.home.category.CategoryActivity
+import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
@@ -54,7 +55,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
                 true
             }
             fabAdd.safeClickListener {
-                startActivity(Intent(this@MainActivity, CategoryActivity::class.java))
+                startActivity(Intent(this@MainActivity, AddTaskActivity::class.java))
             }
         }
     }

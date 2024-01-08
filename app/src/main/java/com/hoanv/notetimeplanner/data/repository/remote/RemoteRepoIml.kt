@@ -129,7 +129,7 @@ class RemoteRepoIml(
     override fun updateCategory(category: Category, field: String, result: (Boolean) -> Unit) {
         fireStore.collection(AppConstant.CATEGORY_TBL_NAME)
             .document(category.id)
-            .set(category.hashMap(), SetOptions.mergeFields(field))
+            .set(category.hashMap(), SetOptions.merge())
             .addOnSuccessListener {
                 result.invoke(true)
             }.addOnFailureListener {
@@ -233,13 +233,12 @@ class RemoteRepoIml(
                     item.downloadUrl
                         .addOnSuccessListener {
                             listUri.add(it.toString())
-                            Log.d("DownloadUrl", "$listUri")
                             if (listUri.size == list.items.size) {
                                 result.invoke(listUri)
                             }
                         }
                         .addOnFailureListener {
-                            Log.d("DownloadUrl", "${it.message}")
+                            Log.d("GetIconCategories", "${it.message}")
                         }
                 }
             }

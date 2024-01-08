@@ -1,5 +1,6 @@
 package com.hoanv.notetimeplanner.ui.main.home.dashboard
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,6 +8,9 @@ import androidx.fragment.app.viewModels
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.databinding.FragmentDashboardBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
+import com.hoanv.notetimeplanner.ui.main.home.category.CategoryActivity
+import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
+import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -24,6 +28,7 @@ class DashBoardFragment : BaseFragment<FragmentDashboardBinding, DashBoardVM>() 
 
     override fun init(savedInstanceState: Bundle?) {
         initView()
+        initListener()
     }
 
     private fun initView() {
@@ -38,8 +43,28 @@ class DashBoardFragment : BaseFragment<FragmentDashboardBinding, DashBoardVM>() 
                 formatWeekToString(dayOfWeek),
                 today.toString(),
                 formatMonthToString(month),
-                year.toString()
             )
+            tvYear.text = year.toString()
+        }
+    }
+
+    private fun initListener() {
+        binding.run {
+            cslCategory.setOnSingleClickListener {
+                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+            }
+
+            cslTask.setOnSingleClickListener {
+                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java))
+            }
+
+            cslGroupTask.setOnSingleClickListener {
+                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+            }
+
+            cslStatistical.setOnSingleClickListener {
+                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+            }
         }
     }
 

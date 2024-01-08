@@ -9,16 +9,18 @@ import java.util.UUID
 data class Category(
     var id: String = UUID.randomUUID().toString(),
     var title: String? = "",
-    var createdAt: String = Calendar.getInstance().timeInMillis.toString(),
     var listTask: Int = 0,
+    var icon: Icon = Icon(),
+    var createdAt: String = Calendar.getInstance().timeInMillis.toString(),
     var isSelected: Boolean = false
 ) : Parcelable {
     fun hashMap(): Map<String, Any?> {
         return hashMapOf(
             "id" to id,
             "title" to title,
-            "createdAt" to createdAt,
-            "listTask" to listTask
+            "icon" to icon,
+            "listTask" to listTask,
+            "createdAt" to createdAt
         )
     }
 

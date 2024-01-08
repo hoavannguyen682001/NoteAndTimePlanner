@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cslItemIcon"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -13,9 +14,19 @@
         android:backgroundTint="@color/maximum_blue_purple"
         android:padding="@dimen/dp_4"
         android:src="@drawable/ic_bicycle"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <View
+        android:id="@+id/viewCheck"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:layout_marginTop="@dimen/dp_4"
+        android:background="@drawable/bg_solid_white"
+        android:backgroundTint="@color/orange_crayola"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@id/ivIcon"
+        app:layout_constraintStart_toStartOf="@id/ivIcon"
+        app:layout_constraintTop_toBottomOf="@id/ivIcon" />
 </androidx.constraintlayout.widget.ConstraintLayout>

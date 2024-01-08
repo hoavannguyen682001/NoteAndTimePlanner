@@ -4,6 +4,7 @@ import android.os.Parcelable
 import com.aminography.primecalendar.civil.CivilCalendar
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -19,7 +20,8 @@ data class Task(
     var endDay: String? = CivilCalendar.toString(),
     var timeEnd: String? = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()),
     var listAttach: List<Attach> = mutableListOf(),
-    var taskState: Boolean = false
+    var taskState: Boolean = false,
+    var createdAt: String = Calendar.getInstance().timeInMillis.toString()
 ) : Parcelable {
 
     fun hashMap(): Map<String, Any?> {
@@ -33,7 +35,8 @@ data class Task(
             "endDay" to endDay,
             "timeEnd" to timeEnd,
             "listAttach" to listAttach,
-            "taskState" to taskState
+            "taskState" to taskState,
+            "createdAt" to createdAt
         )
     }
 

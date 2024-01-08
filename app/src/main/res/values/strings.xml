@@ -34,5 +34,5 @@
     <string name="text_done">Hoàn thành</string>
     <string name="text_todo">Thực hiện</string>
     <string name="text_expire">Quá hạn</string>
-    <string name="day_quote">%1$s,\n%2$s %3$s %4$s</string>
+    <string name="day_quote">%1$s,\n%2$s %3$s</string>
 </resources>

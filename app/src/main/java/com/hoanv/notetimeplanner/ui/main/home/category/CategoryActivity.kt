@@ -7,17 +7,22 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.asFlow
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.Icon
 import com.hoanv.notetimeplanner.databinding.ActivityCategoryBinding
 import com.hoanv.notetimeplanner.databinding.DialogAddCategoryBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.utils.ResponseState
+import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 
 @AndroidEntryPoint
 class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
@@ -28,12 +33,16 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
     }
 
     private val iconAdapter by lazy {
-        IconCategoryAdapter(this) {}
+        IconCategoryAdapter(this) { item, position ->
+            mIcon = item
+            selectedS.tryEmit(position)
+        }
     }
+    private var selectedS = MutableStateFlow(0)
 
     private lateinit var dialogBinding: DialogAddCategoryBinding
     private lateinit var alertDialog: AlertDialog
-
+    private lateinit var mIcon: Icon
 
     override fun init(savedInstanceState: Bundle?) {
         initView()
@@ -65,6 +74,7 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                         LinearLayoutManager.HORIZONTAL,
                         false
                     )
+                    itemAnimator = null
                 }
             }
         }
@@ -84,9 +94,22 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
-                iconCategory.observe(this@CategoryActivity) {
-                    iconAdapter.submitList(it)
-                }
+                val listIcon = mutableListOf<Icon>()
+
+                selectedS.combine(iconCategory.asFlow()) { selected, list -> Pair(selected, list) }
+                    .collectIn(this@CategoryActivity) { pair ->
+                        val (select, listUrl) = pair
+
+                        listIcon.clear()
+                        listUrl.forEachIndexed { index, url ->
+                            listIcon.add(Icon(iconUrl = url, isSelected = select == index))
+                        }
+
+                        Log.d("Iconnnnnn", "$mIcon")
+
+                        //TODO bug when scroll to end and click item icon
+                        iconAdapter.submitList(listIcon.map { it.ownCopy() })
+                    }
 
                 addCategoryTriggerS.observe(this@CategoryActivity) { state ->
                     when (state) {
@@ -116,7 +139,6 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                                 tvAddCategory.visible()
                                 pbLoading.gone()
                             }
-                            toastSuccess("${state.data}")
                         }
 
                         is ResponseState.Failure -> {
@@ -186,14 +208,17 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                     edtInputCate.setText(item.title)
                     tvSave.setOnSingleClickListener {
                         val category = edtInputCate.text.toString()
-                        viewModel.updateCategory(Category(id = item.id, title = category), "title")
+                        viewModel.updateCategory(
+                            Category(id = item.id, title = category, icon = mIcon),
+                            "title"
+                        )
                         viewModel.getListCategory()
                         alertDialog.dismiss()
                     }
                 } else {
                     tvSave.setOnSingleClickListener {
                         val category = edtInputCate.text.toString()
-                        viewModel.addNewCategory(Category(title = category))
+                        viewModel.addNewCategory(Category(title = category, icon = mIcon))
                         viewModel.getListCategory()
                         alertDialog.dismiss()
                     }

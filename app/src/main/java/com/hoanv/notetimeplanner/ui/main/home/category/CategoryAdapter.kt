@@ -1,15 +1,19 @@
 package com.hoanv.notetimeplanner.ui.main.home.category
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.databinding.ItemAddCategoryBinding
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import fxc.dev.common.extension.getHexColorFromResource
 
 class CategoryAdapter(
     val context: Context,
@@ -38,8 +42,14 @@ class CategoryAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun onBind(item: Category) {
             binding.run {
-                tvTitleCat.text = item.title ?: "a"
+                tvTitleCat.text = item.title ?: ""
                 tvNumber.text = item.listTask.toString()
+                Glide.with(context)
+                    .load(item.icon.iconUrl)
+                    .into(ivIcon)
+                ivIcon.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor(item.icon.iconColor))
+
                 ivOption.setOnSingleClickListener {
                     onOptionClick.invoke(item, it)
                 }
