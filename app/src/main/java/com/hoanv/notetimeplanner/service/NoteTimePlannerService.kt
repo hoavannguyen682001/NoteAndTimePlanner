@@ -29,8 +29,10 @@ class NoteTimePlannerService : FirebaseMessagingService() {
 
             val dataTask = DataTask(
                 taskId = id ?: "",
+                uniqueId = remoteMessage.data["uniqueId"]!!,
                 title = remoteMessage.data["title"]!!,
                 content = remoteMessage.data["content"]!!,
+                isUpdate = remoteMessage.data["isUpdate"]!!,
                 isScheduled = remoteMessage.data["isScheduled"]!!,
                 scheduledTime = remoteMessage.data["scheduledTime"]!!
             )
@@ -44,48 +46,105 @@ class NoteTimePlannerService : FirebaseMessagingService() {
             }
 
             // Check whether notification is scheduled or not
-            val isScheduled = remoteMessage.data["isScheduled"]?.toBoolean()
-            isScheduled?.let {
-                if (it) {
-                    // This is Scheduled Notification, Schedule it
-                    val scheduledTime = remoteMessage.data["scheduledTime"]
-                    scheduleAlarm(scheduledTime, dataTask)
-                } else {
-                    // This is not scheduled notification, show it now
-                    showNotification(dataTask)
-                }
-            }
+//            val isScheduled = remoteMessage.data["isScheduled"]?.toBoolean()
+//            isScheduled?.let {
+            val scheduledTime = remoteMessage.data["scheduledTime"]
+            scheduleAlarm(dataTask)
+//                if (it) {
+//                    // This is Scheduled Notification, Schedule it
+//
+//                } else {
+//                    // This is not scheduled notification, cancel
+////                    showNotification(dataTask)
+//                }
+//            }
         }
     }
 
     private fun scheduleAlarm(
-        scheduledTimeString: String?,
         dataTask: DataTask,
     ) {
-        val alarmMgr = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val alarmIntent =
-            Intent(applicationContext, NotificationBroadcastReceiver::class.java).let { intent ->
-                intent.putExtra(TASK_ID, dataTask.taskId)
-                intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
-                intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
-                PendingIntent.getBroadcast(
-                    applicationContext, 0, intent,
-                    PendingIntent.FLAG_IMMUTABLE
-                )
+        val alarmMgr =
+            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        if (dataTask.isUpdate.toBoolean()) { //User update time schedule
+            /* Cancel scheduled setup previous */
+            val cancelIntent =
+                Intent(
+                    applicationContext,
+                    NotificationBroadcastReceiver::class.java
+                ).let { intent ->
+                    intent.putExtra(TASK_ID, dataTask.taskId)
+                    intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
+                    intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
+                    PendingIntent.getBroadcast(
+                        applicationContext, 0, intent,
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                }
+            alarmMgr.cancel(cancelIntent)
+            Log.d("SCHEDULEEEEEEEEEEEEEEE", "Cancel schedule")
+
+            /* Set schedule time again after cancel if isScheduled is true*/
+            if (dataTask.isScheduled.toBoolean()) {
+                val alarmIntent =
+                    Intent(
+                        applicationContext,
+                        NotificationBroadcastReceiver::class.java
+                    ).let { intent ->
+                        intent.putExtra(TASK_ID, dataTask.taskId)
+                        intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
+                        intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
+                        PendingIntent.getBroadcast(
+                            applicationContext, 0, intent,
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
+                    }
+
+                // Parse Schedule time
+                val scheduledTime = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+                    .parse(dataTask.scheduledTime)
+
+                Log.d("SCHEDULEEEEEEEEEEEEEEE", "$scheduledTime")
+                scheduledTime?.let {
+                    // With set(), it'll set non repeating one time alarm.
+                    alarmMgr.set(
+                        AlarmManager.RTC_WAKEUP,
+                        it.time,
+                        alarmIntent
+                    )
+                }
             }
+        } else {
+            if (dataTask.isScheduled.toBoolean()) {
+                val alarmIntent =
+                    Intent(
+                        applicationContext,
+                        NotificationBroadcastReceiver::class.java
+                    ).let { intent ->
+                        intent.putExtra(TASK_ID, dataTask.taskId)
+                        intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
+                        intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
+                        PendingIntent.getBroadcast(
+                            applicationContext, 0, intent,
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
+                    }
 
-        // Parse Schedule time
-        val scheduledTime = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
-            .parse(scheduledTimeString!!)
+                // Parse Schedule time
+                val scheduledTime = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+                    .parse(dataTask.scheduledTime)
 
-        Log.d("SCHEDULEEEEEEEEEEEEEEE", "$scheduledTime")
-        scheduledTime?.let {
-            // With set(), it'll set non repeating one time alarm.
-            alarmMgr.set(
-                AlarmManager.RTC_WAKEUP,
-                it.time,
-                alarmIntent
-            )
+                Log.d("SCHEDULEEEEEEEEEEEEEEE", "$scheduledTime")
+                scheduledTime?.let {
+                    // With set(), it'll set non repeating one time alarm.
+                    alarmMgr.set(
+                        AlarmManager.RTC_WAKEUP,
+                        it.time,
+                        alarmIntent
+                    )
+                }
+            }
         }
     }
 

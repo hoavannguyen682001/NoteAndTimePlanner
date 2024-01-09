@@ -60,18 +60,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
+        android:fontFamily="@font/opensans_regular"
         android:text="Coding"
-        android:textColor="@color/dark_gray"
+        android:textColor="@color/arsenic"
+        android:textSize="@dimen/dp_16"
         app:layout_constraintStart_toStartOf="@id/tvTitleTask"
         app:layout_constraintTop_toBottomOf="@id/tvTitleTask" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/imageView4"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
         android:src="@drawable/ic_notification_on"
+        android:layout_marginStart="@dimen/dp_16"
         app:layout_constraintBottom_toBottomOf="@+id/tvCategory"
-        app:layout_constraintEnd_toEndOf="@+id/tvStateTask"
-        app:layout_constraintStart_toStartOf="@+id/tvStateTask"
+        app:layout_constraintStart_toEndOf="@+id/tvCategory"
         app:layout_constraintTop_toTopOf="@+id/tvCategory"
         app:tint="@color/bittersweet" />
 
@@ -79,7 +82,7 @@
         android:id="@+id/tvEstDay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_8"
+        android:layout_marginTop="@dimen/dp_12"
         android:drawablePadding="@dimen/dp_4"
         android:fontFamily="@font/opensans_semibold"
         android:gravity="center"
@@ -109,22 +112,24 @@
 
     <ImageView
         android:id="@+id/ivAttach"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dp_8"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
         android:src="@drawable/ic_attach_file"
         app:layout_constraintBottom_toBottomOf="@+id/tvTimeEnd"
         app:layout_constraintEnd_toEndOf="@+id/tvStateTask"
         app:layout_constraintStart_toStartOf="@+id/tvStateTask"
-        app:layout_constraintTop_toTopOf="@+id/tvTimeEnd" />
+        app:layout_constraintTop_toTopOf="@+id/tvTimeEnd"
+        app:tint="@color/ghost_gray" />
 
     <ImageView
         android:id="@+id/ivSubTask"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
         android:src="@drawable/ic_subtask"
         app:layout_constraintBottom_toBottomOf="@+id/ivAttach"
+        app:layout_constraintEnd_toEndOf="@+id/tvStateTask"
         app:layout_constraintStart_toEndOf="@+id/ivAttach"
-        app:layout_constraintTop_toTopOf="@+id/ivAttach" />
+        app:layout_constraintTop_toTopOf="@+id/ivAttach"
+        app:tint="@color/ghost_gray" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

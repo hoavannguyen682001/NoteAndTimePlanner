@@ -134,7 +134,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     private fun initListener() {
         binding.run {
-            ivClose.setOnSingleClickListener {
+            btnClose.setOnSingleClickListener {
                 onBackPressedDispatcher.onBackPressed()
             }
 
@@ -150,7 +150,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 timePickerFrag.show(supportFragmentManager, "TimerPicker")
             }
 
-            ivSubmit.setOnSingleClickListener {
+            btnSubmit.setOnSingleClickListener {
                 addTask()
             }
 
@@ -284,13 +284,14 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 mCategory.listTask++
                 viewModel.updateCategory(mCategory, "listTask")
             }
-            if (swcNotification.isChecked) {
-                setNotification(task)
-            }
+//            if (swcNotification.isChecked) {
+            setNotification(task, swcNotification.isChecked)
+//            }
         }
     }
 
-    private fun setNotification(task: Task) {
+    //TODO add model notification
+    private fun setNotification(task: Task, isSchedule: Boolean) {
         val scheduledTime = "${task.endDay} ${binding.tvTimeNotification.text}:00"
 
         /**
@@ -300,7 +301,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             taskId = task.id,
             title = "Bạn có công việc sắp đến hạn",
             content = task.title.toString(),
-            isScheduled = "true",
+            isScheduled = "$isSchedule",
             scheduledTime = scheduledTime
         )
         val messageTask = MessageTask(

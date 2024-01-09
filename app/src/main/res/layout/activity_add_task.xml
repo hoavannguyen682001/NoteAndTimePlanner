@@ -15,12 +15,14 @@
         android:paddingVertical="@dimen/dp_16"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/ivClose"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClose"
+            style="@style/ToolBarButton"
+            android:layout_width="?attr/appBarIconSize"
+            android:layout_height="?attr/appBarIconSize"
             android:layout_marginStart="@dimen/dp_16"
-            android:src="@drawable/ic_back"
+            app:icon="@drawable/ic_back"
+            app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/textView"
             tools:ignore="ContentDescription" />
@@ -39,13 +41,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/ivSubmit"
-            android:layout_width="@dimen/dp_30"
-            android:layout_height="@dimen/dp_30"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSubmit"
+            style="@style/ToolBarButton"
+            android:layout_width="?attr/appBarIconSize"
+            android:layout_height="?attr/appBarIconSize"
             android:layout_gravity="end"
             android:layout_marginEnd="@dimen/dp_16"
-            android:src="@drawable/ic_apply"
+            app:icon="@drawable/ic_apply"
+            app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/textView"
             tools:ignore="ContentDescription" />

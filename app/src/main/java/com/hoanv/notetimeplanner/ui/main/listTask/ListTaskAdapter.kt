@@ -99,17 +99,12 @@ class ListTaskAdapter(
     }
 
     private fun expireDay(task: Task): Boolean {
-        val endDay = task.endDay?.let { day ->
-            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(
-                day
+        val expire = "${task.endDay} ${task.timeEnd}"
+        val endDay =
+            SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).parse(
+                expire
             )
-        }
-        val timeEnd = task.timeEnd?.let { time ->
-            SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
-                time
-            )
-        }
         /* Check if end day before today or if timeEnd before current time */
-        return (Date() == endDay && Date().after(timeEnd)) || Date() > endDay
+        return Date().after(endDay)
     }
 }

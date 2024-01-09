@@ -7,10 +7,14 @@ import kotlinx.serialization.Serializable
 data class DataTask(
     @SerializedName("taskId")
     var taskId: String,
+    @SerializedName("uniqueId")
+    var uniqueId: String,
     @SerializedName("title")
     var title: String,
     @SerializedName("content")
     var content: String,
+    @SerializedName("isUpdate")
+    var isUpdate: String,
     @SerializedName("isScheduled")
     var isScheduled: String,
     @SerializedName("scheduledTime")

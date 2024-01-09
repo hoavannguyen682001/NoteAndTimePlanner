@@ -12,6 +12,7 @@ import java.util.UUID
 @Parcelize
 data class Task(
     var id: String = UUID.randomUUID().toString(),
+    var userId: String = "",
     var title: String? = "",
     var description: String? = "",
     var category: Category = Category(title = "Không có thể loại"),
@@ -27,6 +28,7 @@ data class Task(
     fun hashMap(): Map<String, Any?> {
         return mapOf(
             "id" to id,
+            "userId" to userId,
             "title" to title,
             "description" to description,
             "category" to category,
