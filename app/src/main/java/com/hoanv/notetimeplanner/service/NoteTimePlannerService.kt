@@ -78,7 +78,7 @@ class NoteTimePlannerService : FirebaseMessagingService() {
                     intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
                     intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
                     PendingIntent.getBroadcast(
-                        applicationContext, 0, intent,
+                        applicationContext, dataTask.uniqueId.toInt(), intent,
                         PendingIntent.FLAG_IMMUTABLE
                     )
                 }
@@ -96,7 +96,7 @@ class NoteTimePlannerService : FirebaseMessagingService() {
                         intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
                         intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
                         PendingIntent.getBroadcast(
-                            applicationContext, 0, intent,
+                            applicationContext, dataTask.uniqueId.toInt(), intent,
                             PendingIntent.FLAG_IMMUTABLE
                         )
                     }
@@ -126,7 +126,7 @@ class NoteTimePlannerService : FirebaseMessagingService() {
                         intent.putExtra(NOTIFICATION_TITLE, dataTask.title)
                         intent.putExtra(NOTIFICATION_MESSAGE, dataTask.content)
                         PendingIntent.getBroadcast(
-                            applicationContext, 0, intent,
+                            applicationContext, dataTask.uniqueId.toInt(), intent,
                             PendingIntent.FLAG_IMMUTABLE
                         )
                     }

@@ -16,10 +16,11 @@ data class Task(
     var title: String? = "",
     var description: String? = "",
     var category: Category = Category(title = "Không có thể loại"),
-    var subTask: List<SubTask> = mutableListOf(),
+    var member: MutableList<UserInfo> = mutableListOf(),
     var startDay: String? = CivilCalendar.toString(),
     var endDay: String? = CivilCalendar.toString(),
     var timeEnd: String? = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()),
+    var subTask: List<SubTask> = mutableListOf(),
     var listAttach: List<Attach> = mutableListOf(),
     var taskState: Boolean = false,
     var createdAt: String = Calendar.getInstance().timeInMillis.toString()

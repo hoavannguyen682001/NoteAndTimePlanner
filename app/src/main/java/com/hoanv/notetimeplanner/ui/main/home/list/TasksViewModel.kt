@@ -9,6 +9,7 @@ import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +60,7 @@ class TasksViewModel @Inject constructor(
         _userInfo.postValue(ResponseState.Start)
         remoteRepo.getUserInfo(email) { userInfo ->
             if (userInfo != null) {
+                Pref.userId = userInfo.uid
                 _userInfo.postValue(ResponseState.Success(userInfo))
             } else {
                 _userInfo.postValue(ResponseState.Failure(Throwable("Fail")))

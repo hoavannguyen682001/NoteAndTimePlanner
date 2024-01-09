@@ -12,6 +12,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
+import com.hoanv.notetimeplanner.data.models.group.GroupNotification
+import com.hoanv.notetimeplanner.data.models.group.ResponseKey
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
 import com.hoanv.notetimeplanner.data.remote.AppApi
@@ -273,5 +275,9 @@ class RemoteRepoIml(
      */
     override fun sendNotification(body: NotificationData): Flow<ResponseNoti> = flow {
         emit(appApi.sendNotification(body))
+    }.flowOn(Dispatchers.IO)
+
+    override fun createGroupNotification(body: GroupNotification): Flow<ResponseKey> = flow {
+        emit(appApi.createGroupNotification(body))
     }.flowOn(Dispatchers.IO)
 }

@@ -8,16 +8,23 @@ import java.util.UUID
 data class NotificationInfo(
     var notiId: String = UUID.randomUUID().toString(),
     var taskId: String = "",
+    var uniqueId: Int = 0,
     var title: String = "",
     var content: String = "",
-    var scheduleTime: String = "",
+    var notificationKey: String = "",
+    var member: MutableList<String> = mutableListOf(),
+    var dayNotification: String = "",
+    var timeNotification: String = "",
 ) : Parcelable {
     fun hashMap(): Map<String, Any?> {
         return mapOf(
             "id" to notiId,
             "title" to title,
             "content" to content,
-            "scheduleTime" to scheduleTime
+            "dayNotification" to dayNotification,
+            "timeNotification" to timeNotification,
+            "notificationKey" to notificationKey,
+            "member" to member
         )
     }
 }

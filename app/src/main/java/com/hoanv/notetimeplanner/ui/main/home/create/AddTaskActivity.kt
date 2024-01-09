@@ -15,6 +15,7 @@ import com.aminography.primedatepicker.picker.callback.RangeDaysPickCallback
 import com.aminography.primedatepicker.picker.theme.LightThemeFactory
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.NotificationInfo
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.data.models.notification.MessageTask
@@ -38,6 +39,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.pow
+import kotlin.random.Random
 
 @AndroidEntryPoint
 class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
@@ -64,6 +67,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private lateinit var mCategory: Category
     private var endDay = CivilCalendar()
     private var startDay = CivilCalendar()
+
+    private var isUpdate = false
 
     private val timeNotification = object : TimePickerFragment.TimePickerListener {
         override fun timePickerListener(view: TimePicker, hourOfDay: Int, minute: Int) {
@@ -129,6 +134,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 )
                 itemAnimator = null
             }
+
+            tvTaskPersonal.isSelected = true
         }
     }
 
@@ -136,6 +143,28 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         binding.run {
             btnClose.setOnSingleClickListener {
                 onBackPressedDispatcher.onBackPressed()
+            }
+
+            tvTaskPersonal.setOnSingleClickListener {
+                tvTaskPersonal.run {
+                    isSelected = true
+                    tvTaskPersonal.setTextColor(resourceColor(R.color.white))
+                }
+                tvTaskGroup.run {
+                    isSelected = false
+                    setTextColor(resourceColor(R.color.arsenic))
+                }
+            }
+
+            tvTaskGroup.setOnSingleClickListener {
+                tvTaskGroup.run {
+                    isSelected = true
+                    setTextColor(resourceColor(R.color.white))
+                }
+                tvTaskPersonal.run {
+                    isSelected = false
+                    setTextColor(resourceColor(R.color.arsenic))
+                }
             }
 
             tvStartDay.setOnSingleClickListener {
@@ -268,6 +297,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private fun addTask() {
         binding.run {
             val task = Task(
+                userId = Pref.userId,
                 title = edtTitle.text.toString(),
                 description = edtDescription.text.toString(),
                 category = mCategory,
@@ -278,32 +308,52 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             )
             if (!idTodo.isNullOrEmpty()) {
                 task.id = idTodo!!
+                isUpdate = true
                 viewModel.updateTask(task)
             } else {
                 viewModel.addNewTask(task)
                 mCategory.listTask++
+                isUpdate = false
                 viewModel.updateCategory(mCategory, "listTask")
             }
 //            if (swcNotification.isChecked) {
-            setNotification(task, swcNotification.isChecked)
+            setNotification(task, swcNotification.isChecked, isUpdate)
 //            }
         }
     }
 
     //TODO add model notification
-    private fun setNotification(task: Task, isSchedule: Boolean) {
+    private fun setNotification(task: Task, isSchedule: Boolean, isUpdate: Boolean) {
+        fun generateRandomIntId(length: Int): Int {
+            val maxValue = 10.0.pow(length.toDouble()).toInt()
+            return Random.nextInt(maxValue)
+        }
+
         val scheduledTime = "${task.endDay} ${binding.tvTimeNotification.text}:00"
+
+        /* Set information notification */
+        val notificationInfo = NotificationInfo(
+            taskId = task.id,
+            uniqueId = generateRandomIntId(6),
+            title = task.title.toString(),
+            content = task.title.toString(),
+            dayNotification = task.endDay.toString(),
+            timeNotification = binding.tvTimeNotification.text.toString()
+        )
 
         /**
          * Setup object to send notification
          */
         val data = DataTask(
             taskId = task.id,
+            uniqueId = notificationInfo.uniqueId.toString(),
             title = "Bạn có công việc sắp đến hạn",
             content = task.title.toString(),
             isScheduled = "$isSchedule",
-            scheduledTime = scheduledTime
+            scheduledTime = scheduledTime,
+            isUpdate = isUpdate.toString()
         )
+
         val messageTask = MessageTask(
             token = Pref.deviceToken,
             data = data
@@ -388,7 +438,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
                 tvEndDay.text = getString(
                     R.string.date_selected,
-                    if (end.date < 9) "0${end.date}" else "${end.date}",
+                    if (end.date < 10) "0${end.date}" else "${end.date}",
                     if (end.month < 9) "0${end.month + 1}" else "${end.month + 1}",
                     "${end.year}"
                 )

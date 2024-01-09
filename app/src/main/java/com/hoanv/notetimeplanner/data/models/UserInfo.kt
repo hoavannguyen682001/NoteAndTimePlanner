@@ -11,6 +11,7 @@ data class UserInfo(
     var userEmail: String = "",
     var userPassword: String = "",
     var photoUrl: String? = "",
+    var userToken: String = ""
 ) : Parcelable {
     fun hashMap(): Map<String, Any?> {
         return mapOf(
@@ -18,7 +19,8 @@ data class UserInfo(
             "userName" to userName,
             "userEmail" to userEmail,
             "userPassword" to userPassword,
-            "photoUrl" to photoUrl
+            "photoUrl" to photoUrl,
+            "userToken" to userName
         )
     }
 }

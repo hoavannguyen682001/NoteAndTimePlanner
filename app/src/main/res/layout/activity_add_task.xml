@@ -73,17 +73,56 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/constraintLayout2">
 
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_16"
+                android:background="@drawable/bg_solid_white"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_4"
+                android:weightSum="2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.6">
+
+                <TextView
+                    android:id="@+id/tvTaskPersonal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/item_filter_select"
+                    android:gravity="center"
+                    android:paddingVertical="@dimen/dp_8"
+                    android:text="Cá Nhân"
+                    android:textColor="@color/white" />
+
+                <TextView
+                    android:id="@+id/tvTaskGroup"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/item_filter_select"
+                    android:gravity="center"
+                    android:paddingVertical="@dimen/dp_8"
+                    android:text="Dự Án"
+                    android:textColor="@color/arsenic" />
+            </LinearLayout>
+
+
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_16"
                 android:fontFamily="@font/opensans_semibold"
                 android:text="@string/title"
                 android:textColor="@color/arsenic"
                 android:textSize="@dimen/dp_16"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/linearLayout" />
 
             <EditText
                 android:id="@+id/edtTitle"
@@ -365,274 +404,4 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
-    <!--                android:id="@+id/constraintLayout2"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:layout_marginTop="@dimen/dp_16"-->
-    <!--                android:padding="@dimen/dp_16"-->
-    <!--                app:layout_constraintTop_toBottomOf="@+id/constraintLayout"-->
-    <!--                tools:layout_editor_absoluteX="16dp">-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/textView2"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:drawablePadding="@dimen/dp_10"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:gravity="center"-->
-    <!--                    android:text="@string/estimate_day"-->
-    <!--                    app:drawableStartCompat="@drawable/ic_calendar_check"-->
-    <!--                    app:layout_constraintStart_toStartOf="parent"-->
-    <!--                    app:layout_constraintTop_toTopOf="parent" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/textView13"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginStart="@dimen/dp_16"-->
-    <!--                    android:layout_marginTop="@dimen/dp_8"-->
-    <!--                    android:drawablePadding="@dimen/dp_8"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:text="Ngày bắt đầu"-->
-    <!--                    app:drawableStartCompat="@drawable/ic_arrow_right"-->
-    <!--                    app:layout_constraintStart_toStartOf="@id/textView2"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/textView2" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvStartDay"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:background="@drawable/bg_container_edt_category"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:paddingHorizontal="@dimen/dp_10"-->
-    <!--                    android:paddingVertical="@dimen/dp_4"-->
-    <!--                    android:text="12/12/2023"-->
-    <!--                    android:textColor="@color/lynch_gray"-->
-    <!--                    app:layout_constraintBottom_toBottomOf="@+id/textView13"-->
-    <!--                    app:layout_constraintEnd_toEndOf="@+id/tvEstimate"-->
-    <!--                    app:layout_constraintTop_toTopOf="@+id/textView13" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvTitleEndDay"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginTop="@dimen/dp_8"-->
-    <!--                    android:drawablePadding="@dimen/dp_8"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:text="Ngày kết thúc"-->
-    <!--                    app:drawableStartCompat="@drawable/ic_arrow_left"-->
-    <!--                    app:layout_constraintStart_toStartOf="@+id/textView13"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/textView13"-->
-    <!--                    tools:layout_editor_absoluteY="16dp" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvEndDay"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:background="@drawable/bg_container_edt_category"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:paddingHorizontal="@dimen/dp_10"-->
-    <!--                    android:paddingVertical="@dimen/dp_4"-->
-    <!--                    android:text="12/12/2023"-->
-    <!--                    android:textColor="@color/lynch_gray"-->
-    <!--                    app:layout_constraintBottom_toBottomOf="@+id/tvTitleEndDay"-->
-    <!--                    app:layout_constraintEnd_toEndOf="@+id/tvStartDay"-->
-    <!--                    app:layout_constraintTop_toTopOf="@+id/tvTitleEndDay" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvEstimate"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:text="Chọn ngày"-->
-    <!--                    android:textColor="@color/lynch_gray"-->
-    <!--                    app:layout_constraintBottom_toBottomOf="@+id/textView2"-->
-    <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-    <!--                    app:layout_constraintTop_toTopOf="@+id/textView2" />-->
-
-    <!--                <com.google.android.material.divider.MaterialDivider-->
-    <!--                    android:id="@+id/divider"-->
-    <!--                    android:layout_width="match_parent"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginHorizontal="@dimen/dp_8"-->
-    <!--                    android:layout_marginTop="@dimen/dp_16"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/tvTitleEndDay" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/textView3"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginTop="@dimen/dp_16"-->
-    <!--                    android:drawablePadding="@dimen/dp_10"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:gravity="center"-->
-    <!--                    android:text="Thời gian"-->
-    <!--                    app:drawableStartCompat="@drawable/ic_clock"-->
-    <!--                    app:layout_constraintStart_toStartOf="@+id/textView2"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/divider" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvTimer"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:text="Chọn thời gian"-->
-    <!--                    android:textColor="@color/lynch_gray"-->
-    <!--                    app:layout_constraintBottom_toBottomOf="@+id/textView3"-->
-    <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-    <!--                    app:layout_constraintTop_toTopOf="@+id/textView3" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/textView15"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginStart="@dimen/dp_16"-->
-    <!--                    android:layout_marginTop="@dimen/dp_8"-->
-    <!--                    android:drawablePadding="@dimen/dp_8"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:text="Thời gian kết thúc"-->
-    <!--                    app:drawableStartCompat="@drawable/ic_timer"-->
-    <!--                    app:layout_constraintStart_toStartOf="@id/textView3"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/textView3" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvTimeEnd"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:background="@drawable/bg_container_edt_category"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:paddingHorizontal="@dimen/dp_12"-->
-    <!--                    android:paddingVertical="@dimen/dp_4"-->
-    <!--                    android:text="21:57"-->
-    <!--                    android:textColor="@color/lynch_gray"-->
-    <!--                    app:layout_constraintBottom_toBottomOf="@+id/textView15"-->
-    <!--                    app:layout_constraintEnd_toEndOf="@+id/tvTimer"-->
-    <!--                    app:layout_constraintTop_toTopOf="@+id/textView15" />-->
-
-    <!--                <com.google.android.material.divider.MaterialDivider-->
-    <!--                    android:id="@+id/divider2"-->
-    <!--                    android:layout_width="match_parent"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginHorizontal="@dimen/dp_8"-->
-    <!--                    android:layout_marginTop="@dimen/dp_16"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/textView15" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/textView4"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginTop="@dimen/dp_16"-->
-    <!--                    android:drawablePadding="@dimen/dp_10"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:gravity="center"-->
-    <!--                    android:text="Danh mục"-->
-    <!--                    app:drawableStartCompat="@drawable/ic_category_bold"-->
-    <!--                    app:layout_constraintStart_toStartOf="@+id/textView3"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/divider2" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/textView16"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginStart="@dimen/dp_16"-->
-    <!--                    android:layout_marginTop="@dimen/dp_8"-->
-    <!--                    android:drawablePadding="@dimen/dp_8"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:text="Thể loại"-->
-    <!--                    app:drawableStartCompat="@drawable/ic_category"-->
-    <!--                    app:layout_constraintStart_toStartOf="@id/textView4"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/textView4" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvCategory"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:text="Chọn danh mục"-->
-    <!--                    android:textColor="@color/lynch_gray"-->
-    <!--                    app:layout_constraintBottom_toBottomOf="@+id/textView4"-->
-    <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-    <!--                    app:layout_constraintTop_toTopOf="@+id/textView4" />-->
-
-    <!--                <TextView-->
-    <!--                    android:id="@+id/tvTitLeCategory"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:background="@drawable/bg_container_edt_category"-->
-    <!--                    android:ellipsize="end"-->
-    <!--                    android:fontFamily="@font/opensans_bold"-->
-    <!--                    android:maxWidth="200dp"-->
-    <!--                    android:maxLines="1"-->
-    <!--                    android:paddingHorizontal="@dimen/dp_12"-->
-    <!--                    android:paddingVertical="@dimen/dp_4"-->
-    <!--                    android:text="Không có"-->
-    <!--                    android:textColor="@color/lynch_gray"-->
-    <!--                    app:layout_constraintBottom_toBottomOf="@+id/textView16"-->
-    <!--                    app:layout_constraintEnd_toEndOf="@+id/tvTimer"-->
-    <!--                    app:layout_constraintTop_toTopOf="@+id/textView16" />-->
-
-    <!--                <com.google.android.material.divider.MaterialDivider-->
-    <!--                    android:id="@+id/divider3"-->
-    <!--                    android:layout_width="match_parent"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_marginHorizontal="@dimen/dp_8"-->
-    <!--                    android:layout_marginTop="@dimen/dp_16"-->
-    <!--                    app:layout_constraintTop_toBottomOf="@id/textView16" />-->
-    <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-    <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:layout_marginHorizontal="@dimen/dp_16"-->
-    <!--                android:layout_marginVertical="@dimen/dp_16"-->
-    <!--                android:background="@drawable/bg_container_add_task"-->
-    <!--                android:elevation="@dimen/dp_6"-->
-    <!--                android:padding="@dimen/dp_16"-->
-    <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--                app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"-->
-    <!--                app:layout_constraintStart_toStartOf="@+id/constraintLayout2"-->
-    <!--                app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">-->
-
-    <!--                    <TextView-->
-    <!--                        android:id="@+id/textView6"-->
-    <!--                        android:layout_width="wrap_content"-->
-    <!--                        android:layout_height="wrap_content"-->
-    <!--                        android:drawablePadding="@dimen/dp_10"-->
-    <!--                        android:fontFamily="@font/opensans_bold"-->
-    <!--                        android:gravity="center"-->
-    <!--                        android:text="Nhiệm vụ phụ"-->
-    <!--                        app:drawableStartCompat="@drawable/ic_add"-->
-    <!--                        app:drawableTint="@color/colorPrimary"-->
-    <!--                        app:layout_constraintStart_toStartOf="parent"-->
-    <!--                        app:layout_constraintTop_toTopOf="parent" />-->
-
-    <!--                    <androidx.recyclerview.widget.RecyclerView-->
-    <!--                        android:id="@+id/rvAddSubTask"-->
-    <!--                        android:layout_width="match_parent"-->
-    <!--                        android:layout_height="wrap_content"-->
-    <!--                        android:layout_marginTop="@dimen/dp_8"-->
-    <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--                        app:layout_constraintStart_toStartOf="parent"-->
-    <!--                        app:layout_constraintTop_toBottomOf="@+id/textView6"-->
-    <!--                        tools:listitem="@layout/item_sub_task" />-->
-
-    <!--                    <TextView-->
-    <!--                        android:id="@+id/tvAddSubTask"-->
-    <!--                        android:layout_width="wrap_content"-->
-    <!--                        android:layout_height="wrap_content"-->
-    <!--                        android:text="Thêm"-->
-    <!--                        android:textColor="@color/lynch_gray"-->
-    <!--                        app:layout_constraintBottom_toBottomOf="@+id/textView6"-->
-    <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--                        app:layout_constraintTop_toTopOf="@+id/textView6" />-->
-
-    <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
-    <!--    </androidx.core.widget.NestedScrollView>-->
-
-    <!--    <ProgressBar-->
-    <!--        android:id="@+id/pbLoading"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_gravity="center"-->
-    <!--        android:visibility="invisible" />-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>

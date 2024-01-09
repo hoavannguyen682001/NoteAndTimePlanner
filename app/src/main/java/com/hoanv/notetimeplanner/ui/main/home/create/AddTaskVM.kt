@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.group.GroupNotification
+import com.hoanv.notetimeplanner.data.models.group.ResponseKey
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
@@ -118,5 +120,21 @@ class AddTaskVM @Inject constructor(
         remoteRepo.getDetailTask(taskId) {
             _detailTask.postValue(it)
         }
+    }
+
+    fun createGroupNotification(body: GroupNotification) {
+        remoteRepo.createGroupNotification(body)
+            .map {
+                Log.d("createGroupNotification", "$it")
+                ResponseState.Success(it) as ResponseState<ResponseKey>
+            }.onStart {
+                emit(ResponseState.Start)
+            }.catch {
+                Log.d("createGroupNotification", "${it.message}")
+                emit(ResponseState.Failure(it))
+            }.onEach {
+
+            }
+            .launchIn(viewModelScope)
     }
 }
