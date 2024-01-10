@@ -36,4 +36,5 @@
     <string name="text_expire">Quá hạn</string>
     <string name="day_quote">%1$s,\n%2$s %3$s</string>
     <string name="pick_time">Chọn thời gian</string>
+    <string name="numb_of_task">%d công việc</string>
 </resources>
