@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,12 +41,24 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
         ListTaskAdapter(this, ::onTaskClick) {}
     }
 
+    private val listTaskGroupAdp by lazy {
+        ListGroupTaskAdapter(this) {}
+    }
+
     private val _listTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
     private val mListTaskS = mutableListOf<Task>()
     private var listTaskS = listOf<Task>()
         set(value) {
             field = value
             _listTaskS.tryEmit(value)
+        }
+
+    private val _listGroupTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
+    private val mListGroupTaskS = mutableListOf<Task>()
+    private var listGroupTaskS = listOf<Task>()
+        set(value) {
+            field = value
+            _listGroupTaskS.tryEmit(value)
         }
 
 
@@ -66,6 +79,11 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
                         false
                     )
                 adapter = listTaskAdapter
+            }
+
+            rvListTaskGroup.run {
+                layoutManager = GridLayoutManager(this@ListAllTaskActivity, 2)
+                adapter = listTaskGroupAdp
             }
         }
     }
@@ -122,6 +140,7 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
                         }
 
                         is ResponseState.Success -> {
+                            //TODO map list task by type task
                             listTaskS = (state.data)
                             mListTaskS.clear()
                             mListTaskS.addAll(state.data)
