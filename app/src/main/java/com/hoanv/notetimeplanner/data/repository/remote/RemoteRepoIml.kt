@@ -1,5 +1,6 @@
 package com.hoanv.notetimeplanner.data.repository.remote
 
+import android.net.Uri
 import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.auth.oauth2.GoogleCredentials
@@ -280,4 +281,24 @@ class RemoteRepoIml(
     override fun createGroupNotification(body: GroupNotification): Flow<ResponseKey> = flow {
         emit(appApi.createGroupNotification(body))
     }.flowOn(Dispatchers.IO)
+
+    override fun uploadAvatar(userId: String, imageUri: Uri, result: (String) -> Unit) {
+        val imageRef = firebaseStorage.reference.child("images/$userId")
+
+        // Upload the file and metadata
+        val uploadTask = imageRef.putFile(imageUri)
+        uploadTask.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Image uploaded successfully
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    // Handle the download URL
+                    val imageUrl = downloadUri.toString()
+                    // Now you can use imageUrl as needed
+                    result.invoke(imageUrl)
+                }
+            } else {
+                Log.d("uploadAvatar", "${task.exception}")
+            }
+        }
+    }
 }

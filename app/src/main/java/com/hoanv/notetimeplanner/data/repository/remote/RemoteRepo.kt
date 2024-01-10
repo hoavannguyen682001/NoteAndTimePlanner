@@ -1,5 +1,6 @@
 package com.hoanv.notetimeplanner.data.repository.remote
 
+import android.net.Uri
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
@@ -61,4 +62,6 @@ interface RemoteRepo {
     fun sendNotification(body: NotificationData): Flow<ResponseNoti>
 
     fun createGroupNotification(body: GroupNotification): Flow<ResponseKey>
+
+    fun uploadAvatar(userId: String, imageUri: Uri, result: (String) -> Unit)
 }

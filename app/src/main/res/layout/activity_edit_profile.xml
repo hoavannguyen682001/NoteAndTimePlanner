@@ -191,6 +191,7 @@
             android:background="@drawable/bg_border_gray"
             android:inputType="textPassword"
             android:maxLines="1"
+            android:enabled="false"
             android:paddingHorizontal="@dimen/dp_16"
             android:paddingVertical="@dimen/dp_12"
             android:textColor="@color/arsenic" />

@@ -15,10 +15,28 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.google.android.material.snackbar.Snackbar
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.utils.widget.swipe.GestureManager
 import fxc.dev.common.extension.resourceColor
 import kotlin.math.abs
+
+fun View.showSnackBar(
+    view: View,
+    msg: String,
+    length: Int,
+    actionMessage: CharSequence?,
+    action: (View) -> Unit
+) {
+    val snackBar = Snackbar.make(view, msg, length)
+    if (actionMessage != null) {
+        snackBar.setAction(actionMessage) {
+            action(this)
+        }.show()
+    } else {
+        snackBar.show()
+    }
+}
 
 fun View.visible() {
     this.visibility = View.VISIBLE

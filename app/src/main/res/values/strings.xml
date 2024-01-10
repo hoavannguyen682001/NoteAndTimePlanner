@@ -37,4 +37,8 @@
     <string name="day_quote">%1$s,\n%2$s %3$s</string>
     <string name="pick_time">Chọn thời gian</string>
     <string name="numb_of_task">%d công việc</string>
+
+    <string name="permission_required">Camera access is required to display the camera preview.</string>
+    <string name="ok">OK</string>
+    <string name="permission_granted">Permission is granted. You can use the camera now.</string>
 </resources>
