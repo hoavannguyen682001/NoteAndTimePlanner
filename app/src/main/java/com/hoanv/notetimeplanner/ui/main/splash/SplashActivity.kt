@@ -2,7 +2,9 @@ package com.hoanv.notetimeplanner.ui.main.splash
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.hoanv.notetimeplanner.databinding.ActivitySplashBinding
@@ -17,8 +19,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SplashActivity : BaseActivity<ActivitySplashBinding, SplashVM>() {
-    override val viewModel: SplashVM
-        get() = SplashVM()
+    override val viewModel: SplashVM by viewModels()
 
     private lateinit var auth: FirebaseAuth
     override fun init(savedInstanceState: Bundle?) {

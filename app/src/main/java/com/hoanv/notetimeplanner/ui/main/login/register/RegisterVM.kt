@@ -11,6 +11,7 @@ import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,8 +35,17 @@ class RegisterVM @Inject constructor(
 
     fun signInWithGoogle(idToken: String) {
         _registerTriggerS.postValue(ResponseState.Start)
-        remoteRepo.signInWithGoogle(idToken) {
-            if (it) {
+        remoteRepo.signInWithGoogle(idToken) { user, state ->
+            if (state && user != null) {
+                val userInfo = UserInfo(
+                    userName = user.displayName ?: "",
+                    userEmail = user.email ?: "",
+                    userToken = Pref.deviceToken,
+                    userPassword = UUID.randomUUID().toString(),
+                )
+                /* upload user info*/
+                remoteRepo.createUserInfoByGoogleAuth(userInfo)
+
                 _registerTriggerS.postValue(ResponseState.Success("Thành công."))
                 Pref.isSaveLogin = true
             } else {

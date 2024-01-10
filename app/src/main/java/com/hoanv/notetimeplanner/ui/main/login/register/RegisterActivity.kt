@@ -20,6 +20,7 @@ import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.main.MainActivity
 import com.hoanv.notetimeplanner.ui.main.login.signin.LoginActivity
 import com.hoanv.notetimeplanner.utils.FieldValidators
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,7 +99,9 @@ class RegisterActivity : BaseActivity<ActivityRegisterBinding, RegisterVM>() {
                 userName = edtUserName.text.toString(),
                 userEmail = edtEmail.text.toString(),
                 userPassword = edtPassword.text.toString(),
+                userToken = Pref.deviceToken
             )
+            Log.d("USER_TOKEN", "${Pref.deviceToken} - ${userInfo.userToken}")
 
             viewModel.createUserAccount(userInfo)
         }

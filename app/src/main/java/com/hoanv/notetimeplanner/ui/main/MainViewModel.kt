@@ -27,14 +27,10 @@ class MainViewModel @Inject constructor(
     private val _accessToken = MutableSharedFlow<ResponseState<String>>(extraBufferCapacity = 64)
     val accessToken = _accessToken.asSharedFlow()
 
-    init {
-        getDeviceToken()
-    }
-
     fun getAccessToken(scopes: MutableList<String>, path: InputStream) {
         remoteRepo.getAccessToken(scopes, path)
             .map {
-                Log.d("TAGGGGGGGGGGGG", "service-account $it")
+                Log.d("Service-Account", "service-account $it")
                 Pref.accessToken = it
                 ResponseState.Success(it) as ResponseState<String>
             }.onStart {
@@ -43,14 +39,5 @@ class MainViewModel @Inject constructor(
                 emit(ResponseState.Failure(it))
             }.onEach(_accessToken::tryEmit)
             .launchIn(viewModelScope)
-    }
-
-    private fun getDeviceToken() {
-        viewModelScope.launch(Dispatchers.IO) {
-            remoteRepo.getDeviceToken {
-                Pref.deviceToken = it
-                Log.d("TAGGGGGGGGGGGG", "device token $it")
-            }
-        }
     }
 }
