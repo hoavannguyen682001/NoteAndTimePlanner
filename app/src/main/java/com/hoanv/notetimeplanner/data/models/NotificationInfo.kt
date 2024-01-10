@@ -8,7 +8,7 @@ import java.util.UUID
 data class NotificationInfo(
     var notiId: String = UUID.randomUUID().toString(),
     var taskId: String = "",
-    var uniqueId: Int = 0,
+    var uniqueId: Long = 0,
     var title: String = "",
     var content: String = "",
     var notificationKey: String = "",

@@ -178,29 +178,6 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     }
 
     /**
-     * Handle option menu
-     */
-//    private fun handleOptionMenu() {
-//        val popupMenu = PopupMenu(requireContext(), binding.ivOptionMenu)
-//        popupMenu.inflate(R.menu.top_menu)
-//
-//        popupMenu.setOnMenuItemClickListener {
-//            when (it.itemId) {
-//                R.id.itemCategory -> {
-//                    startActivity(Intent(requireContext(), CategoryActivity::class.java))
-//                }
-//
-//                R.id.itemSearch -> {
-//                    toastSuccess("searchhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-//                }
-//            }
-//            false
-//        }
-//
-//        popupMenu.show()
-//    }
-
-    /**
      * On item task swipe
      */
     private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {

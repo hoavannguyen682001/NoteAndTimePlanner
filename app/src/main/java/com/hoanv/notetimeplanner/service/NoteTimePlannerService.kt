@@ -45,19 +45,7 @@ class NoteTimePlannerService : FirebaseMessagingService() {
                 return
             }
 
-            // Check whether notification is scheduled or not
-//            val isScheduled = remoteMessage.data["isScheduled"]?.toBoolean()
-//            isScheduled?.let {
-            val scheduledTime = remoteMessage.data["scheduledTime"]
             scheduleAlarm(dataTask)
-//                if (it) {
-//                    // This is Scheduled Notification, Schedule it
-//
-//                } else {
-//                    // This is not scheduled notification, cancel
-////                    showNotification(dataTask)
-//                }
-//            }
         }
     }
 

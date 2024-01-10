@@ -1,5 +1,6 @@
 package com.hoanv.notetimeplanner.ui.main.home.list
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -61,6 +62,7 @@ class TasksViewModel @Inject constructor(
         remoteRepo.getUserInfo(email) { userInfo ->
             if (userInfo != null) {
                 Pref.userId = userInfo.uid
+                Log.d("USER_ID", Pref.userId)
                 _userInfo.postValue(ResponseState.Success(userInfo))
             } else {
                 _userInfo.postValue(ResponseState.Failure(Throwable("Fail")))
