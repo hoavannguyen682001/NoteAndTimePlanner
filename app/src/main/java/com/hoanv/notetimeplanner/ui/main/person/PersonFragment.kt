@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import com.bumptech.glide.Glide
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -175,6 +176,11 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
         user = event.userInfo
         binding.run {
             tvUserName.text = getString(R.string.hello_user, user.userName)
+            Glide.with(requireContext())
+                .load(user.photoUrl ?: "")
+                .placeholder(R.drawable.img_user_avatar)
+                .dontAnimate()
+                .into(ivProfile)
         }
     }
 

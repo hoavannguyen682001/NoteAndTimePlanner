@@ -106,6 +106,40 @@ class RemoteRepoIml(
             }
     }
 
+    override fun uploadAvatar(userId: String, imageUri: Uri, result: (String) -> Unit) {
+        val imageRef = firebaseStorage.reference.child("images/$userId")
+
+        // Upload the file and metadata
+        val uploadTask = imageRef.putFile(imageUri)
+        uploadTask.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Image uploaded successfully
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    // Handle the download URL
+                    val imageUrl = downloadUri.toString()
+                    // Now you can use imageUrl as needed
+                    result.invoke(imageUrl)
+                }
+            } else {
+                Log.d("uploadAvatar", "${task.exception}")
+            }
+        }
+    }
+
+    override fun updateUserInfo(userInfo: UserInfo, result: (Boolean) -> Unit) {
+        fireStore.collection(AppConstant.USER_TBL_NAME)
+            .document(userInfo.uid)
+            .set(userInfo.hashMap(), SetOptions.merge())
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    result.invoke(true)
+                } else {
+                    result.invoke(false)
+                    Log.d("updateUserInfo", "${task.exception}")
+                }
+            }
+    }
+
     /**
      * Category
      */
@@ -293,24 +327,4 @@ class RemoteRepoIml(
     override fun createGroupNotification(body: GroupNotification): Flow<ResponseKey> = flow {
         emit(appApi.createGroupNotification(body))
     }.flowOn(Dispatchers.IO)
-
-    override fun uploadAvatar(userId: String, imageUri: Uri, result: (String) -> Unit) {
-        val imageRef = firebaseStorage.reference.child("images/$userId")
-
-        // Upload the file and metadata
-        val uploadTask = imageRef.putFile(imageUri)
-        uploadTask.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                // Image uploaded successfully
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    // Handle the download URL
-                    val imageUrl = downloadUri.toString()
-                    // Now you can use imageUrl as needed
-                    result.invoke(imageUrl)
-                }
-            } else {
-                Log.d("uploadAvatar", "${task.exception}")
-            }
-        }
-    }
 }

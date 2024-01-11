@@ -22,6 +22,9 @@ interface RemoteRepo {
     fun createUserInfoByGoogleAuth(userInfo: UserInfo)
     fun getUserInfo(email: String, result: (UserInfo?) -> Unit)
 
+    fun updateUserInfo(userInfo: UserInfo, result: (Boolean) -> Unit)
+    fun uploadAvatar(userId: String, imageUri: Uri, result: (String) -> Unit)
+
 
     /**
      * CURD Category
@@ -64,6 +67,4 @@ interface RemoteRepo {
     fun sendNotification(body: NotificationData): Flow<ResponseNoti>
 
     fun createGroupNotification(body: GroupNotification): Flow<ResponseKey>
-
-    fun uploadAvatar(userId: String, imageUri: Uri, result: (String) -> Unit)
 }

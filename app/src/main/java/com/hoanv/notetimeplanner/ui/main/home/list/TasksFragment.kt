@@ -18,11 +18,10 @@ import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
+import com.hoanv.notetimeplanner.ui.evenbus.ReloadUserInfo
 import com.hoanv.notetimeplanner.ui.evenbus.UserInfoEvent
 import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
-import com.hoanv.notetimeplanner.ui.main.home.list.adapter.DoneTaskAdapter
 import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskAdapter
-import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskCategoryAdapter
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
@@ -34,7 +33,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import fxc.dev.common.extension.resourceColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -43,26 +41,26 @@ import org.greenrobot.eventbus.Subscribe
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     override val viewModel: TasksViewModel by viewModels()
 
-    private val categoryAdapter by lazy {
-        TaskCategoryAdapter(requireContext()) { category, position ->
-            selectedS.tryEmit(position)
-            if (position == 0) {
-                viewModel.getListTask()
-            } else {
-                viewModel.getListTaskByCategory(category)
-            }
-        }
-    }
+//    private val categoryAdapter by lazy {
+//        TaskCategoryAdapter(requireContext()) { category, position ->
+//            selectedS.tryEmit(position)
+//            if (position == 0) {
+//                viewModel.getListTask()
+//            } else {
+//                viewModel.getListTaskByCategory(category)
+//            }
+//        }
+//    }
 
     private val taskAdapter by lazy {
         TaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
     }
 
-    private val doneTaskAdapter by lazy {
-        DoneTaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
-    }
+//    private val doneTaskAdapter by lazy {
+//        DoneTaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
+//    }
 
-    private var selectedS = MutableStateFlow(0)
+//    private var selectedS = MutableStateFlow(0)
 
     private var mListTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
     private var listTodo = listOf<Task>()
@@ -71,12 +69,12 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
             mListTaskS.tryEmit(value)
         }
 
-    private var mListDoneS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
-    private var listDone = listOf<Task>()
-        set(value) {
-            field = value
-            mListDoneS.tryEmit(value)
-        }
+//    private var mListDoneS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
+//    private var listDone = listOf<Task>()
+//        set(value) {
+//            field = value
+//            mListDoneS.tryEmit(value)
+//        }
 
     override fun setupViewBinding(
         inflater: LayoutInflater, container: ViewGroup?
@@ -147,7 +145,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                                 }
                             }
                             listTodo = task
-                            listDone = done
+//                            listDone = done
 
                             onItemSwipe(listTodo.toMutableList(), rvListTask)
                         }
@@ -171,9 +169,9 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 }
             }
 
-            mListDoneS.collectInViewLifecycle(this@TasksFragment) { list ->
-                doneTaskAdapter.submitList(list)
-            }
+//            mListDoneS.collectInViewLifecycle(this@TasksFragment) { list ->
+//                doneTaskAdapter.submitList(list)
+//            }
         }
     }
 
@@ -270,6 +268,13 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     fun reloadListTask(checked: CheckReloadListTask) {
         if(checked.isReload){
             viewModel.getListTask()
+        }
+    }
+
+    @Subscribe
+    fun reloadUserInfo(checked: ReloadUserInfo){
+        if(checked.isReload){
+            viewModel.getUserInfo()
         }
     }
 

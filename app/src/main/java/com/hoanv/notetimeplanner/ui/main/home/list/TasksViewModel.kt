@@ -44,29 +44,34 @@ class TasksViewModel @Inject constructor(
     val updateTaskTriggerS: LiveData<ResponseState<String>>
         get() = _updateTaskTriggerS
 
-
     private val _userInfo = MutableLiveData<ResponseState<UserInfo>>()
     val userInfo: LiveData<ResponseState<UserInfo>>
         get() = _userInfo
 
     init {
         if (currentUser != null) {
-            getUserInfo(currentUser.email!!)
+            getUserInfo()
         }
 
         getListTask()
     }
 
-    private fun getUserInfo(email: String) = viewModelScope.launch(Dispatchers.IO) {
-        _userInfo.postValue(ResponseState.Start)
-        remoteRepo.getUserInfo(email) { userInfo ->
-            if (userInfo != null) {
-                Pref.userId = userInfo.uid
-                Log.d("USER_ID", Pref.userId)
-                _userInfo.postValue(ResponseState.Success(userInfo))
-            } else {
-                _userInfo.postValue(ResponseState.Failure(Throwable("Fail")))
+    fun getUserInfo() = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            val email = currentUser!!.email!!
+            _userInfo.postValue(ResponseState.Start)
+            remoteRepo.getUserInfo(email) { userInfo ->
+                if (userInfo != null) {
+                    Pref.userId = userInfo.uid
+                    Log.d("USER_ID", Pref.userId)
+                    _userInfo.postValue(ResponseState.Success(userInfo))
+                } else {
+                    _userInfo.postValue(ResponseState.Failure(Throwable("Fail")))
+                }
             }
+        } catch (e: Exception) {
+            _userInfo.postValue(ResponseState.Failure(Throwable("Có lỗi không xác nhận. Thử lại sau!")))
+            Log.d("GetUserInfo", "${e.message}")
         }
     }
 

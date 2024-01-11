@@ -5,3 +5,5 @@ import com.hoanv.notetimeplanner.data.models.UserInfo
 class UserInfoEvent(val userInfo: UserInfo)
 
 class CheckReloadListTask(val isReload: Boolean)
+
+class ReloadUserInfo(val isReload: Boolean)
