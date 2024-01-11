@@ -18,6 +18,7 @@ import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.ActivityListAllTaskBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
+import com.hoanv.notetimeplanner.utils.AppConstant.TASK_TYPE
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.gone
@@ -70,6 +71,8 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
 
     private fun initView() {
         binding.run {
+            val taskType = intent.getStringExtra(TASK_TYPE)
+
             setSelected(IsSelect.TvAll)
             rvListTask.run {
                 layoutManager =
@@ -84,6 +87,14 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
             rvListTaskGroup.run {
                 layoutManager = GridLayoutManager(this@ListAllTaskActivity, 2)
                 adapter = listTaskGroupAdp
+            }
+
+            if (taskType == "Personal") {
+                rvListTask.visible()
+                rvListTaskGroup.gone()
+            } else {
+                rvListTask.gone()
+                rvListTaskGroup.visible()
             }
         }
     }

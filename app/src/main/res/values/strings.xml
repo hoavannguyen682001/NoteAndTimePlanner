@@ -17,7 +17,7 @@
     <string name="delete">Xoá</string>
     <string name="update">Chỉnh sửa</string>
     <string name="title_pick_category">Chọn loại danh mục</string>
-    <string name="member_number">(%s)</string>
+    <string name="member_number">(%d)</string>
     <string name="forgot_password"><u>Quên mật khẩu?</u></string>
     <string name="hello_user">Xin chào,\n%s</string>
 
@@ -43,4 +43,6 @@
     <string name="permission_granted">Permission is granted. You can use the camera now.</string>
     <string name="gallery_title">Thư viện</string>
     <string name="camera_title">Camera</string>
+    <string name="number_of_group_tasks">%d việc</string>
+    <string name="start_to_end_group_task">%s to %s</string>
 </resources>

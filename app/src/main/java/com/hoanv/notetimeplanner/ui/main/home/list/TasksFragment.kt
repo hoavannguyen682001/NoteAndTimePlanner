@@ -1,20 +1,25 @@
 package com.hoanv.notetimeplanner.ui.main.home.list
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
@@ -23,6 +28,7 @@ import com.hoanv.notetimeplanner.ui.evenbus.UserInfoEvent
 import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskAdapter
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
+import com.hoanv.notetimeplanner.utils.AppConstant.TASK_TYPE
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
 import com.hoanv.notetimeplanner.utils.extension.gone
@@ -36,6 +42,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
@@ -63,7 +71,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 //    private var selectedS = MutableStateFlow(0)
 
     private var mListTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
-    private var listTodo = listOf<Task>()
+    private var _listTask = listOf<Task>()
         set(value) {
             field = value
             mListTaskS.tryEmit(value)
@@ -100,7 +108,15 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     private fun intiListener() {
         binding.run {
             tvSeeAll.setOnSingleClickListener {
-                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java))
+                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java).apply {
+                    putExtra(TASK_TYPE, "Personal")
+                })
+            }
+
+            tvSeeAllPr.setOnSingleClickListener {
+                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java).apply {
+                    putExtra(TASK_TYPE, "Group")
+                })
             }
         }
     }
@@ -112,8 +128,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     when (state) {
                         ResponseState.Start -> {}
 
-                        is ResponseState.Success -> {
-                            /* Event bus user info */
+                        is ResponseState.Success -> {/* Event bus user info */
                             EventBus.getDefault().post(UserInfoEvent(state.data))
 
                             tvUserName.text = getString(R.string.hello_user, state.data.userName)
@@ -135,19 +150,20 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
                         is ResponseState.Success -> {
                             val task = mutableListOf<Task>()
-                            val done = mutableListOf<Task>()
+                            val group = mutableListOf<Task>()
 
                             state.data.forEach {
-                                if (it.taskState) {
-                                    done.add(it)
-                                } else {
+                                if (it.typeTask == TypeTask.PERSONAL) {
                                     task.add(it)
+                                } else {
+                                    group.add(it)
                                 }
                             }
-                            listTodo = task
-//                            listDone = done
 
-                            onItemSwipe(listTodo.toMutableList(), rvListTask)
+                            _listTask = task
+                            setGroupTask(group)
+
+                            onItemSwipe(_listTask.toMutableList(), rvListTask)
                         }
 
                         is ResponseState.Failure -> {
@@ -173,6 +189,64 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 //                doneTaskAdapter.submitList(list)
 //            }
         }
+    }
+
+    private fun setGroupTask(listTask: List<Task>) {
+        val alpha = 191 //alpha: 75%
+        val taskOne = listTask[0]
+        val taskTrue = listTask[1]
+        binding.run {
+            taskOne.run {
+                tvTaskGroupName.text = title
+                tvDate.text = getString(
+                    R.string.start_to_end_group_task,
+                    regexDayMonth(startDay!!),
+                    regexDayMonth(endDay!!)
+                )
+                tvTaskNumb.text = getString(R.string.number_of_group_tasks, subTask.size)
+                tvMember.text = getString(R.string.member_number, member.size)
+
+                Glide.with(requireContext()).load(category.icon.iconUrl).into(ivCategory)
+
+                ivCategory.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor(category.icon.iconColor))
+
+                cslTaskLeft.backgroundTintList = ColorStateList.valueOf(
+                    ColorUtils.setAlphaComponent(
+                        Color.parseColor(category.icon.iconColor), alpha
+                    )
+                )
+            }
+
+            taskTrue.run {
+                tvTaskGroupNameR.text = title
+                tvDateR.text = getString(
+                    R.string.start_to_end_group_task,
+                    regexDayMonth(startDay!!),
+                    regexDayMonth(endDay!!)
+                )
+                tvTaskNumbR.text = getString(R.string.number_of_group_tasks, subTask.size)
+                tvMemberR.text = getString(R.string.member_number, member.size)
+
+                Glide.with(requireContext()).load(category.icon.iconUrl).into(ivCategoryR)
+
+                ivCategoryR.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor(category.icon.iconColor))
+
+                cslTaskRight.backgroundTintList = ColorStateList.valueOf(
+                    ColorUtils.setAlphaComponent(
+                        Color.parseColor(category.icon.iconColor), alpha
+                    )
+                )
+            }
+        }
+    }
+
+    private fun regexDayMonth(date: String): String {
+
+        // Sử dụng regex để lấy chuỗi "29-01"
+        val result = date.replace(Regex("(\\d{2}-\\d{2}).*"), "$1")
+        return result
     }
 
     /**
@@ -207,15 +281,13 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
         gestureManager.setIconLeft(
             ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.ic_delete
+                requireContext(), R.drawable.ic_delete
             )
         )
         gestureManager.setTextLeft("Xoá")
         gestureManager.setIconRight(
             ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.ic_circle_checked
+                requireContext(), R.drawable.ic_circle_checked
             )
         )
         gestureManager.setTextRight("Hoàn thành")
@@ -266,14 +338,14 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
     @Subscribe
     fun reloadListTask(checked: CheckReloadListTask) {
-        if(checked.isReload){
+        if (checked.isReload) {
             viewModel.getListTask()
         }
     }
 
     @Subscribe
-    fun reloadUserInfo(checked: ReloadUserInfo){
-        if(checked.isReload){
+    fun reloadUserInfo(checked: ReloadUserInfo) {
+        if (checked.isReload) {
             viewModel.getUserInfo()
         }
     }

@@ -91,14 +91,14 @@
         app:layout_constraintTop_toBottomOf="@id/textView8">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout5"
+            android:id="@+id/cslTaskLeft"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_radius_top_gradient"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/ivCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp_12"
@@ -111,7 +111,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tvTaskName"
+                android:id="@+id/tvTaskGroupName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
@@ -123,8 +123,8 @@
                 android:text="Expense Mobile App"
                 android:textSize="@dimen/dp_18"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/imageView"
-                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+                app:layout_constraintStart_toStartOf="@+id/ivCategory"
+                app:layout_constraintTop_toBottomOf="@+id/ivCategory" />
 
             <TextView
                 android:id="@+id/tvTaskNumb"
@@ -132,12 +132,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/dp_8"
                 android:fontFamily="@font/opensans_bold"
-                android:text="15 Tasks"
+                android:text="@string/number_of_group_tasks"
                 android:textColor="@color/arsenic"
                 android:textSize="@dimen/dp_12"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvTaskName"
-                app:layout_constraintTop_toBottomOf="@id/tvTaskName" />
+                app:layout_constraintStart_toStartOf="@id/tvTaskGroupName"
+                app:layout_constraintTop_toBottomOf="@id/tvTaskGroupName" />
 
             <TextView
                 android:id="@+id/tvDate"
@@ -146,7 +146,7 @@
                 android:layout_marginTop="@dimen/dp_4"
                 android:layout_marginEnd="@dimen/dp_8"
                 android:fontFamily="@font/opensans_bold"
-                android:text="20-12 to 31-12"
+                android:text="@string/start_to_end_group_task"
                 android:textColor="@color/dolphin_gray"
                 android:textSize="@dimen/dp_12"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -163,7 +163,7 @@
             app:drawableStartCompat="@drawable/img_avatar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout5" />
+            app:layout_constraintTop_toBottomOf="@+id/cslTaskLeft" />
 
         <ImageView
             android:id="@+id/ivNext"
@@ -192,7 +192,7 @@
         app:layout_constraintTop_toBottomOf="@id/textView8">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout6"
+            android:id="@+id/cslTaskRight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_radius_top_gradient"
@@ -200,7 +200,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/imageViewR"
+                android:id="@+id/ivCategoryR"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp_12"
@@ -213,7 +213,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tvTaskNameR"
+                android:id="@+id/tvTaskGroupNameR"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
@@ -225,8 +225,8 @@
                 android:text="Expense Mobile App"
                 android:textSize="@dimen/dp_18"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/imageViewR"
-                app:layout_constraintTop_toBottomOf="@+id/imageViewR" />
+                app:layout_constraintStart_toStartOf="@+id/ivCategoryR"
+                app:layout_constraintTop_toBottomOf="@+id/ivCategoryR" />
 
             <TextView
                 android:id="@+id/tvTaskNumbR"
@@ -238,8 +238,8 @@
                 android:textColor="@color/arsenic"
                 android:textSize="@dimen/dp_12"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvTaskNameR"
-                app:layout_constraintTop_toBottomOf="@id/tvTaskNameR" />
+                app:layout_constraintStart_toStartOf="@id/tvTaskGroupNameR"
+                app:layout_constraintTop_toBottomOf="@id/tvTaskGroupNameR" />
 
             <TextView
                 android:id="@+id/tvDateR"
@@ -248,7 +248,7 @@
                 android:layout_marginTop="@dimen/dp_4"
                 android:layout_marginEnd="@dimen/dp_8"
                 android:fontFamily="@font/opensans_bold"
-                android:text="20-12 to 31-12"
+                android:text="@string/start_to_end_group_task"
                 android:textColor="@color/dolphin_gray"
                 android:textSize="@dimen/dp_12"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -265,7 +265,7 @@
             app:drawableStartCompat="@drawable/img_avatar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout6" />
+            app:layout_constraintTop_toBottomOf="@+id/cslTaskRight" />
 
         <ImageView
             android:id="@+id/ivNextR"
