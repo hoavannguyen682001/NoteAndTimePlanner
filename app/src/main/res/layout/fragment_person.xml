@@ -105,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:fontFamily="@font/opensans_regular"
-                    android:text="11 công việc"
+                    android:text="@string/numb_of_task"
                     android:textColor="@color/arsenic"
                     android:textSize="@dimen/sp_14"
                     app:layout_constraintStart_toStartOf="@id/textView23"
