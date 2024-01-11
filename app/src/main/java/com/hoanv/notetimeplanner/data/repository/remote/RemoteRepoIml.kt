@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -38,15 +39,23 @@ class RemoteRepoIml(
         auth.createUserWithEmailAndPassword(userInfo.userEmail, userInfo.userPassword)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    fireStore.collection(AppConstant.USER_TBL_NAME)
-                        .document(userInfo.uid)
-                        .set(userInfo.hashMap())
-
                     result.invoke(true)
                 } else {
                     result.invoke(false)
                     Log.d("CREATE_USER_ACCOUNT", "${it.exception}")
                 }
+            }
+    }
+
+    override fun createUserInfoByGoogleAuth(userInfo: UserInfo) {
+        fireStore.collection(AppConstant.USER_TBL_NAME)
+            .document(userInfo.uid)
+            .set(userInfo.hashMap())
+            .addOnSuccessListener {
+                Log.d("createUserInfoByGoogleAuth", "Success")
+            }
+            .addOnFailureListener {
+                Log.d("createUserInfoByGoogleAuth", "${it.message}")
             }
     }
 
@@ -62,14 +71,17 @@ class RemoteRepoIml(
             }
     }
 
-    override fun signInWithGoogle(idToken: String, result: (Boolean) -> Unit) {
+    override fun signInWithGoogle(idToken: String, result: (FirebaseUser?, Boolean) -> Unit) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    result.invoke(true)
+                    val taskResult = it.result
+                    val firebaseUser = taskResult.user
+                    Log.d("SIGN_IN_USER_ACCOUNT", "${taskResult.user}")
+                    result.invoke(firebaseUser, true)
                 } else {
-                    result.invoke(false)
+                    result.invoke(null, false)
                     Log.d("SIGN_IN_USER_ACCOUNT", "${it.exception}")
                 }
             }

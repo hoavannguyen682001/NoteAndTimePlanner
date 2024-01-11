@@ -111,7 +111,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginVM>() {
                         viewModel.signInWithGoogle(it)
                     }
                 } catch (e: ApiException) {
-                    toastError("Google sign in failed: ${e.message}")
+                    Log.d("Google sign in failed", "${e.message}")
                 }
             }
         }

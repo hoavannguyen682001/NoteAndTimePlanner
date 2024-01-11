@@ -17,6 +17,7 @@ import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.NotificationInfo
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.data.models.notification.MessageTask
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
@@ -39,8 +40,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import kotlin.math.pow
-import kotlin.random.Random
 
 @AndroidEntryPoint
 class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
@@ -69,6 +68,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private var startDay = CivilCalendar()
 
     private var isUpdate = false
+    private var typeTask = TypeTask.PERSONAL
+    private lateinit var mTask: Task
 
     private val timeNotification = object : TimePickerFragment.TimePickerListener {
         override fun timePickerListener(view: TimePicker, hourOfDay: Int, minute: Int) {
@@ -121,10 +122,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 viewModel.getDetailTask(it)
             }
 
+            tvTaskPersonal.isSelected = true
             if (task == null && taskId == null) {
                 tvStartDay.text = currentDay
                 tvEndDay.text = currentDay
                 tvTimeEnd.text = currentTime
+                swcNotification.isChecked = false
+                tvTimeNotification.isEnabled = false
             }
 
             rvListCategory.run {
@@ -134,8 +138,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 )
                 itemAnimator = null
             }
-
-            tvTaskPersonal.isSelected = true
         }
     }
 
@@ -146,6 +148,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             tvTaskPersonal.setOnSingleClickListener {
+                typeTask = TypeTask.PERSONAL
                 tvTaskPersonal.run {
                     isSelected = true
                     tvTaskPersonal.setTextColor(resourceColor(R.color.white))
@@ -157,6 +160,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             tvTaskGroup.setOnSingleClickListener {
+                typeTask = TypeTask.GROUP
                 tvTaskGroup.run {
                     isSelected = true
                     setTextColor(resourceColor(R.color.white))
@@ -180,7 +184,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             btnSubmit.setOnSingleClickListener {
-                addTask()
+                if (idTodo.isNullOrEmpty()) {
+                    addTask()
+                } else {
+                    updateTask()
+                }
             }
 
             swcNotification.setOnCheckedChangeListener { _, isChecked ->
@@ -260,21 +268,22 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 }
 
                 updateTaskTriggerS.observe(this@AddTaskActivity) { state ->
-//                    when (state) {
-//                        ResponseState.Start -> {
+                    when (state) {
+                        ResponseState.Start -> {
 //                            pbLoading.visible()
-//                        }
-//
-//                        is ResponseState.Success -> {
-//                            pbLoading.gone()
-//                            toastSuccess(state.data)
-//                            finish()
-//                        }
+                        }
 
-//                        is ResponseState.Failure -> {
-//                            toastError(state.throwable?.message)
-//                        }
-//                    }
+                        is ResponseState.Success -> {
+//                            pbLoading.gone()
+                            EventBus.getDefault().post(CheckReloadListTask(true))
+                            toastSuccess(state.data)
+                            finish()
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
                 }
 
                 detailTask.observe(this@AddTaskActivity) {
@@ -285,12 +294,23 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     }
 
     private fun loadDataView(task: Task) {
+        mTask = task
         binding.run {
             edtTitle.setText(task.title)
             edtDescription.setText(task.description)
             tvStartDay.text = task.startDay
             tvEndDay.text = task.endDay
             tvTimeEnd.text = task.timeEnd
+
+            if (!mTask.scheduledTime.isNullOrEmpty()) {
+                swcNotification.isChecked = true
+                tvTimeNotification.run {
+                    tvTimeNotification.text = mTask.scheduledTime
+                    isEnabled = true
+                    setTextColor(resourceColor(R.color.black))
+                    backgroundTintList = getColorStateList(R.color.white)
+                }
+            }
         }
     }
 
@@ -301,52 +321,86 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 title = edtTitle.text.toString(),
                 description = edtDescription.text.toString(),
                 category = mCategory,
+                uniqueId = Calendar.getInstance().timeInMillis.toInt(),
                 timeEnd = tvTimeEnd.text.toString(),
                 startDay = tvStartDay.text.toString(),
                 endDay = tvEndDay.text.toString(),
-                taskState = false
+                scheduledTime = binding.tvTimeNotification.text.toString(),
+                taskState = false,
+                typeTask = typeTask
             )
-            if (!idTodo.isNullOrEmpty()) {
-                task.id = idTodo!!
-                isUpdate = true
-                viewModel.updateTask(task)
-            } else {
-                viewModel.addNewTask(task)
-                mCategory.listTask++
+
+            if (swcNotification.isChecked) {
                 isUpdate = false
-                viewModel.updateCategory(mCategory, "listTask")
+                setScheduledTime(task, isSchedule = true, isUpdate)
             }
-//            if (swcNotification.isChecked) {
-            setNotification(task, swcNotification.isChecked, isUpdate)
-//            }
+
+            viewModel.addNewTask(task)
+            mCategory.listTask++
+            viewModel.updateCategory(mCategory, "listTask")
         }
     }
 
-    //TODO add model notification
-    private fun setNotification(task: Task, isSchedule: Boolean, isUpdate: Boolean) {
-        fun generateRandomIntId(length: Int): Int {
-            val maxValue = 10.0.pow(length.toDouble()).toInt()
-            return Random.nextInt(maxValue)
-        }
+    private fun updateTask() {
+        binding.run {
+            val task = Task(
+                id = idTodo!!,
+                userId = mTask.userId,
+                title = edtTitle.text.toString(),
+                description = edtDescription.text.toString(),
+                category = mCategory,
+                uniqueId = mTask.uniqueId,
+                timeEnd = tvTimeEnd.text.toString(),
+                startDay = tvStartDay.text.toString(),
+                endDay = tvEndDay.text.toString(),
+                scheduledTime = binding.tvTimeNotification.text.toString(),
+                taskState = false,
+                typeTask = typeTask
+            )
 
+            if (!mTask.scheduledTime.isNullOrEmpty()) {// Task set scheduled time when created
+                if (swcNotification.isChecked) {
+                    isUpdate =
+                        (mTask.endDay != task.endDay) || (mTask.scheduledTime != task.scheduledTime)
+                    setScheduledTime(task, isSchedule = true, isUpdate)
+                } else {
+                    isUpdate = true
+                    task.scheduledTime = null
+                    setScheduledTime(task, isSchedule = false, isUpdate = isUpdate)
+                }
+            } else {
+                if (swcNotification.isChecked) {
+                    isUpdate = false
+                    setScheduledTime(task, isSchedule = true, isUpdate)
+                }
+            }
+
+            viewModel.updateTask(task)
+
+            //TODO check category to increase or decrease list task
+        }
+    }
+
+    //TODO request permission notification
+    private fun setScheduledTime(task: Task, isSchedule: Boolean, isUpdate: Boolean) {
         val scheduledTime = "${task.endDay} ${binding.tvTimeNotification.text}:00"
 
         /* Set information notification */
-        val notificationInfo = NotificationInfo(
-            taskId = task.id,
-            uniqueId = generateRandomIntId(6),
-            title = task.title.toString(),
-            content = task.title.toString(),
-            dayNotification = task.endDay.toString(),
-            timeNotification = binding.tvTimeNotification.text.toString()
-        )
+//        val notificationInfo = NotificationInfo(
+//            taskId = task.id,
+//            uniqueId = mTask.uniqueId,
+//            title = task.title.toString(),
+//            content = task.title.toString(),
+//            dayNotification = task.endDay.toString(),
+//            timeNotification = binding.tvTimeNotification.text.toString()
+//        )
 
         /**
          * Setup object to send notification
          */
         val data = DataTask(
             taskId = task.id,
-            uniqueId = notificationInfo.uniqueId.toString(),
+            uniqueId = task.uniqueId.toString(),
             title = "Bạn có công việc sắp đến hạn",
             content = task.title.toString(),
             isScheduled = "$isSchedule",

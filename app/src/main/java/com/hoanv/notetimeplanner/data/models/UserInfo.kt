@@ -20,7 +20,7 @@ data class UserInfo(
             "userEmail" to userEmail,
             "userPassword" to userPassword,
             "photoUrl" to photoUrl,
-            "userToken" to userName
+            "userToken" to userToken
         )
     }
 }

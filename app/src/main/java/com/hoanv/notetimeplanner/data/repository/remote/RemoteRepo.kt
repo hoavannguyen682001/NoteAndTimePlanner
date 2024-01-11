@@ -1,5 +1,6 @@
 package com.hoanv.notetimeplanner.data.repository.remote
 
+import com.google.firebase.auth.FirebaseUser
 import android.net.Uri
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
@@ -17,7 +18,8 @@ interface RemoteRepo {
      */
     fun registerUserAccount(userInfo: UserInfo, result: (Boolean) -> Unit)
     fun signInUserAccount(userInfo: UserInfo, result: (Boolean) -> Unit)
-    fun signInWithGoogle(idToken: String, result: (Boolean) -> Unit)
+    fun signInWithGoogle(idToken: String, result: (FirebaseUser?, Boolean) -> Unit)
+    fun createUserInfoByGoogleAuth(userInfo: UserInfo)
     fun getUserInfo(email: String, result: (UserInfo?) -> Unit)
 
 
