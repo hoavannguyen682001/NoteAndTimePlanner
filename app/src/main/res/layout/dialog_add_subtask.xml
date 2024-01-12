@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:padding="@dimen/dp_16">
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/opensans_bold"
+        android:text="Thêm công việc phụ"
+        android:textColor="@color/arsenic"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/edtTitleSubTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_8"
+        android:background="@drawable/bg_solid_white"
+        android:backgroundTint="@color/cultured"
+        android:fontFamily="@font/opensans_semibold"
+        android:hint="Nhập danh mục ..."
+        android:inputType="text|textMultiLine"
+        android:paddingHorizontal="@dimen/dp_12"
+        android:paddingVertical="@dimen/dp_8"
+        android:textColor="@color/lynch_gray"
+        android:textColorHint="@color/ghost_gray"
+        app:layout_constraintTop_toBottomOf="@+id/textView12" />
+
+    <TextView
+        android:id="@+id/tvSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/opensans_semibold"
+        android:text="Lưu"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvCancel" />
+
+    <TextView
+        android:id="@+id/tvCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:fontFamily="@font/opensans_semibold"
+        android:text="Huỷ"
+        android:layout_marginTop="@dimen/dp_8"
+        android:textColor="@color/ghost_gray"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintEnd_toStartOf="@id/tvSave"
+        app:layout_constraintTop_toBottomOf="@+id/edtTitleSubTask" />
+</androidx.constraintlayout.widget.ConstraintLayout>

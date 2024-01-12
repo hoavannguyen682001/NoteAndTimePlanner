@@ -215,10 +215,14 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                     }
                 } else {
                     tvSave.setOnSingleClickListener {
-                        val category = edtInputCate.text.toString()
-                        viewModel.addNewCategory(Category(title = category, icon = mIcon))
-                        viewModel.getListCategory()
-                        alertDialog.dismiss()
+                        if (edtInputCate.text.isNullOrEmpty()) {
+                            toastError("Vui lòng điền tiêu đề thể loại!")
+                        } else {
+                            val category = edtInputCate.text.toString()
+                            viewModel.addNewCategory(Category(title = category, icon = mIcon))
+                            viewModel.getListCategory()
+                            alertDialog.dismiss()
+                        }
                     }
                 }
                 tvCancel.setOnSingleClickListener {

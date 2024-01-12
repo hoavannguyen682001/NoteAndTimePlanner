@@ -1,10 +1,12 @@
 package com.hoanv.notetimeplanner.ui.main.home.create
 
 import android.os.Bundle
+import android.util.Log
 import android.util.SparseIntArray
 import android.view.LayoutInflater
 import android.widget.TimePicker
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.asFlow
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminography.primecalendar.civil.CivilCalendar
@@ -16,16 +18,20 @@ import com.aminography.primedatepicker.picker.theme.LightThemeFactory
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.NotificationInfo
+import com.hoanv.notetimeplanner.data.models.SubTask
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.data.models.notification.MessageTask
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.databinding.ActivityAddTaskBinding
+import com.hoanv.notetimeplanner.databinding.DialogAddCategoryBinding
+import com.hoanv.notetimeplanner.databinding.DialogAddSubtaskBinding
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.CategoryAdapter
+import com.hoanv.notetimeplanner.ui.main.home.create.adapter.SubTaskAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.dialog.TimePickerFragment
 import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
@@ -33,6 +39,7 @@ import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import fxc.dev.common.extension.resourceColor
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import org.greenrobot.eventbus.EventBus
@@ -49,28 +56,50 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private val timePickerFrag = TimePickerFragment()
     private val timeNotiPicker = TimePickerFragment()
 
+    private lateinit var dialogBinding: DialogAddSubtaskBinding
+    private lateinit var alertDialog: AlertDialog
+
     private val categoryAdapter by lazy {
         CategoryAdapter(this) { category, position ->
             selectedS.tryEmit(position)
         }
     }
 
+    private val subTaskAdapter by lazy {
+        SubTaskAdapter(this) {}
+    }
+
     private var selectedS = MutableStateFlow(0)
 
+    private var listSubTaskS = MutableSharedFlow<List<SubTask>>(extraBufferCapacity = 64)
+    private var mListSubTask = mutableListOf<SubTask>()
+    private var _listSubTask = listOf<SubTask>()
+        set(value) {
+            field = value
+            listSubTaskS.tryEmit(value)
+        }
+
+    /* inti current day and time */
     private val formatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     private val date = Date()
     private var currentDay = formatter.format(date)
     private val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+    /* Id task when */
     private var idTodo: String? = null
 
     private lateinit var mCategory: Category
+
+    /* inti day for calendar */
     private var endDay = CivilCalendar()
     private var startDay = CivilCalendar()
 
+    /* flag to check property in object task */
     private var isUpdate = false
     private var typeTask = TypeTask.PERSONAL
     private lateinit var mTask: Task
 
+    /* set up time for schedule notification */
     private val timeNotification = object : TimePickerFragment.TimePickerListener {
         override fun timePickerListener(view: TimePicker, hourOfDay: Int, minute: Int) {
             binding.tvTimeNotification.text =
@@ -138,6 +167,19 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 )
                 itemAnimator = null
             }
+
+            rvAddSubTask.run {
+                adapter = subTaskAdapter
+                layoutManager =
+                    LinearLayoutManager(this@AddTaskActivity, LinearLayoutManager.VERTICAL, false)
+            }
+
+            dialogBinding =
+                DialogAddSubtaskBinding.inflate(LayoutInflater.from(this@AddTaskActivity))
+            alertDialog =
+                AlertDialog.Builder(this@AddTaskActivity, R.style.AppCompat_AlertDialog)
+                    .setView(dialogBinding.root)
+                    .setCancelable(false).create()
         }
     }
 
@@ -181,6 +223,10 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTimeEnd.setOnSingleClickListener {
                 timePickerFrag.show(supportFragmentManager, "TimerPicker")
+            }
+
+            tvAddSubTask.setOnSingleClickListener {
+                dialogAddSubTask()
             }
 
             btnSubmit.setOnSingleClickListener {
@@ -289,6 +335,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 detailTask.observe(this@AddTaskActivity) {
                     loadDataView(it)
                 }
+            }
+
+            listSubTaskS.collectIn(this@AddTaskActivity) {
+                subTaskAdapter.submitList(it)
+                Log.d("mListSubTask", "$it")
             }
         }
     }
@@ -418,6 +469,32 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         )
 
         viewModel.sendNotification(notificationData)
+    }
+
+    private fun dialogAddSubTask() {
+        binding.run {
+            dialogBinding.run {
+                tvSave.setOnSingleClickListener {
+                    if (edtTitleSubTask.text.isNullOrEmpty()) {
+                        toastError("Vui lòng nhập tiêu đề công việc!")
+                    } else {
+                        val subTask = SubTask(
+                            title = edtTitleSubTask.text.toString()
+                        )
+                        mListSubTask.add(subTask)
+                        _listSubTask = mListSubTask
+
+                        edtTitleSubTask.text.clear()
+
+                        alertDialog.dismiss()
+                    }
+                }
+                tvCancel.setOnSingleClickListener {
+                    alertDialog.dismiss()
+                }
+            }
+        }
+        alertDialog.show()
     }
 
     private val themeFactory = object : LightThemeFactory() {

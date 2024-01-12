@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +50,10 @@ class TaskAdapter(
                 tvEstDay.text = context.getString(R.string.date_display, task.endDay)
                 tvTimeEnd.text = task.timeEnd
                 tvCategory.text = task.category.title
+
+                ivNotification.isVisible = !task.scheduledTime.isNullOrEmpty()
+                ivAttach.isVisible = task.listAttach.isNotEmpty()
+                ivSubTask.isVisible = task.subTask.isNotEmpty()
 
                 Glide.with(context)
                     .load(task.category.icon.iconUrl)

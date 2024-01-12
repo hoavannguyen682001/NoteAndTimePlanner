@@ -68,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvTitleTask" />
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/ivNotification"
         android:layout_width="@dimen/dp_16"
         android:layout_height="@dimen/dp_16"
         android:src="@drawable/ic_notification_on"

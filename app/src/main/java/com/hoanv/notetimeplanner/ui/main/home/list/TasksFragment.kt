@@ -3,6 +3,7 @@ package com.hoanv.notetimeplanner.ui.main.home.list
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
@@ -109,13 +110,13 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         binding.run {
             tvSeeAll.setOnSingleClickListener {
                 startActivity(Intent(requireContext(), ListAllTaskActivity::class.java).apply {
-                    putExtra(TASK_TYPE, "Personal")
+                    putExtra(TASK_TYPE, TypeTask.PERSONAL.name)
                 })
             }
 
             tvSeeAllPr.setOnSingleClickListener {
                 startActivity(Intent(requireContext(), ListAllTaskActivity::class.java).apply {
-                    putExtra(TASK_TYPE, "Group")
+                    putExtra(TASK_TYPE, TypeTask.GROUP.name)
                 })
             }
         }
@@ -216,6 +217,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                         Color.parseColor(category.icon.iconColor), alpha
                     )
                 )
+                ivNext.setColorFilter(Color.parseColor(category.icon.iconColor), PorterDuff.Mode.SRC_IN)
             }
 
             taskTrue.run {
@@ -238,13 +240,13 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                         Color.parseColor(category.icon.iconColor), alpha
                     )
                 )
+                ivNextR.setColorFilter(Color.parseColor(category.icon.iconColor), PorterDuff.Mode.SRC_IN)
             }
         }
     }
 
     private fun regexDayMonth(date: String): String {
-
-        // Sử dụng regex để lấy chuỗi "29-01"
+        // Use regex to get string "dd-MM"
         val result = date.replace(Regex("(\\d{2}-\\d{2}).*"), "$1")
         return result
     }

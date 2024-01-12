@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.databinding.ActivityListAllTaskBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
@@ -62,7 +63,7 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
             _listGroupTaskS.tryEmit(value)
         }
 
-
+    private var taskType: String = TypeTask.PERSONAL.name
     override fun init(savedInstanceState: Bundle?) {
         initView()
         initListener()
@@ -71,30 +72,19 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
 
     private fun initView() {
         binding.run {
-            val taskType = intent.getStringExtra(TASK_TYPE)
+            taskType = intent.getStringExtra(TASK_TYPE) ?: "Personal"
 
             setSelected(IsSelect.TvAll)
             rvListTask.run {
-                layoutManager =
-                    LinearLayoutManager(
-                        this@ListAllTaskActivity,
-                        LinearLayoutManager.VERTICAL,
-                        false
-                    )
+                layoutManager = LinearLayoutManager(
+                    this@ListAllTaskActivity, LinearLayoutManager.VERTICAL, false
+                )
                 adapter = listTaskAdapter
             }
 
             rvListTaskGroup.run {
                 layoutManager = GridLayoutManager(this@ListAllTaskActivity, 2)
                 adapter = listTaskGroupAdp
-            }
-
-            if (taskType == "Personal") {
-                rvListTask.visible()
-                rvListTaskGroup.gone()
-            } else {
-                rvListTask.gone()
-                rvListTaskGroup.visible()
             }
         }
     }
@@ -148,13 +138,29 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
                         ResponseState.Start -> {
                             lottieAnim.visible()
                             rvListTask.gone()
+                            rvListTaskGroup.gone()
                         }
 
                         is ResponseState.Success -> {
-                            //TODO map list task by type task
-                            listTaskS = (state.data)
+                            val task = mutableListOf<Task>()
+                            val group = mutableListOf<Task>()
+
+                            state.data.forEach {
+                                if (it.typeTask == TypeTask.PERSONAL) {
+                                    task.add(it)
+                                } else {
+                                    group.add(it)
+                                }
+                            }
+                            /* List personal task */
+                            listTaskS = task
                             mListTaskS.clear()
-                            mListTaskS.addAll(state.data)
+                            mListTaskS.addAll(task)
+
+                            /* List group task */
+                            listGroupTaskS = group
+                            mListGroupTaskS.clear()
+                            mListGroupTaskS.addAll(group)
                         }
 
                         is ResponseState.Failure -> {
@@ -166,12 +172,27 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
 
                 _listTaskS.collectIn(this@ListAllTaskActivity) { list ->
                     listTaskAdapter.submitList(list.map { it.ownCopy() }) {
-                        onItemSwipe(list.toMutableList(), rvListTask)
-                        lifecycleScope.launch {
-                            delay(1000)
-                            lottieAnim.gone()
-                            rvListTask.visible()
-                            rvListTask.scrollToPosition(0)
+                        if (taskType == TypeTask.PERSONAL.name) {
+                            onItemSwipe(list.toMutableList(), rvListTask)
+                            lifecycleScope.launch {
+                                delay(500)
+                                lottieAnim.gone()
+                                rvListTask.visible()
+                                rvListTask.scrollToPosition(0)
+                            }
+                        }
+                    }
+                }
+
+                _listGroupTaskS.collectIn(this@ListAllTaskActivity) { list ->
+                    listTaskGroupAdp.submitList(list.map { it.ownCopy() }) {
+                        if (taskType == TypeTask.GROUP.name) {
+                            lifecycleScope.launch {
+                                delay(500)
+                                lottieAnim.gone()
+                                rvListTaskGroup.visible()
+                                rvListTaskGroup.scrollToPosition(0)
+                            }
                         }
                     }
                 }
@@ -180,41 +201,91 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
     }
 
     private fun filterListTask(title: String) {
-        val tempList = listTaskS.filter {
-            if (it.title != null) {
-                it.title!!.contains(title)
-            } else {
-                false
+        when (taskType) {
+            TypeTask.PERSONAL.name -> {
+                val tempList = listTaskS.filter {
+                    if (it.title != null) {
+                        it.title!!.contains(title)
+                    } else {
+                        false
+                    }
+                }
+
+                listTaskS = tempList
+            }
+
+            TypeTask.GROUP.name -> {
+                val tempList = listGroupTaskS.filter {
+                    if (it.title != null) {
+                        it.title!!.contains(title)
+                    } else {
+                        false
+                    }
+                }
+
+                listGroupTaskS = tempList
             }
         }
-
-        listTaskS = tempList
     }
 
     private fun filterListTaskByStatus(state: Boolean) {
-        val tempList = mListTaskS.filter {
-            if (state) {
-                it.taskState
-            } else {
-                if (!checkExpireDay(it)) {
-                    !it.taskState
-                } else {
-                    false
+        when (taskType) {
+            TypeTask.PERSONAL.name -> {
+                val tempList = mListTaskS.filter {
+                    if (state) {
+                        it.taskState
+                    } else {
+                        if (!checkExpireDay(it)) {
+                            !it.taskState
+                        } else {
+                            false
+                        }
+                    }
                 }
+                listTaskS = tempList
+            }
+
+            TypeTask.GROUP.name -> {
+                val tempList = mListGroupTaskS.filter {
+                    if (state) {
+                        it.taskState
+                    } else {
+                        if (!checkExpireDay(it)) {
+                            !it.taskState
+                        } else {
+                            false
+                        }
+                    }
+                }
+                listGroupTaskS = tempList
             }
         }
-        listTaskS = tempList
     }
 
     private fun filterListTaskByDate() {
-        val tempList = mListTaskS.filter {
-            if (it.taskState) {
-                false
-            } else {
-                checkExpireDay(it)
+        when (taskType) {
+            TypeTask.PERSONAL.name -> {
+                val tempList = mListTaskS.filter {
+                    if (it.taskState) {
+                        false
+                    } else {
+                        checkExpireDay(it)
+                    }
+                }
+                listTaskS = tempList
+            }
+
+            TypeTask.GROUP.name -> {
+                val tempList = mListGroupTaskS.filter {
+                    if (it.taskState) {
+                        false
+                    } else {
+                        checkExpireDay(it)
+                    }
+                }
+                listGroupTaskS = tempList
             }
         }
-        listTaskS = tempList
     }
 
     private fun checkExpireDay(task: Task): Boolean {
@@ -227,8 +298,7 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
             SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
                 time
             )
-        }
-        /* Check if end day before today or if timeEnd before current time */
+        }/* Check if end day before today or if timeEnd before current time */
         return (Date() == endDay && Date().after(timeEnd)) || Date() > endDay
     }
 
@@ -264,16 +334,14 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
 
         gestureManager.setIconLeft(
             ContextCompat.getDrawable(
-                this,
-                R.drawable.ic_delete
+                this, R.drawable.ic_delete
             )
         )
         gestureManager.setTextLeft("Xoá")
 
         gestureManager.setIconRight(
             ContextCompat.getDrawable(
-                this,
-                R.drawable.ic_circle_checked
+                this, R.drawable.ic_circle_checked
             )
         )
         gestureManager.setTextRight("Hoàn thành")
@@ -377,10 +445,7 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
     }
 
     enum class IsSelect {
-        TvAll,
-        TvTodo,
-        TvDone,
-        TvExpire
+        TvAll, TvTodo, TvDone, TvExpire
     }
 
     override fun setupViewBinding(inflater: LayoutInflater): ActivityListAllTaskBinding =
