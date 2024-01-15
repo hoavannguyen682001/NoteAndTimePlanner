@@ -3,6 +3,8 @@ package com.hoanv.notetimeplanner.data.repository.remote
 import com.google.firebase.auth.FirebaseUser
 import android.net.Uri
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.FileInfo
+import com.hoanv.notetimeplanner.data.models.ImageInfo
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.data.models.group.GroupNotification
@@ -21,7 +23,6 @@ interface RemoteRepo {
     fun signInWithGoogle(idToken: String, result: (FirebaseUser?, Boolean) -> Unit)
     fun createUserInfoByGoogleAuth(userInfo: UserInfo)
     fun getUserInfo(email: String, result: (UserInfo?) -> Unit)
-
     fun updateUserInfo(userInfo: UserInfo, result: (Boolean) -> Unit)
     fun uploadAvatar(userId: String, imageUri: Uri, result: (String) -> Unit)
 
@@ -41,8 +42,11 @@ interface RemoteRepo {
     fun getListTask(result: (List<Task>, Boolean) -> Unit)
     fun deleteTask(task: Task, result: (Boolean) -> Unit)
     fun updateTask(task: Task, result: (Boolean) -> Unit)
-
     fun getDetailTask(taskId: String, result: (Task?) -> Unit)
+
+    fun uploadImageOfTask(task: Task, listUri: List<ImageInfo>, result: (Task, Boolean) -> Unit)
+
+    fun uploadFileOfTask(task: Task, listUri: List<FileInfo>, result: (Task, Boolean) -> Unit)
 
     /**
      * Get List Task by Category

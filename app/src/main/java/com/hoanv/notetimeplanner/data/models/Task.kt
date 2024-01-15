@@ -2,7 +2,6 @@ package com.hoanv.notetimeplanner.data.models
 
 import android.os.Parcelable
 import com.aminography.primecalendar.civil.CivilCalendar
-import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -24,7 +23,7 @@ data class Task(
     var uniqueId: Int = 0,
     var scheduledTime: String? = null,
     var subTask: List<SubTask> = mutableListOf(),
-    var listAttach: List<Attach> = mutableListOf(),
+    var attachFile: Attach = Attach(),
     var taskState: Boolean = false,
     var typeTask: TypeTask = TypeTask.PERSONAL,
     var createdAt: String = Calendar.getInstance().timeInMillis.toString()
@@ -43,7 +42,7 @@ data class Task(
             "endDay" to endDay,
             "timeEnd" to timeEnd,
             "scheduledTime" to scheduledTime,
-            "listAttach" to listAttach,
+            "attachFile" to attachFile,
             "taskState" to taskState,
             "typeTask" to typeTask,
             "createdAt" to createdAt

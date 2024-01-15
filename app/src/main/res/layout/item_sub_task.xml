@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tool="http://schemas.android.com/tools"
+    android:layout_marginBottom="@dimen/dp_8"
     android:background="@drawable/bg_solid_white"
     android:paddingHorizontal="@dimen/dp_8"
-    android:layout_marginBottom="@dimen/dp_8"
     android:paddingVertical="@dimen/dp_12">
 
     <ImageView
@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_8"
-        android:src="@drawable/ic_circle_uncheck"
+        android:src="@drawable/item_subtask_checked"
         app:layout_constraintBottom_toBottomOf="@id/tvSubTask"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/tvSubTask" />
@@ -26,17 +26,17 @@
         android:layout_marginHorizontal="@dimen/dp_8"
         android:background="@color/transparent"
         android:fontFamily="@font/opensans_medium"
-        tool:text="Nhiệm vụ phụ"
         android:paddingVertical="@dimen/dp_4"
         android:textColor="@color/arsenic"
         android:textSize="@dimen/sp_16"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/ivCloseTask"
+        app:layout_constraintEnd_toStartOf="@id/ivRemoveTask"
         app:layout_constraintStart_toEndOf="@id/ivCheck"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tool:text="Nhiệm vụ phụ" />
 
     <ImageView
-        android:id="@+id/ivCloseTask"
+        android:id="@+id/ivRemoveTask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/dp_8"

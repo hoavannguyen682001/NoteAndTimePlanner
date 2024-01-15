@@ -2,6 +2,7 @@ package com.hoanv.notetimeplanner.data.repository.remote
 
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +13,8 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.FileInfo
+import com.hoanv.notetimeplanner.data.models.ImageInfo
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.data.models.group.GroupNotification
@@ -115,9 +118,7 @@ class RemoteRepoIml(
             if (task.isSuccessful) {
                 // Image uploaded successfully
                 imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    // Handle the download URL
                     val imageUrl = downloadUri.toString()
-                    // Now you can use imageUrl as needed
                     result.invoke(imageUrl)
                 }
             } else {
@@ -198,6 +199,76 @@ class RemoteRepoIml(
                 result.invoke(false)
                 Log.d("ADD_NEW_TASK", "${it.message}")
             }
+    }
+
+    override fun uploadImageOfTask(
+        task: Task,
+        listUri: List<ImageInfo>,
+        result: (Task, Boolean) -> Unit
+    ) {
+        listUri.forEachIndexed { index, image ->
+            val imageRef =
+                firebaseStorage.reference.child(
+                    "tasks/${task.id}/images/${image.idImage}"
+                )
+
+            // Upload the file and metadata
+            val uploadTask = image.imageUrl?.let { imageRef.putFile(it.toUri()) }
+            uploadTask?.addOnCompleteListener { mTask ->
+                if (mTask.isSuccessful) {
+                    // Image uploaded successfully
+                    imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        //map download url
+                        task.attachFile.listImage.map {
+                            if (it.idImage == image.idImage) {
+                                it.imageUrl = downloadUri.toString()
+                            }
+                        }
+                        if ((index + 1) == task.attachFile.listImage.size) {
+                            result.invoke(task, true)
+                        }
+                    }
+                } else {
+                    result.invoke(task, false)
+                    Log.d("uploadImageOfTask", "${mTask.exception}")
+                }
+            }
+        }
+    }
+
+    override fun uploadFileOfTask(
+        task: Task,
+        listUri: List<FileInfo>,
+        result: (Task, Boolean) -> Unit
+    ) {
+        listUri.forEachIndexed { index, item ->
+            val imageRef =
+                firebaseStorage.reference.child(
+                    "tasks/${task.id}/files/${item.idFile}-${item.title}"
+                )
+
+            // Upload the file and metadata
+            val uploadTask = item.fileUrl?.let { imageRef.putFile(it.toUri()) }
+            uploadTask?.addOnCompleteListener { mTask ->
+                if (mTask.isSuccessful) {
+                    // Image uploaded successfully
+                    imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        //map download url
+                        task.attachFile.listFile.map {
+                            if (it.idFile == item.idFile) {
+                                it.fileUrl = downloadUri.toString()
+                            }
+                        }
+                        if ((index + 1) == task.attachFile.listFile.size) {
+                            result.invoke(task, true)
+                        }
+                    }
+                } else {
+                    result.invoke(task, false)
+                    Log.d("uploadImageOfTask", "${mTask.exception}")
+                }
+            }
+        }
     }
 
     override fun getListTask(result: (List<Task>, Boolean) -> Unit) {

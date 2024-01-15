@@ -205,13 +205,17 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                 if (item != null) {
                     edtInputCate.setText(item.title)
                     tvSave.setOnSingleClickListener {
-                        val category = edtInputCate.text.toString()
-                        viewModel.updateCategory(
-                            Category(id = item.id, title = category, icon = mIcon),
-                            "title"
-                        )
-                        viewModel.getListCategory()
-                        alertDialog.dismiss()
+                        if (edtInputCate.text.isNullOrEmpty()) {
+                            toastError("Vui lòng điền tiêu đề thể loại!")
+                        } else {
+                            val category = edtInputCate.text.toString()
+                            viewModel.updateCategory(
+                                Category(id = item.id, title = category, icon = mIcon),
+                                "title"
+                            )
+                            viewModel.getListCategory()
+                            alertDialog.dismiss()
+                        }
                     }
                 } else {
                     tvSave.setOnSingleClickListener {

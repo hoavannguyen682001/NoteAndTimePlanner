@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.FileInfo
+import com.hoanv.notetimeplanner.data.models.ImageInfo
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.group.GroupNotification
 import com.hoanv.notetimeplanner.data.models.group.ResponseKey
@@ -43,6 +45,17 @@ class AddTaskVM @Inject constructor(
     val updateTaskTriggerS: LiveData<ResponseState<String>>
         get() = _updateTaskTriggerS
 
+    private val _uploadImageTriggerS =
+        MutableLiveData<ResponseState<Task>>()
+    val uploadImageTriggerS: LiveData<ResponseState<Task>>
+        get() = _uploadImageTriggerS
+
+    private val _uploadFileTriggerS =
+        MutableLiveData<ResponseState<Task>>()
+    val uploadFileTriggerS: LiveData<ResponseState<Task>>
+        get() = _uploadFileTriggerS
+
+
     private val _detailTask = MutableLiveData<Task>()
     val detailTask: LiveData<Task>
         get() = _detailTask
@@ -80,6 +93,30 @@ class AddTaskVM @Inject constructor(
             }
         }
     }
+
+    fun uploadImageOfTask(task: Task, listUri: List<ImageInfo>) =
+        viewModelScope.launch(Dispatchers.IO) {
+            _uploadImageTriggerS.postValue(ResponseState.Start)
+            remoteRepo.uploadImageOfTask(task, listUri) { task, state ->
+                if (state) {
+                    _uploadImageTriggerS.postValue(ResponseState.Success(task))
+                } else {
+                    _uploadImageTriggerS.postValue(ResponseState.Failure(Throwable("Có lỗi xảy ra. Hãy thử lại sau !!")))
+                }
+            }
+        }
+
+    fun uploadFileOfTask(task: Task, listUri: List<FileInfo>) =
+        viewModelScope.launch(Dispatchers.IO) {
+            _uploadFileTriggerS.postValue(ResponseState.Start)
+            remoteRepo.uploadFileOfTask(task, listUri) { task, state ->
+                if (state) {
+                    _uploadFileTriggerS.postValue(ResponseState.Success(task))
+                } else {
+                    _uploadFileTriggerS.postValue(ResponseState.Failure(Throwable("Có lỗi xảy ra. Hãy thử lại sau !!")))
+                }
+            }
+        }
 
     fun updateTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -11,6 +11,7 @@ import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.NOTIFICATION_MESSAGE
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.NOTIFICATION_TITLE
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
+import com.hoanv.notetimeplanner.service.boardcast.NotificationBroadcastReceiver
 import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.notification.NotificationUtil
 import com.hoanv.notetimeplanner.utils.notification.isTimeAutomatic

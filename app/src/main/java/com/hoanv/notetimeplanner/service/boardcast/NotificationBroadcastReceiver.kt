@@ -1,4 +1,4 @@
-package com.hoanv.notetimeplanner.service
+package com.hoanv.notetimeplanner.service.boardcast
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.hoanv.notetimeplanner.service.ScheduledWorker
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.NOTIFICATION_MESSAGE
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.NOTIFICATION_TITLE
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID

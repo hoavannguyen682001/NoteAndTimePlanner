@@ -62,7 +62,8 @@ class ListTaskAdapter(
                 tvCategory.text = task.category.title
 
                 ivNotification.isVisible = !task.scheduledTime.isNullOrEmpty()
-                ivAttach.isVisible = task.listAttach.isNotEmpty()
+                ivAttach.isVisible =
+                    task.attachFile.listImage.isNotEmpty() or task.attachFile.listFile.isNotEmpty()
                 ivSubTask.isVisible = task.subTask.isNotEmpty()
 
                 Glide.with(context)

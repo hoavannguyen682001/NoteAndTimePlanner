@@ -9,4 +9,10 @@ data class SubTask(
     var taskId: String = UUID.randomUUID().toString(),
     var title: String? = "",
     var isDone: Boolean = false
-) : Parcelable
+) : Parcelable {
+    fun ownCopy(): SubTask {
+        return this.copy().apply {
+            isDone = this@SubTask.isDone
+        }
+    }
+}

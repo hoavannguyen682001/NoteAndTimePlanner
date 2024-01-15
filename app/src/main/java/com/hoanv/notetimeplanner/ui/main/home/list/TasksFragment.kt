@@ -43,8 +43,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
@@ -102,6 +100,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 layoutManager =
                     LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
                 adapter = taskAdapter
+                itemAnimator = null
             }
         }
     }

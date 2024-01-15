@@ -1,12 +1,31 @@
 package com.hoanv.notetimeplanner.ui.main.home.create
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.Context
+import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.util.SparseIntArray
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.TimePicker
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.asFlow
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminography.primecalendar.civil.CivilCalendar
@@ -15,9 +34,12 @@ import com.aminography.primedatepicker.common.LabelFormatter
 import com.aminography.primedatepicker.picker.PrimeDatePicker
 import com.aminography.primedatepicker.picker.callback.RangeDaysPickCallback
 import com.aminography.primedatepicker.picker.theme.LightThemeFactory
+import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.R
+import com.hoanv.notetimeplanner.data.models.Attach
 import com.hoanv.notetimeplanner.data.models.Category
-import com.hoanv.notetimeplanner.data.models.NotificationInfo
+import com.hoanv.notetimeplanner.data.models.FileInfo
+import com.hoanv.notetimeplanner.data.models.ImageInfo
 import com.hoanv.notetimeplanner.data.models.SubTask
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.TypeTask
@@ -25,18 +47,22 @@ import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.data.models.notification.MessageTask
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.databinding.ActivityAddTaskBinding
-import com.hoanv.notetimeplanner.databinding.DialogAddCategoryBinding
 import com.hoanv.notetimeplanner.databinding.DialogAddSubtaskBinding
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
+import com.hoanv.notetimeplanner.service.boardcast.DownloadManagerReceiver
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.CategoryAdapter
+import com.hoanv.notetimeplanner.ui.main.home.create.adapter.FileAttachAdapter
+import com.hoanv.notetimeplanner.ui.main.home.create.adapter.ImageAttachAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.SubTaskAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.dialog.TimePickerFragment
 import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
+import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
 import fxc.dev.common.extension.resourceColor
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -66,17 +92,64 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     }
 
     private val subTaskAdapter by lazy {
-        SubTaskAdapter(this) {}
+        SubTaskAdapter(this, ::onIconCheckSubTaskClick, ::onDeleteSubTaskClick)
+    }
+
+    private val imageAttachAdapter by lazy {
+        ImageAttachAdapter(this,
+            {
+                binding.flImagePreview.visible()
+                Glide.with(this)
+                    .load(it.imageUrl)
+                    .into(binding.layoutPreview.ivPreview)
+            },
+            {
+                mListImage.remove(it)
+                listImageS = mListImage
+            })
+    }
+
+    private val fileAttachAdapter by lazy {
+        FileAttachAdapter(this,
+            {
+                downloadFile(it)
+            },
+            {
+                mListFile.remove(it)
+                listFileS = mListFile
+            })
     }
 
     private var selectedS = MutableStateFlow(0)
 
+    /* Trigger list sub task */
     private var listSubTaskS = MutableSharedFlow<List<SubTask>>(extraBufferCapacity = 64)
     private var mListSubTask = mutableListOf<SubTask>()
     private var _listSubTask = listOf<SubTask>()
         set(value) {
             field = value
             listSubTaskS.tryEmit(value)
+        }
+
+    /* Trigger list image */
+    private val listImageUri = mutableListOf<ImageInfo>()
+    private var _listImageS = MutableSharedFlow<List<ImageInfo>>(extraBufferCapacity = 64)
+    private var mListImage = mutableListOf<ImageInfo>()
+    private var listImageS = listOf<ImageInfo>()
+        set(value) {
+            field = value
+            _listImageS.tryEmit(value)
+        }
+    private lateinit var registerImagePicker: ActivityResultLauncher<PickVisualMediaRequest>
+
+    /* Trigger list file doc */
+    private val listFileUri = mutableListOf<FileInfo>()
+    private var _listFileS = MutableSharedFlow<List<FileInfo>>(extraBufferCapacity = 64)
+    private var mListFile = mutableListOf<FileInfo>()
+    private var listFileS = listOf<FileInfo>()
+        set(value) {
+            field = value
+            _listFileS.tryEmit(value)
         }
 
     /* inti current day and time */
@@ -102,30 +175,43 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     /* set up time for schedule notification */
     private val timeNotification = object : TimePickerFragment.TimePickerListener {
         override fun timePickerListener(view: TimePicker, hourOfDay: Int, minute: Int) {
-            binding.tvTimeNotification.text =
-                getString(
-                    R.string.time_picker,
-                    "$hourOfDay",
-                    if (minute < 10) "0" else "",
-                    "$minute"
+            binding.run {
+                tvTimeNotification.text =
+                    getString(
+                        R.string.time_picker,
+                        "$hourOfDay",
+                        if (minute < 10) "0" else "",
+                        "$minute"
+                    )
+
+                val timeNoti = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
+                    tvTimeNotification.text.toString()
                 )
 
-            val timeNoti = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
-                binding.tvTimeNotification.text.toString()
-            )
+                val timeEnd = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
+                    tvTimeEnd.text.toString()
+                )
 
-            val timeEnd = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
-                binding.tvTimeEnd.text.toString()
-            )
-
-            if (timeNoti != null) {
-                if (timeNoti > timeEnd) {
-                    toastError("Vui lòng chọn thời gian thông báo trước thời gian kết thúc!")
-                    binding.tvTimeNotification.text = getString(R.string.pick_time)
+                if (timeNoti != null) {
+                    if (timeNoti.after(timeEnd)) {
+                        toastError("Vui lòng chọn thời gian thông báo trước thời gian kết thúc!")
+                        tvTimeNotification.text = getString(R.string.pick_time)
+                    }
                 }
             }
         }
     }
+
+    private var registerPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            turnOnPushNotification()
+        } else {
+            turnOffPushNotification()
+        }
+    }
+
 
     override fun init(savedInstanceState: Bundle?) {
         timePickerFrag.setDataTimePicker(this@AddTaskActivity)
@@ -169,9 +255,26 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             rvAddSubTask.run {
+                layoutManager = LinearLayoutManager(
+                    this@AddTaskActivity, LinearLayoutManager.VERTICAL, false
+                )
                 adapter = subTaskAdapter
-                layoutManager =
-                    LinearLayoutManager(this@AddTaskActivity, LinearLayoutManager.VERTICAL, false)
+                isNestedScrollingEnabled = false
+                itemAnimator = null
+            }
+
+            rvAttachImage.run {
+                layoutManager = LinearLayoutManager(
+                    this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
+                )
+                adapter = imageAttachAdapter
+            }
+
+            rvAttachFile.run {
+                layoutManager = LinearLayoutManager(
+                    this@AddTaskActivity, LinearLayoutManager.VERTICAL, false
+                )
+                adapter = fileAttachAdapter
             }
 
             dialogBinding =
@@ -180,6 +283,23 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 AlertDialog.Builder(this@AddTaskActivity, R.style.AppCompat_AlertDialog)
                     .setView(dialogBinding.root)
                     .setCancelable(false).create()
+
+            registerImagePicker =
+                registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                    if (uri != null) {
+
+                        val imageInfo = ImageInfo(
+                            imageUrl = uri.toString()
+                        )
+                        /* add uri to list image for upload image of task */
+                        listImageUri.add(imageInfo)
+
+                        mListImage.add(imageInfo)
+                        listImageS = mListImage
+
+                        Log.d("listImageS", "$listImageS")
+                    }
+                }
         }
     }
 
@@ -187,6 +307,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         binding.run {
             btnClose.setOnSingleClickListener {
                 onBackPressedDispatcher.onBackPressed()
+            }
+
+            layoutPreview.ivClosePreview.setOnSingleClickListener {
+                Glide.with(this@AddTaskActivity).clear(layoutPreview.ivPreview)
+                flImagePreview.gone()
             }
 
             tvTaskPersonal.setOnSingleClickListener {
@@ -229,6 +354,10 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 dialogAddSubTask()
             }
 
+            tvAttachFile.setOnClickListener {
+                handleOptionMenu(tvAttachFile)
+            }
+
             btnSubmit.setOnSingleClickListener {
                 if (idTodo.isNullOrEmpty()) {
                     addTask()
@@ -238,18 +367,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             swcNotification.setOnCheckedChangeListener { _, isChecked ->
-                swcNotification.isChecked = isChecked
-                tvTimeNotification.isEnabled = isChecked
-
-                if (isChecked) {
-                    tvTimeNotification.run {
-                        setTextColor(resourceColor(R.color.black))
-                        backgroundTintList = getColorStateList(R.color.white)
-                    }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    checkPermission()
                 } else {
-                    tvTimeNotification.run {
-                        setTextColor(resourceColor(R.color.dark_gray))
-                        backgroundTintList = getColorStateList(R.color.cultured)
+                    if (isChecked) {
+                        turnOnPushNotification()
+                    } else {
+                        turnOffPushNotification()
                     }
                 }
             }
@@ -335,12 +459,149 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 detailTask.observe(this@AddTaskActivity) {
                     loadDataView(it)
                 }
+
+                uploadImageTriggerS.observe(this@AddTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            if (listFileUri.isNotEmpty()) {
+                                viewModel.uploadFileOfTask(state.data, listFileUri)
+                            } else {
+                                if (idTodo.isNullOrEmpty()) {
+                                    viewModel.addNewTask(state.data)
+                                    mCategory.listTask++
+                                    viewModel.updateCategory(mCategory, "listTask")
+                                } else {
+                                    viewModel.updateTask(state.data)
+                                }
+                            }
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
+
+                uploadFileTriggerS.observe(this@AddTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            if (idTodo.isNullOrEmpty()) {
+                                viewModel.addNewTask(state.data)
+                                mCategory.listTask++
+                                viewModel.updateCategory(mCategory, "listTask")
+                            } else {
+                                viewModel.updateTask(state.data)
+                            }
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
             }
 
-            listSubTaskS.collectIn(this@AddTaskActivity) {
-                subTaskAdapter.submitList(it)
-                Log.d("mListSubTask", "$it")
+            /* collect list sub task */
+            listSubTaskS.collectIn(this@AddTaskActivity) { list ->
+                subTaskAdapter.submitList(list.map { it.ownCopy() })
             }
+
+            /* collect list image attach */
+            _listImageS.collectIn(this@AddTaskActivity) { list ->
+                imageAttachAdapter.submitList(list.map { it.copy() })
+            }
+
+            /* collect list file attach*/
+            _listFileS.collectIn(this@AddTaskActivity) { list ->
+                fileAttachAdapter.submitList(list.map { it.copy() })
+                Log.d("fileAttachAdapter", "$list")
+            }
+        }
+    }
+
+    private val registerGetFileDocument =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+            it?.let { uri ->
+                val documentFile = DocumentFile.fromSingleUri(this@AddTaskActivity, uri)
+                documentFile?.let {
+                    val fileInfo = FileInfo(
+                        title = documentFile.name ?: "",
+                        fileUrl = documentFile.uri.toString()
+                    )
+
+                    listFileUri.add(fileInfo)
+                    mListFile.add(fileInfo)
+                    listFileS = mListFile
+                    Log.d("documentFile", "${listFileS}")
+                }
+            }
+        }
+
+    private fun getFileDocument() {
+        val typeFile = arrayOf(
+            "application/pdf",
+            "text/plain",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
+        registerGetFileDocument.launch(typeFile)
+    }
+
+    private fun downloadFile(fileInfo: FileInfo) {
+        val request = DownloadManager.Request(Uri.parse(fileInfo.fileUrl))
+        request.setTitle("Tải xuống ${fileInfo.title}")
+        request.setDescription("Tệp tin đang được tải xuống")
+
+        // Thiết lập đường dẫn lưu trữ của tệp tin
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileInfo.title)
+
+        // Đặt những cờ cho request
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+        // Lấy DownloadManager và gửi yêu cầu tải về
+        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadId = downloadManager.enqueue(request)
+
+        // Optional: Lắng nghe sự kiện khi tải về hoàn tất
+        val onCompleteReceiver = DownloadManagerReceiver(downloadId)
+        ContextCompat.registerReceiver(
+            this@AddTaskActivity,
+            onCompleteReceiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    private fun turnOnPushNotification() {
+        binding.swcNotification.isChecked = true
+        binding.tvTimeNotification.run {
+            text = if (!mTask.scheduledTime.isNullOrEmpty()) {
+                mTask.scheduledTime
+            } else {
+                binding.tvTimeEnd.text
+            }
+            isEnabled = true
+            setTextColor(resourceColor(R.color.black))
+            backgroundTintList = getColorStateList(R.color.white)
+        }
+
+    }
+
+    private fun turnOffPushNotification() {
+        binding.swcNotification.isChecked = false
+        binding.tvTimeNotification.run {
+            text = "Chọn thời gian"
+            isEnabled = false
+            setTextColor(resourceColor(R.color.dark_gray))
+            backgroundTintList = getColorStateList(R.color.cultured)
         }
     }
 
@@ -354,13 +615,36 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             tvTimeEnd.text = task.timeEnd
 
             if (!mTask.scheduledTime.isNullOrEmpty()) {
-                swcNotification.isChecked = true
-                tvTimeNotification.run {
-                    tvTimeNotification.text = mTask.scheduledTime
-                    isEnabled = true
-                    setTextColor(resourceColor(R.color.black))
-                    backgroundTintList = getColorStateList(R.color.white)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(
+                            this@AddTaskActivity,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        turnOnPushNotification()
+                    } else {
+                        turnOffPushNotification()
+                    }
+                } else {
+                    turnOnPushNotification()
                 }
+            } else {
+                turnOffPushNotification()
+            }
+
+            if (mTask.subTask.isNotEmpty()) {
+                mListSubTask.addAll(mTask.subTask)
+                subTaskAdapter.submitList(mTask.subTask.map { it.ownCopy() })
+            }
+
+            if (mTask.attachFile.listImage.isNotEmpty()) {
+                mListImage.addAll(mTask.attachFile.listImage)
+                imageAttachAdapter.submitList(mTask.attachFile.listImage.map { it.copy() })
+            }
+
+            if (mTask.attachFile.listFile.isNotEmpty()) {
+                mListFile.addAll(mTask.attachFile.listFile)
+                fileAttachAdapter.submitList(mTask.attachFile.listFile.map { it.copy() })
             }
         }
     }
@@ -376,7 +660,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 timeEnd = tvTimeEnd.text.toString(),
                 startDay = tvStartDay.text.toString(),
                 endDay = tvEndDay.text.toString(),
-                scheduledTime = binding.tvTimeNotification.text.toString(),
+                scheduledTime = if (swcNotification.isChecked) tvTimeNotification.text.toString() else null,
+                subTask = mListSubTask,
+                attachFile = Attach(
+                    listImage = mListImage
+                ),
                 taskState = false,
                 typeTask = typeTask
             )
@@ -386,9 +674,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 setScheduledTime(task, isSchedule = true, isUpdate)
             }
 
-            viewModel.addNewTask(task)
-            mCategory.listTask++
-            viewModel.updateCategory(mCategory, "listTask")
+            if (listImageUri.isNotEmpty()) {
+                viewModel.uploadImageOfTask(task, listImageUri)
+            } else {
+                viewModel.addNewTask(task)
+                mCategory.listTask++
+                viewModel.updateCategory(mCategory, "listTask")
+            }
         }
     }
 
@@ -404,7 +696,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 timeEnd = tvTimeEnd.text.toString(),
                 startDay = tvStartDay.text.toString(),
                 endDay = tvEndDay.text.toString(),
-                scheduledTime = binding.tvTimeNotification.text.toString(),
+                scheduledTime = if (swcNotification.isChecked) tvTimeNotification.text.toString() else null,
+                subTask = mListSubTask,
+                attachFile = Attach(
+                    listImage = mListImage
+                ),
                 taskState = false,
                 typeTask = typeTask
             )
@@ -426,13 +722,16 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 }
             }
 
-            viewModel.updateTask(task)
+            if (listImageUri.isNotEmpty()) {
+                viewModel.uploadImageOfTask(task, listImageUri)
+            } else {
+                viewModel.updateTask(task)
+            }
 
             //TODO check category to increase or decrease list task
         }
     }
 
-    //TODO request permission notification
     private fun setScheduledTime(task: Task, isSchedule: Boolean, isUpdate: Boolean) {
         val scheduledTime = "${task.endDay} ${binding.tvTimeNotification.text}:00"
 
@@ -495,6 +794,49 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
         }
         alertDialog.show()
+    }
+
+    private fun onIconCheckSubTaskClick(item: SubTask) {
+        val tempList = mListSubTask.map {
+            if (it.taskId == item.taskId) {
+                it.isDone = !it.isDone
+            }
+            it
+        }
+        _listSubTask = tempList
+    }
+
+    private fun onDeleteSubTaskClick(item: SubTask) {
+        mListSubTask.remove(item)
+        Log.d("mListSubTask", "$mListSubTask")
+        _listSubTask = mListSubTask
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun handleOptionMenu(view: View) {
+        val popupMenu = PopupMenu(this@AddTaskActivity, view)
+        popupMenu.inflate(R.menu.attach_file)
+        val popupHelper =
+            MenuPopupHelper(this@AddTaskActivity, popupMenu.menu as MenuBuilder, view)
+        popupHelper.setForceShowIcon(true)
+
+
+        popupMenu.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.itemImage -> {
+                    registerImagePicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
+
+                R.id.itemFile -> {
+                    getFileDocument()
+                }
+            }
+            false
+        }
+
+        popupHelper.show()
     }
 
     private val themeFactory = object : LightThemeFactory() {
@@ -593,6 +935,27 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             if (minute < 10) "0" else "",
             "$minute"
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun checkPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            if (binding.swcNotification.isChecked) {
+                turnOnPushNotification()
+            } else {
+                turnOffPushNotification()
+            }
+        } else {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                toastWarning("Bạn đã từ chối quyền thông báo. Vui lòng vào cài đặt để cho phép ứng dụng hiển thị thông báo!")
+            } else {
+                registerPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            turnOffPushNotification()
+        }
     }
 
     override fun setupViewBinding(inflater: LayoutInflater): ActivityAddTaskBinding =
