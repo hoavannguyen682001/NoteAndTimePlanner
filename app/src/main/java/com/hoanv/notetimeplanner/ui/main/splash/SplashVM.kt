@@ -15,17 +15,4 @@ class SplashVM @Inject
 constructor(
     val remoteRepo: RemoteRepo
 ) : BaseViewModel() {
-
-    init {
-        getDeviceToken()
-    }
-
-    private fun getDeviceToken() {
-        viewModelScope.launch(Dispatchers.IO) {
-            remoteRepo.getDeviceToken {
-                Pref.deviceToken = it
-                Log.d("Device_Token", "device token $it")
-            }
-        }
-    }
 }

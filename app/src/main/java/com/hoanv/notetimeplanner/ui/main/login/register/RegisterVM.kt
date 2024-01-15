@@ -33,6 +33,10 @@ class RegisterVM @Inject constructor(
         }
     }
 
+    fun uploadUserInfo(userInfo: UserInfo) = viewModelScope.launch(Dispatchers.IO) {
+        remoteRepo.createUserInfoByGoogleAuth(userInfo)
+    }
+
     fun signInWithGoogle(idToken: String) {
         _registerTriggerS.postValue(ResponseState.Start)
         remoteRepo.signInWithGoogle(idToken) { user, state ->
@@ -44,7 +48,7 @@ class RegisterVM @Inject constructor(
                     userPassword = UUID.randomUUID().toString(),
                 )
                 /* upload user info*/
-                remoteRepo.createUserInfoByGoogleAuth(userInfo)
+                uploadUserInfo(userInfo)
 
                 _registerTriggerS.postValue(ResponseState.Success("Thành công."))
                 Pref.isSaveLogin = true

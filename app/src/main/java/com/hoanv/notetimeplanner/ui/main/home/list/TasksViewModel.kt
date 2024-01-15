@@ -63,6 +63,7 @@ class TasksViewModel @Inject constructor(
             remoteRepo.getUserInfo(email) { userInfo ->
                 if (userInfo != null) {
                     Pref.userId = userInfo.uid
+                    Pref.userEmail = userInfo.userEmail
                     Log.d("USER_ID", Pref.userId)
                     _userInfo.postValue(ResponseState.Success(userInfo))
                 } else {

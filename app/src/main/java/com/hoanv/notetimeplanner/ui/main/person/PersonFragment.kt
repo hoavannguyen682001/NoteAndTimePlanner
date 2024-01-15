@@ -19,7 +19,9 @@ import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.databinding.FragmentPersonBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.evenbus.UserInfoEvent
+import com.hoanv.notetimeplanner.ui.main.login.signin.LoginActivity
 import com.hoanv.notetimeplanner.ui.main.person.activity.EditProfileActivity
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,6 +62,10 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
                     }
                 )
             }
+
+            ivSignOut.setOnSingleClickListener {
+                viewModel.logoutCurrentUser()
+            }
         }
     }
 
@@ -90,6 +96,18 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
                             toastError(state.throwable?.message)
                             Log.d("###", "${state.throwable?.message}")
                         }
+                    }
+                }
+
+                logoutTriggerS.observe(viewLifecycleOwner) {
+                    if (it) {
+                        Pref.userId = ""
+                        Pref.userEmail = ""
+                        Pref.isSaveLogin = false
+                        startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                        requireActivity().finish()
+                    } else {
+                        toastError("Lỗi không xác định. Thử lại sau")
                     }
                 }
             }

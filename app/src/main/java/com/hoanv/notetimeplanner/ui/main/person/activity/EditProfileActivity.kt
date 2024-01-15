@@ -27,6 +27,7 @@ import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.databinding.ActivityEditProfileBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.evenbus.ReloadUserInfo
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,7 +78,7 @@ class EditProfileActivity : BaseActivity<ActivityEditProfileBinding, EditProfile
                     .placeholder(R.drawable.img_user_avatar).dontAnimate().into(ivProfile)
 
                 val index = when (gender) {
-                    "Name" -> {
+                    "Nam" -> {
                         0
                     }
 

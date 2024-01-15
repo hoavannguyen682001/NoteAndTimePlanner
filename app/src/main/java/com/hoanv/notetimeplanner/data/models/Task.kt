@@ -41,6 +41,7 @@ data class Task(
             "startDay" to startDay,
             "endDay" to endDay,
             "timeEnd" to timeEnd,
+            "listMember" to member,
             "scheduledTime" to scheduledTime,
             "attachFile" to attachFile,
             "taskState" to taskState,

@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.hoanv.notetimeplanner.R
+import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.databinding.FragmentDashboardBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.main.home.category.CategoryActivity
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
+import com.hoanv.notetimeplanner.utils.AppConstant
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -55,11 +57,15 @@ class DashBoardFragment : BaseFragment<FragmentDashboardBinding, DashBoardVM>() 
             }
 
             cslTask.setOnSingleClickListener {
-                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java))
+                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java).apply {
+                    putExtra(AppConstant.TASK_TYPE, TypeTask.PERSONAL.name)
+                })
             }
 
             cslGroupTask.setOnSingleClickListener {
-                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+                startActivity(Intent(requireContext(), ListAllTaskActivity::class.java).apply {
+                    putExtra(AppConstant.TASK_TYPE, TypeTask.GROUP.name)
+                })
             }
 
             cslStatistical.setOnSingleClickListener {

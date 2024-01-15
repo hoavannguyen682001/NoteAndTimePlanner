@@ -43,10 +43,12 @@ import com.hoanv.notetimeplanner.data.models.ImageInfo
 import com.hoanv.notetimeplanner.data.models.SubTask
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.TypeTask
+import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.data.models.notification.DataTask
 import com.hoanv.notetimeplanner.data.models.notification.MessageTask
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.databinding.ActivityAddTaskBinding
+import com.hoanv.notetimeplanner.databinding.DialogAddMemberBinding
 import com.hoanv.notetimeplanner.databinding.DialogAddSubtaskBinding
 import com.hoanv.notetimeplanner.service.ScheduledWorker.Companion.TASK_ID
 import com.hoanv.notetimeplanner.service.boardcast.DownloadManagerReceiver
@@ -55,8 +57,10 @@ import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.CategoryAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.FileAttachAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.ImageAttachAdapter
+import com.hoanv.notetimeplanner.ui.main.home.create.adapter.MemberAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.SubTaskAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.dialog.TimePickerFragment
+import com.hoanv.notetimeplanner.utils.FieldValidators
 import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
@@ -85,9 +89,19 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private lateinit var dialogBinding: DialogAddSubtaskBinding
     private lateinit var alertDialog: AlertDialog
 
+    private lateinit var dialogMemberBinding: DialogAddMemberBinding
+    private lateinit var alertMemberDialog: AlertDialog
+
     private val categoryAdapter by lazy {
         CategoryAdapter(this) { category, position ->
             selectedS.tryEmit(position)
+        }
+    }
+
+    private val memBerAdapter by lazy {
+        MemberAdapter(this) {
+            mListMember.remove(it)
+            _listMember = mListMember
         }
     }
 
@@ -122,6 +136,15 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     private var selectedS = MutableStateFlow(0)
 
+    /* Trigger list member */
+    private var listMemberTriggerS = MutableSharedFlow<List<UserInfo>>(extraBufferCapacity = 64)
+    private var mListMember = mutableListOf<UserInfo>()
+    private var _listMember = listOf<UserInfo>()
+        set(value) {
+            field = value
+            listMemberTriggerS.tryEmit(value)
+        }
+
     /* Trigger list sub task */
     private var listSubTaskS = MutableSharedFlow<List<SubTask>>(extraBufferCapacity = 64)
     private var mListSubTask = mutableListOf<SubTask>()
@@ -133,23 +156,23 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     /* Trigger list image */
     private val listImageUri = mutableListOf<ImageInfo>()
-    private var _listImageS = MutableSharedFlow<List<ImageInfo>>(extraBufferCapacity = 64)
+    private var listImageTriggerS = MutableSharedFlow<List<ImageInfo>>(extraBufferCapacity = 64)
     private var mListImage = mutableListOf<ImageInfo>()
     private var listImageS = listOf<ImageInfo>()
         set(value) {
             field = value
-            _listImageS.tryEmit(value)
+            listImageTriggerS.tryEmit(value)
         }
     private lateinit var registerImagePicker: ActivityResultLauncher<PickVisualMediaRequest>
 
     /* Trigger list file doc */
     private val listFileUri = mutableListOf<FileInfo>()
-    private var _listFileS = MutableSharedFlow<List<FileInfo>>(extraBufferCapacity = 64)
+    private var listFileTriggerS = MutableSharedFlow<List<FileInfo>>(extraBufferCapacity = 64)
     private var mListFile = mutableListOf<FileInfo>()
     private var listFileS = listOf<FileInfo>()
         set(value) {
             field = value
-            _listFileS.tryEmit(value)
+            listFileTriggerS.tryEmit(value)
         }
 
     /* inti current day and time */
@@ -254,6 +277,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 itemAnimator = null
             }
 
+            rvListMember.run {
+                layoutManager = LinearLayoutManager(
+                    this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
+                )
+                adapter = memBerAdapter
+            }
+
             rvAddSubTask.run {
                 layoutManager = LinearLayoutManager(
                     this@AddTaskActivity, LinearLayoutManager.VERTICAL, false
@@ -277,6 +307,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 adapter = fileAttachAdapter
             }
 
+            /* Dialog add subtask */
             dialogBinding =
                 DialogAddSubtaskBinding.inflate(LayoutInflater.from(this@AddTaskActivity))
             alertDialog =
@@ -300,6 +331,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         Log.d("listImageS", "$listImageS")
                     }
                 }
+
+            dialogMemberBinding =
+                DialogAddMemberBinding.inflate(LayoutInflater.from(this@AddTaskActivity))
+            alertMemberDialog =
+                AlertDialog.Builder(this@AddTaskActivity, R.style.AppCompat_AlertDialog)
+                    .setView(dialogMemberBinding.root)
+                    .setCancelable(false).create()
         }
     }
 
@@ -316,6 +354,9 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTaskPersonal.setOnSingleClickListener {
                 typeTask = TypeTask.PERSONAL
+                tvAddMember.gone()
+                rvListMember.gone()
+                tvMember.gone()
                 tvTaskPersonal.run {
                     isSelected = true
                     tvTaskPersonal.setTextColor(resourceColor(R.color.white))
@@ -328,6 +369,9 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTaskGroup.setOnSingleClickListener {
                 typeTask = TypeTask.GROUP
+                tvAddMember.visible()
+                rvListMember.visible()
+                tvMember.visible()
                 tvTaskGroup.run {
                     isSelected = true
                     setTextColor(resourceColor(R.color.white))
@@ -348,6 +392,10 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTimeEnd.setOnSingleClickListener {
                 timePickerFrag.show(supportFragmentManager, "TimerPicker")
+            }
+
+            tvAddMember.setOnSingleClickListener {
+                dialogAddMember()
             }
 
             tvAddSubTask.setOnSingleClickListener {
@@ -505,6 +553,27 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         }
                     }
                 }
+
+                userInfo.observe(this@AddTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            mListMember.add(state.data)
+                            _listMember = mListMember
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
+            }
+
+            /* collect list member */
+            listMemberTriggerS.collectIn(this@AddTaskActivity) { list ->
+                memBerAdapter.submitList(list.map { it.copy() })
             }
 
             /* collect list sub task */
@@ -513,12 +582,12 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             /* collect list image attach */
-            _listImageS.collectIn(this@AddTaskActivity) { list ->
+            listImageTriggerS.collectIn(this@AddTaskActivity) { list ->
                 imageAttachAdapter.submitList(list.map { it.copy() })
             }
 
             /* collect list file attach*/
-            _listFileS.collectIn(this@AddTaskActivity) { list ->
+            listFileTriggerS.collectIn(this@AddTaskActivity) { list ->
                 fileAttachAdapter.submitList(list.map { it.copy() })
                 Log.d("fileAttachAdapter", "$list")
             }
@@ -632,6 +701,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 turnOffPushNotification()
             }
 
+            if (mTask.member.isNotEmpty()) {
+                mListMember.addAll(mTask.member)
+                memBerAdapter.submitList(mTask.member.map { it.copy() })
+            }
+
             if (mTask.subTask.isNotEmpty()) {
                 mListSubTask.addAll(mTask.subTask)
                 subTaskAdapter.submitList(mTask.subTask.map { it.ownCopy() })
@@ -662,12 +736,18 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 endDay = tvEndDay.text.toString(),
                 scheduledTime = if (swcNotification.isChecked) tvTimeNotification.text.toString() else null,
                 subTask = mListSubTask,
+                member = mListMember,
                 attachFile = Attach(
-                    listImage = mListImage
+                    listImage = mListImage,
+                    listFile = mListFile
                 ),
                 taskState = false,
                 typeTask = typeTask
             )
+
+            if (task.typeTask == TypeTask.GROUP) {
+                task.member = mListMember
+            }
 
             if (swcNotification.isChecked) {
                 isUpdate = false
@@ -698,8 +778,10 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 endDay = tvEndDay.text.toString(),
                 scheduledTime = if (swcNotification.isChecked) tvTimeNotification.text.toString() else null,
                 subTask = mListSubTask,
+                member = mListMember,
                 attachFile = Attach(
-                    listImage = mListImage
+                    listImage = mListImage,
+                    listFile = mListFile
                 ),
                 taskState = false,
                 typeTask = typeTask
@@ -770,6 +852,49 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         viewModel.sendNotification(notificationData)
     }
 
+    private fun dialogAddMember() {
+        binding.run {
+            dialogMemberBinding.run {
+                tvAdd.setOnSingleClickListener {
+                    if (edtEmail.text.isNullOrEmpty() || !validateEmail()) {
+                        validateEmail()
+                    } else if (edtEmail.text.toString() == Pref.userEmail) {
+                        toastWarning("Vui lòng không nhập Email của bản thân!")
+                    } else if (mListMember.isNotEmpty()) {
+                        mListMember.forEach {
+                            if (it.userEmail == dialogMemberBinding.edtEmail.text.toString()) {
+                                toastError("Người dùng này đã là thành viên!")
+                                return@forEach
+                            }
+                        }
+                    } else {
+                        viewModel.getUserInfo(edtEmail.text.toString())
+                        edtEmail.text!!.clear()
+                        alertMemberDialog.dismiss()
+                    }
+                }
+                tvCancel.setOnSingleClickListener {
+                    alertMemberDialog.dismiss()
+                }
+            }
+        }
+        alertMemberDialog.show()
+    }
+
+    private fun validateEmail(): Boolean {
+        dialogMemberBinding.run {
+            val text = edtEmail.text.toString().trim()
+            if (text.isEmpty() || !FieldValidators.isValidEmail(text)) {
+                tilEmail.isErrorEnabled = true
+                tilEmail.error = "Vui lòng nhập đúng format: example@gmail.com"
+                return false
+            } else {
+                tilEmail.isErrorEnabled = false
+            }
+            return true
+        }
+    }
+
     private fun dialogAddSubTask() {
         binding.run {
             dialogBinding.run {
@@ -808,7 +933,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     private fun onDeleteSubTaskClick(item: SubTask) {
         mListSubTask.remove(item)
-        Log.d("mListSubTask", "$mListSubTask")
         _listSubTask = mListSubTask
     }
 

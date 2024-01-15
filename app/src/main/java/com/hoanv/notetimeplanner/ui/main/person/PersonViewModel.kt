@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
@@ -27,6 +28,11 @@ class PersonViewModel @Inject constructor(
         MutableLiveData<ResponseState<List<Task>>>()
     val listTask: LiveData<ResponseState<List<Task>>>
         get() = _listTask
+
+    private val _logoutTriggerS = MutableLiveData<Boolean>()
+    val logoutTriggerS: LiveData<Boolean>
+        get() = _logoutTriggerS
+
 
     init {
         getListCategory()
@@ -57,5 +63,19 @@ class PersonViewModel @Inject constructor(
                 _listCategories.postValue(emptyList())
             }
         }
+    }
+
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    fun logoutCurrentUser() {
+        val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            _logoutTriggerS.value = user == null
+        }
+
+        auth.addAuthStateListener(authStateListener)
+        auth.signOut()
+
+// mAuth.removeAuthStateListener(authStateListener)
     }
 }

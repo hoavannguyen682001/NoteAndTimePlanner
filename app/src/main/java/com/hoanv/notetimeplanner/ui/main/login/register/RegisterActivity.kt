@@ -29,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class RegisterActivity : BaseActivity<ActivityRegisterBinding, RegisterVM>() {
     override val viewModel: RegisterVM by viewModels()
 
+    private var mUserInfo = UserInfo()
     override fun init(savedInstanceState: Bundle?) {
         initView()
         intiListener()
@@ -73,6 +74,8 @@ class RegisterActivity : BaseActivity<ActivityRegisterBinding, RegisterVM>() {
 
                         is ResponseState.Success -> {
                             dismissLoadingDialog()
+                            viewModel.uploadUserInfo(mUserInfo)
+                            Pref.isSaveLogin = true
                             startActivity(
                                 Intent(
                                     this@RegisterActivity,
@@ -101,6 +104,7 @@ class RegisterActivity : BaseActivity<ActivityRegisterBinding, RegisterVM>() {
                 userPassword = edtPassword.text.toString(),
                 userToken = Pref.deviceToken
             )
+            mUserInfo = userInfo
             Log.d("USER_TOKEN", "${Pref.deviceToken} - ${userInfo.userToken}")
 
             viewModel.createUserAccount(userInfo)

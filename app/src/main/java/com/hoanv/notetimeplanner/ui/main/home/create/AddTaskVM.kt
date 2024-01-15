@@ -8,12 +8,14 @@ import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.FileInfo
 import com.hoanv.notetimeplanner.data.models.ImageInfo
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.data.models.group.GroupNotification
 import com.hoanv.notetimeplanner.data.models.group.ResponseKey
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +57,6 @@ class AddTaskVM @Inject constructor(
     val uploadFileTriggerS: LiveData<ResponseState<Task>>
         get() = _uploadFileTriggerS
 
-
     private val _detailTask = MutableLiveData<Task>()
     val detailTask: LiveData<Task>
         get() = _detailTask
@@ -64,8 +65,28 @@ class AddTaskVM @Inject constructor(
         MutableSharedFlow<ResponseState<ResponseNoti>>(extraBufferCapacity = 64)
     val sendNotiTriggerS = _sendNotiTriggerS.asSharedFlow()
 
+    private val _userInfo = MutableLiveData<ResponseState<UserInfo>>()
+    val userInfo: LiveData<ResponseState<UserInfo>>
+        get() = _userInfo
+
     init {
         getListCategory()
+    }
+
+    fun getUserInfo(email: String) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            _userInfo.postValue(ResponseState.Start)
+            remoteRepo.getUserInfo(email) { userInfo ->
+                if (userInfo != null) {
+                    _userInfo.postValue(ResponseState.Success(userInfo))
+                } else {
+                    _userInfo.postValue(ResponseState.Failure(Throwable("Không tìm thấy người dùng này!")))
+                }
+            }
+        } catch (e: Exception) {
+            _userInfo.postValue(ResponseState.Failure(Throwable("Có lỗi không xác nhận. Thử lại sau!")))
+            Log.d("GetUserInfo", "${e.message}")
+        }
     }
 
     private fun getListCategory() {
