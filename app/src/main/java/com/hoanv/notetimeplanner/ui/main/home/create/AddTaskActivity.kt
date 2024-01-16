@@ -352,7 +352,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 flImagePreview.gone()
             }
 
-            tvTaskPersonal.setOnSingleClickListener {
+            tvTaskPersonal.setOnClickListener {
                 typeTask = TypeTask.PERSONAL
                 tvAddMember.gone()
                 rvListMember.gone()
@@ -367,7 +367,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 }
             }
 
-            tvTaskGroup.setOnSingleClickListener {
+            tvTaskGroup.setOnClickListener {
                 typeTask = TypeTask.GROUP
                 tvAddMember.visible()
                 rvListMember.visible()
@@ -652,10 +652,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private fun turnOnPushNotification() {
         binding.swcNotification.isChecked = true
         binding.tvTimeNotification.run {
-            text = if (!mTask.scheduledTime.isNullOrEmpty()) {
-                mTask.scheduledTime
-            } else {
-                binding.tvTimeEnd.text
+            text = binding.tvTimeEnd.text
+            if (!idTodo.isNullOrEmpty()) {
+                if (!mTask.scheduledTime.isNullOrEmpty()) {
+                    text = mTask.scheduledTime
+                }
             }
             isEnabled = true
             setTextColor(resourceColor(R.color.black))
@@ -701,9 +702,9 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 turnOffPushNotification()
             }
 
-            if (mTask.member.isNotEmpty()) {
-                mListMember.addAll(mTask.member)
-                memBerAdapter.submitList(mTask.member.map { it.copy() })
+            if (mTask.listMember.isNotEmpty()) {
+                mListMember.addAll(mTask.listMember)
+                memBerAdapter.submitList(mTask.listMember.map { it.copy() })
             }
 
             if (mTask.subTask.isNotEmpty()) {
@@ -736,7 +737,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 endDay = tvEndDay.text.toString(),
                 scheduledTime = if (swcNotification.isChecked) tvTimeNotification.text.toString() else null,
                 subTask = mListSubTask,
-                member = mListMember,
+                listMember = mListMember,
                 attachFile = Attach(
                     listImage = mListImage,
                     listFile = mListFile
@@ -746,7 +747,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             )
 
             if (task.typeTask == TypeTask.GROUP) {
-                task.member = mListMember
+                task.listMember = mListMember
             }
 
             if (swcNotification.isChecked) {
@@ -778,7 +779,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 endDay = tvEndDay.text.toString(),
                 scheduledTime = if (swcNotification.isChecked) tvTimeNotification.text.toString() else null,
                 subTask = mListSubTask,
-                member = mListMember,
+                listMember = mListMember,
                 attachFile = Attach(
                     listImage = mListImage,
                     listFile = mListFile

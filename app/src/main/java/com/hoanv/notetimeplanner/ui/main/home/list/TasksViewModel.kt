@@ -64,6 +64,17 @@ class TasksViewModel @Inject constructor(
                 if (userInfo != null) {
                     Pref.userId = userInfo.uid
                     Pref.userEmail = userInfo.userEmail
+
+                    if (Pref.deviceToken != userInfo.userToken) {
+                        if (Pref.deviceToken.isNotEmpty() && Pref.deviceToken != "") {
+                            /* Update user token when token change or login in other devices */
+                            Log.d("USER_TOKEN", "${Pref.deviceToken} - ${userInfo.userToken}")
+
+                            userInfo.userToken = Pref.deviceToken
+                            remoteRepo.updateUserInfo(userInfo) {}
+                        }
+                    }
+
                     Log.d("USER_ID", Pref.userId)
                     _userInfo.postValue(ResponseState.Success(userInfo))
                 } else {
@@ -75,6 +86,7 @@ class TasksViewModel @Inject constructor(
             Log.d("GetUserInfo", "${e.message}")
         }
     }
+
 
     fun getListCategory() {
         _listCategory.postValue(ResponseState.Start)

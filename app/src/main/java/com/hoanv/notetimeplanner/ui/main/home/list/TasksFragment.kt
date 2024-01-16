@@ -204,7 +204,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     regexDayMonth(endDay!!)
                 )
                 tvTaskNumb.text = getString(R.string.number_of_group_tasks, subTask.size)
-                tvMember.text = getString(R.string.member_number, member.size)
+                tvMember.text = getString(R.string.member_number, listMember.size)
 
                 Glide.with(requireContext()).load(category.icon.iconUrl).into(ivCategory)
 
@@ -227,7 +227,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     regexDayMonth(endDay!!)
                 )
                 tvTaskNumbR.text = getString(R.string.number_of_group_tasks, subTask.size)
-                tvMemberR.text = getString(R.string.member_number, member.size)
+                tvMemberR.text = getString(R.string.member_number, listMember.size)
 
                 Glide.with(requireContext()).load(category.icon.iconUrl).into(ivCategoryR)
 

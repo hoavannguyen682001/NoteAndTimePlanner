@@ -53,7 +53,7 @@ class ListGroupTaskAdapter(
                         regexDayMonth(endDay!!)
                     )
                     tvTaskNumb.text = context.getString(R.string.number_of_group_tasks, subTask.size)
-                    tvMember.text = context.getString(R.string.member_number, member.size)
+                    tvMember.text = context.getString(R.string.member_number, listMember.size)
 
                     Glide.with(context).load(category.icon.iconUrl).into(ivCategory)
 
