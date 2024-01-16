@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.ItemTaskGroupBinding
+import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 
 class ListGroupTaskAdapter(
     val context: Context,
@@ -66,6 +67,10 @@ class ListGroupTaskAdapter(
                         )
                     )
                     ivNext.setColorFilter(Color.parseColor(category.icon.iconColor), PorterDuff.Mode.SRC_IN)
+
+                    ivNext.setOnSingleClickListener {
+                        onClick.invoke(this)
+                    }
                 }
             }
         }

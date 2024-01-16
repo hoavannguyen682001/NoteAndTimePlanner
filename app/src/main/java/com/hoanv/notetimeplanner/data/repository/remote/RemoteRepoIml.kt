@@ -101,8 +101,6 @@ class RemoteRepoIml(
                     Log.d("GET_USER_INFO1", "${task}")
                 }
                 result.invoke(task)
-
-                Log.d("GET_USER_INFO2", "${task}")
             }.addOnFailureListener {
                 result.invoke(null)
                 Log.d("GET_USER_INFO", "${it.message}")
@@ -308,6 +306,7 @@ class RemoteRepoIml(
             }
     }
 
+    //TODO crash when click notification, change to addSnapShot
     override fun getDetailTask(taskId: String, result: (Task?) -> Unit) {
         fireStore.collection(AppConstant.TASK_TBL_NAME).document(taskId)
             .get()
