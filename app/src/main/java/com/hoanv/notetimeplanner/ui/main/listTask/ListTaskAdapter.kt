@@ -20,7 +20,7 @@ import java.util.Date
 import java.util.Locale
 
 class ListTaskAdapter(
-    val context: Context, val onClick: (Task) -> Unit, val onIconCheckClick: (Task) -> Unit
+    val context: Context, val onClick: (Task) -> Unit
 ) : ListAdapter<Task, ListTaskAdapter.VH>(TaskDiffUtils) {
 
     object TaskDiffUtils : DiffUtil.ItemCallback<Task>() {
@@ -75,9 +75,6 @@ class ListTaskAdapter(
                     onClick.invoke(task)
                 }
 
-                ivIcon.setOnSingleClickListener {
-                    onIconCheckClick.invoke(task)
-                }
                 bindStateItem(task)
             }
         }

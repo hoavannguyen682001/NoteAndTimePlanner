@@ -48,26 +48,9 @@ import org.greenrobot.eventbus.Subscribe
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     override val viewModel: TasksViewModel by viewModels()
 
-//    private val categoryAdapter by lazy {
-//        TaskCategoryAdapter(requireContext()) { category, position ->
-//            selectedS.tryEmit(position)
-//            if (position == 0) {
-//                viewModel.getListTask()
-//            } else {
-//                viewModel.getListTaskByCategory(category)
-//            }
-//        }
-//    }
-
     private val taskAdapter by lazy {
         TaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
     }
-
-//    private val doneTaskAdapter by lazy {
-//        DoneTaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
-//    }
-
-//    private var selectedS = MutableStateFlow(0)
 
     private var mListTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
     private var _listTask = listOf<Task>()
@@ -76,12 +59,8 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
             mListTaskS.tryEmit(value)
         }
 
-//    private var mListDoneS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
-//    private var listDone = listOf<Task>()
-//        set(value) {
-//            field = value
-//            mListDoneS.tryEmit(value)
-//        }
+    private var groupTaskLeft: Task? = null
+    private var groupTaskRight: Task? = null
 
     override fun setupViewBinding(
         inflater: LayoutInflater, container: ViewGroup?
@@ -117,6 +96,18 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                 startActivity(Intent(requireContext(), ListAllTaskActivity::class.java).apply {
                     putExtra(TASK_TYPE, TypeTask.GROUP.name)
                 })
+            }
+
+            cslGroupTaskLeft.setOnSingleClickListener {
+                val intent = Intent(requireActivity(), AddTaskActivity::class.java)
+                intent.putExtra("TODO", groupTaskLeft)
+                startActivity(intent)
+            }
+
+            cslGroupTaskRight.setOnSingleClickListener {
+                val intent = Intent(requireActivity(), AddTaskActivity::class.java)
+                intent.putExtra("TODO", groupTaskRight)
+                startActivity(intent)
             }
         }
     }
@@ -194,7 +185,9 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     private fun setGroupTask(listTask: List<Task>) {
         val alpha = 191 //alpha: 75%
         val taskOne = listTask[0]
-        val taskTrue = listTask[1]
+        groupTaskLeft = taskOne
+        val taskTwo = listTask[1]
+        groupTaskRight = taskTwo
         binding.run {
             taskOne.run {
                 tvTaskGroupName.text = title
@@ -216,10 +209,13 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                         Color.parseColor(category.icon.iconColor), alpha
                     )
                 )
-                ivNext.setColorFilter(Color.parseColor(category.icon.iconColor), PorterDuff.Mode.SRC_IN)
+                ivNext.setColorFilter(
+                    Color.parseColor(category.icon.iconColor),
+                    PorterDuff.Mode.SRC_IN
+                )
             }
 
-            taskTrue.run {
+            taskTwo.run {
                 tvTaskGroupNameR.text = title
                 tvDateR.text = getString(
                     R.string.start_to_end_group_task,
@@ -239,7 +235,10 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                         Color.parseColor(category.icon.iconColor), alpha
                     )
                 )
-                ivNextR.setColorFilter(Color.parseColor(category.icon.iconColor), PorterDuff.Mode.SRC_IN)
+                ivNextR.setColorFilter(
+                    Color.parseColor(category.icon.iconColor),
+                    PorterDuff.Mode.SRC_IN
+                )
             }
         }
     }

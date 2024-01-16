@@ -82,7 +82,7 @@ class TasksViewModel @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            _userInfo.postValue(ResponseState.Failure(Throwable("Có lỗi không xác nhận. Thử lại sau!")))
+            _userInfo.postValue(ResponseState.Failure(Throwable("Có lỗi không xác định. Thử lại sau!")))
             Log.d("GetUserInfo", "${e.message}")
         }
     }

@@ -194,6 +194,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private var isUpdate = false
     private var typeTask = TypeTask.PERSONAL
     private lateinit var mTask: Task
+    private var isLoadUser = true
 
     /* set up time for schedule notification */
     private val timeNotification = object : TimePickerFragment.TimePickerListener {
@@ -260,8 +261,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 viewModel.getDetailTask(it)
             }
 
-            tvTaskPersonal.isSelected = true
             if (task == null && taskId == null) {
+                tvTaskPersonal.isSelected = true
                 tvStartDay.text = currentDay
                 tvEndDay.text = currentDay
                 tvTimeEnd.text = currentTime
@@ -357,6 +358,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 tvAddMember.gone()
                 rvListMember.gone()
                 tvMember.gone()
+
+                mListMember.clear()
+                _listMember = mListMember
+                isLoadUser = true
+
                 tvTaskPersonal.run {
                     isSelected = true
                     tvTaskPersonal.setTextColor(resourceColor(R.color.white))
@@ -369,9 +375,15 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTaskGroup.setOnClickListener {
                 typeTask = TypeTask.GROUP
+                if (isLoadUser) {
+                    viewModel.getUserInfo(Pref.userEmail)
+                    isLoadUser = false
+                }
+
                 tvAddMember.visible()
                 rvListMember.visible()
                 tvMember.visible()
+
                 tvTaskGroup.run {
                     isSelected = true
                     setTextColor(resourceColor(R.color.white))
@@ -702,6 +714,36 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 turnOffPushNotification()
             }
 
+            if (task.typeTask == TypeTask.GROUP) {
+                typeTask = TypeTask.GROUP
+                isLoadUser = true // user info being loading
+                tvAddMember.visible()
+                rvListMember.visible()
+                tvMember.visible()
+
+                tvTaskGroup.run {
+                    isSelected = true
+                    setTextColor(resourceColor(R.color.white))
+                }
+                tvTaskPersonal.run {
+                    isSelected = false
+                    setTextColor(resourceColor(R.color.arsenic))
+                }
+            } else {
+                typeTask = TypeTask.PERSONAL
+                tvAddMember.gone()
+                rvListMember.gone()
+                tvMember.gone()
+                tvTaskPersonal.run {
+                    isSelected = true
+                    tvTaskPersonal.setTextColor(resourceColor(R.color.white))
+                }
+                tvTaskGroup.run {
+                    isSelected = false
+                    setTextColor(resourceColor(R.color.arsenic))
+                }
+            }
+
             if (mTask.listMember.isNotEmpty()) {
                 mListMember.addAll(mTask.listMember)
                 memBerAdapter.submitList(mTask.listMember.map { it.copy() })
@@ -745,10 +787,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 taskState = false,
                 typeTask = typeTask
             )
-
-            if (task.typeTask == TypeTask.GROUP) {
-                task.listMember = mListMember
-            }
 
             if (swcNotification.isChecked) {
                 isUpdate = false
@@ -831,42 +869,75 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         /**
          * Setup object to send notification
          */
-        val data = DataTask(
-            taskId = task.id,
-            uniqueId = task.uniqueId.toString(),
-            title = "Bạn có công việc sắp đến hạn",
-            content = task.title.toString(),
-            isScheduled = "$isSchedule",
-            scheduledTime = scheduledTime,
-            isUpdate = isUpdate.toString()
-        )
+        if (task.typeTask == TypeTask.GROUP) {
+            if (task.listMember.isNotEmpty()) {
+                task.listMember.forEach {
+                    val data = DataTask(
+                        taskId = task.id,
+                        uniqueId = task.uniqueId.toString(),
+                        title = "Bạn có công việc sắp đến hạn",
+                        content = task.title.toString(),
+                        isScheduled = "$isSchedule",
+                        scheduledTime = scheduledTime,
+                        isUpdate = isUpdate.toString()
+                    )
 
-        val messageTask = MessageTask(
-            token = Pref.deviceToken,
-            data = data
-        )
+                    val messageTask = MessageTask(
+                        token = it.userToken,
+                        data = data
+                    )
 
-        val notificationData = NotificationData(
-            message = messageTask
-        )
+                    val notificationData = NotificationData(
+                        message = messageTask
+                    )
 
-        viewModel.sendNotification(notificationData)
+                    viewModel.sendNotification(notificationData)
+                    Log.d("listMember", "${it.userToken}")
+                }
+            }
+        } else {
+            val data = DataTask(
+                taskId = task.id,
+                uniqueId = task.uniqueId.toString(),
+                title = "Bạn có công việc sắp đến hạn",
+                content = task.title.toString(),
+                isScheduled = "$isSchedule",
+                scheduledTime = scheduledTime,
+                isUpdate = isUpdate.toString()
+            )
+
+            val messageTask = MessageTask(
+                token = Pref.deviceToken,
+                data = data
+            )
+
+            val notificationData = NotificationData(
+                message = messageTask
+            )
+
+            viewModel.sendNotification(notificationData)
+        }
     }
 
     private fun dialogAddMember() {
+        var isExist = false
         binding.run {
             dialogMemberBinding.run {
                 tvAdd.setOnSingleClickListener {
                     if (edtEmail.text.isNullOrEmpty() || !validateEmail()) {
                         validateEmail()
-                    } else if (edtEmail.text.toString() == Pref.userEmail) {
-                        toastWarning("Vui lòng không nhập Email của bản thân!")
                     } else if (mListMember.isNotEmpty()) {
                         mListMember.forEach {
                             if (it.userEmail == dialogMemberBinding.edtEmail.text.toString()) {
-                                toastError("Người dùng này đã là thành viên!")
+                                toastError("Người này đã là thành viên!")
+                                isExist = true
                                 return@forEach
                             }
+                        }
+                        if (!isExist) {
+                            viewModel.getUserInfo(edtEmail.text.toString())
+                            edtEmail.text!!.clear()
+                            alertMemberDialog.dismiss()
                         }
                     } else {
                         viewModel.getUserInfo(edtEmail.text.toString())
@@ -875,6 +946,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     }
                 }
                 tvCancel.setOnSingleClickListener {
+                    edtEmail.text!!.clear()
                     alertMemberDialog.dismiss()
                 }
             }
@@ -915,6 +987,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     }
                 }
                 tvCancel.setOnSingleClickListener {
+                    edtTitleSubTask.text.clear()
                     alertDialog.dismiss()
                 }
             }

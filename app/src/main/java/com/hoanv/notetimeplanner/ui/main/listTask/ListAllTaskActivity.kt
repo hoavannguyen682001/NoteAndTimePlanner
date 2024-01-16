@@ -40,11 +40,15 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
     override val viewModel: ListAllTaskVM by viewModels()
 
     private val listTaskAdapter by lazy {
-        ListTaskAdapter(this, ::onTaskClick) {}
+        ListTaskAdapter(this, ::onTaskClick)
     }
 
     private val listTaskGroupAdp by lazy {
-        ListGroupTaskAdapter(this) {}
+        ListGroupTaskAdapter(this) {
+            val intent = Intent(this, AddTaskActivity::class.java)
+            intent.putExtra("TODO", it)
+            startActivity(intent)
+        }
     }
 
     private val _listTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
