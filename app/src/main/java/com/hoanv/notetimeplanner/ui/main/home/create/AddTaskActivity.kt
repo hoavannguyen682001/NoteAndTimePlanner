@@ -763,6 +763,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 mListFile.addAll(mTask.attachFile.listFile)
                 fileAttachAdapter.submitList(mTask.attachFile.listFile.map { it.copy() })
             }
+
+            if (mTask.typeTask == TypeTask.GROUP) {
+                mListMember.addAll(mTask.listMember)
+                memBerAdapter.submitList(mTask.listMember)
+            }
         }
     }
 
