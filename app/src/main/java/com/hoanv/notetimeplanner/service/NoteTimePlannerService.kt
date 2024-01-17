@@ -35,6 +35,7 @@ class NoteTimePlannerService : FirebaseMessagingService() {
                 content = remoteMessage.data["content"]!!,
                 isUpdate = remoteMessage.data["isUpdate"]!!,
                 isScheduled = remoteMessage.data["isScheduled"]!!,
+                isNotification = remoteMessage.data["isNotification"]!!,
                 scheduledTime = remoteMessage.data["scheduledTime"]!!
             )
 
@@ -47,6 +48,10 @@ class NoteTimePlannerService : FirebaseMessagingService() {
             }
 
             scheduleAlarm(dataTask)
+
+            if(dataTask.isNotification.toBoolean()){
+                showNotification(dataTask)
+            }
         }
     }
 

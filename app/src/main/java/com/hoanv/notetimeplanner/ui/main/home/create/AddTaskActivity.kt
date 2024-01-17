@@ -585,7 +585,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             /* collect list member */
             listMemberTriggerS.collectIn(this@AddTaskActivity) { list ->
-                memBerAdapter.submitList(list.map { it.copy() })
+                memBerAdapter.submitList(list)
             }
 
             /* collect list sub task */
@@ -746,7 +746,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             if (mTask.listMember.isNotEmpty()) {
                 mListMember.addAll(mTask.listMember)
-                memBerAdapter.submitList(mTask.listMember.map { it.copy() })
+                memBerAdapter.submitList(mTask.listMember)
             }
 
             if (mTask.subTask.isNotEmpty()) {
@@ -762,11 +762,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             if (mTask.attachFile.listFile.isNotEmpty()) {
                 mListFile.addAll(mTask.attachFile.listFile)
                 fileAttachAdapter.submitList(mTask.attachFile.listFile.map { it.copy() })
-            }
-
-            if (mTask.typeTask == TypeTask.GROUP) {
-                mListMember.addAll(mTask.listMember)
-                memBerAdapter.submitList(mTask.listMember)
             }
         }
     }
@@ -848,6 +843,10 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 }
             }
 
+            if (task.typeTask == TypeTask.GROUP) {
+                pushNotificationOfGroupTask(task)
+            }
+
             if (listImageUri.isNotEmpty()) {
                 viewModel.uploadImageOfTask(task, listImageUri)
             } else {
@@ -872,7 +871,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 //        )
 
         /**
-         * Setup object to send notification
+         * Setup object to set schedule time for notification
          */
         if (task.typeTask == TypeTask.GROUP) {
             if (task.listMember.isNotEmpty()) {
@@ -880,10 +879,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     val data = DataTask(
                         taskId = task.id,
                         uniqueId = task.uniqueId.toString(),
-                        title = "Bạn có công việc sắp đến hạn",
+                        title = "Bạn có dự án sắp đến hạn",
                         content = task.title.toString(),
                         isScheduled = "$isSchedule",
                         scheduledTime = scheduledTime,
+                        isNotification = "false",
                         isUpdate = isUpdate.toString()
                     )
 
@@ -908,6 +908,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 content = task.title.toString(),
                 isScheduled = "$isSchedule",
                 scheduledTime = scheduledTime,
+                isNotification = "false",
                 isUpdate = isUpdate.toString()
             )
 
@@ -921,6 +922,34 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             )
 
             viewModel.sendNotification(notificationData)
+        }
+    }
+
+    private fun pushNotificationOfGroupTask(task: Task) {
+        if (task.listMember.isNotEmpty()) {
+            task.listMember.forEach {
+                val data = DataTask(
+                    taskId = task.id,
+                    uniqueId = task.uniqueId.toString(),
+                    title = "Dự án của bạn vừa có cập nhật mới",
+                    content = task.title.toString(),
+                    isScheduled = "false",
+                    scheduledTime = "",
+                    isNotification = "true",
+                    isUpdate = "false"
+                )
+
+                val messageTask = MessageTask(
+                    token = it.userToken,
+                    data = data
+                )
+
+                val notificationData = NotificationData(
+                    message = messageTask
+                )
+
+                viewModel.sendNotification(notificationData)
+            }
         }
     }
 

@@ -13,6 +13,8 @@ data class DataTask(
     var title: String,
     @SerializedName("content")
     var content: String,
+    @SerializedName("isNotification")
+    var isNotification: String,
     @SerializedName("isUpdate")
     var isUpdate: String,
     @SerializedName("isScheduled")
