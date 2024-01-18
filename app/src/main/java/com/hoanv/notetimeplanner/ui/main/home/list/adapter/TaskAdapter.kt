@@ -22,7 +22,6 @@ import java.util.Locale
 class TaskAdapter(
     val context: Context,
     val onClick: (Task) -> Unit,
-    val onIconCheckClick: (Task) -> Unit
 ) : ListAdapter<Task, TaskAdapter.VH>(TaskDiffUtils) {
 
     object TaskDiffUtils : DiffUtil.ItemCallback<Task>() {
@@ -33,6 +32,10 @@ class TaskAdapter(
         override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
             return oldItem == newItem
         }
+
+        override fun getChangePayload(oldItem: Task, newItem: Task): Any {
+            return oldItem.taskState != newItem.taskState
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH = VH(
@@ -41,6 +44,14 @@ class TaskAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         holder.onBind(getItem(position), position)
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else if (payloads[0] == true) {
+            holder.bindStateItem(getItem(position))
+        }
     }
 
     inner class VH(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -64,10 +75,6 @@ class TaskAdapter(
 
                 root.setOnSingleClickListener {
                     onClick.invoke(task)
-                }
-
-                ivIcon.setOnSingleClickListener {
-                    onIconCheckClick.invoke(task)
                 }
             }
             bindStateItem(task)

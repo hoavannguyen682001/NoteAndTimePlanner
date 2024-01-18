@@ -272,15 +272,19 @@ class RemoteRepoIml(
     override fun getListTask(result: (List<Task>, Boolean) -> Unit) {
         val task = mutableListOf<Task>()
         fireStore.collection(AppConstant.TASK_TBL_NAME)
-            .get()
-            .addOnSuccessListener {
-                for (doc in it) {
-                    task.add(doc.toObject(Task::class.java))
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    result.invoke(emptyList(), false)
+                    Log.d("GET_TASK", "${error.message}")
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    for (doc in snapshot) {
+                        task.add(doc.toObject(Task::class.java))
+                    }
                 }
                 result.invoke(task, true)
-            }.addOnFailureListener {
-                result.invoke(emptyList(), false)
-                Log.d("GET_TASK", "${it.message}")
             }
     }
 
@@ -306,18 +310,19 @@ class RemoteRepoIml(
             }
     }
 
-    //TODO crash when click notification, change to addSnapShot
     override fun getDetailTask(taskId: String, result: (Task?) -> Unit) {
         fireStore.collection(AppConstant.TASK_TBL_NAME).document(taskId)
-            .get()
-            .addOnSuccessListener {
-                it?.let {
-                    result.invoke(it.toObject(Task::class.java)!!)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    result.invoke(null)
+                    Log.d("GET_DETAIL_TASK", "${error.message}")
+                    return@addSnapshotListener
                 }
-            }
-            .addOnFailureListener {
-                result.invoke(null)
-                Log.d("GET_DETAIL_TASK", "${it.message}")
+                if (snapshot != null && snapshot.exists()) {
+                    result.invoke(snapshot.toObject(Task::class.java)!!)
+                } else {
+                    result.invoke(null)
+                }
             }
     }
 

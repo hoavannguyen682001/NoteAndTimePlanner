@@ -69,6 +69,12 @@ class AddTaskVM @Inject constructor(
     val userInfo: LiveData<ResponseState<UserInfo>>
         get() = _userInfo
 
+    private val _listUserInfo = MutableLiveData<ResponseState<List<UserInfo>>>()
+    val listUserInfo: LiveData<ResponseState<List<UserInfo>>>
+        get() = _listUserInfo
+
+    private val _list = mutableListOf<UserInfo>()
+
     init {
         getListCategory()
     }
@@ -85,6 +91,27 @@ class AddTaskVM @Inject constructor(
             }
         } catch (e: Exception) {
             _userInfo.postValue(ResponseState.Failure(Throwable("Có lỗi không xác nhận. Thử lại sau!")))
+            Log.d("GetUserInfo", "${e.message}")
+        }
+    }
+
+    fun getListUserInfo(list: List<UserInfo>) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            _listUserInfo.postValue(ResponseState.Start)
+            list.forEach {
+                remoteRepo.getUserInfo(it.userEmail) { userInfo ->
+                    if (userInfo != null) {
+                        _list.add(userInfo)
+                        if (_list.size == list.size) {
+                            _listUserInfo.postValue(ResponseState.Success(_list))
+                        }
+                    } else {
+                        _listUserInfo.postValue(ResponseState.Failure(Throwable("Không tìm thấy người dùng này!")))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            _listUserInfo.postValue(ResponseState.Failure(Throwable("Có lỗi không xác nhận. Thử lại sau!")))
             Log.d("GetUserInfo", "${e.message}")
         }
     }
@@ -163,12 +190,12 @@ class AddTaskVM @Inject constructor(
     fun sendNotification(body: NotificationData) {
         remoteRepo.sendNotification(body)
             .map {
-                Log.d("TAGGGGGGGGGGGGG", "$it")
+                Log.d("sendNotificationSuccess", "$it")
                 ResponseState.Success(it) as ResponseState<ResponseNoti>
             }.onStart {
                 emit(ResponseState.Start)
             }.catch {
-                Log.d("TAGGGGGGGGGGGGG", "${it.message}")
+                Log.d("sendNotificationError", "${it.message}")
                 emit(ResponseState.Failure(it))
             }.onEach(_sendNotiTriggerS::tryEmit)
             .launchIn(viewModelScope)
@@ -178,21 +205,5 @@ class AddTaskVM @Inject constructor(
         remoteRepo.getDetailTask(taskId) {
             _detailTask.postValue(it)
         }
-    }
-
-    fun createGroupNotification(body: GroupNotification) {
-        remoteRepo.createGroupNotification(body)
-            .map {
-                Log.d("createGroupNotification", "$it")
-                ResponseState.Success(it) as ResponseState<ResponseKey>
-            }.onStart {
-                emit(ResponseState.Start)
-            }.catch {
-                Log.d("createGroupNotification", "${it.message}")
-                emit(ResponseState.Failure(it))
-            }.onEach {
-
-            }
-            .launchIn(viewModelScope)
     }
 }

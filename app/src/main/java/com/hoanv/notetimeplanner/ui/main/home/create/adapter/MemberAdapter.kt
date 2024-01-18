@@ -10,6 +10,8 @@ import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.databinding.ItemMemberBinding
+import com.hoanv.notetimeplanner.utils.Pref
+import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 
 class MemberAdapter(
@@ -35,6 +37,10 @@ class MemberAdapter(
                     .placeholder(R.drawable.img_user_avatar)
                     .error(R.drawable.img_user_avatar)
                     .into(ivImage)
+
+                if (item.uid == Pref.userId) {
+                    ivRemoveImg.gone()
+                }
 
                 ivRemoveImg.setOnSingleClickListener {
                     onRemoveClick.invoke(item)

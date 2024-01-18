@@ -301,7 +301,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/opensans_semibold"
-                android:text="Thông báo"
+                android:text="Nhắc nhở"
                 android:textColor="@color/arsenic"
                 android:textSize="@dimen/dp_16"
                 app:layout_constraintStart_toStartOf="@+id/tvEndDay"

@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.TypeTask
+import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.databinding.FragmentTasksBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
@@ -30,9 +31,11 @@ import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskAdapter
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
 import com.hoanv.notetimeplanner.utils.AppConstant.TASK_TYPE
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
 import com.hoanv.notetimeplanner.utils.extension.gone
+import com.hoanv.notetimeplanner.utils.extension.invisible
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import com.hoanv.notetimeplanner.utils.extension.visible
 import com.hoanv.notetimeplanner.utils.widget.swipe.GestureManager
@@ -49,10 +52,11 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     override val viewModel: TasksViewModel by viewModels()
 
     private val taskAdapter by lazy {
-        TaskAdapter(requireContext(), ::onTaskClick, ::onClickIconChecked)
+        TaskAdapter(requireContext(), ::onTaskClick)
     }
 
     private var mListTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
+    private var listTaskS = mutableListOf<Task>()
     private var _listTask = listOf<Task>()
         set(value) {
             field = value
@@ -61,6 +65,8 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
     private var groupTaskLeft: Task? = null
     private var groupTaskRight: Task? = null
+
+    private var userInfoS = UserInfo()
 
     override fun setupViewBinding(
         inflater: LayoutInflater, container: ViewGroup?
@@ -121,7 +127,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
                         is ResponseState.Success -> {/* Event bus user info */
                             EventBus.getDefault().post(UserInfoEvent(state.data))
-
+                            userInfoS = state.data
                             tvUserName.text = getString(R.string.hello_user, state.data.userName)
                         }
 
@@ -132,7 +138,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     }
                 }
 
-                listTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
+                listTaskPersonal.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
                     when (state) {
                         ResponseState.Start -> {
                             lottieAnim.visible()
@@ -140,21 +146,34 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                         }
 
                         is ResponseState.Success -> {
-                            val task = mutableListOf<Task>()
-                            val group = mutableListOf<Task>()
-
-                            state.data.forEach {
-                                if (it.typeTask == TypeTask.PERSONAL) {
-                                    task.add(it)
-                                } else {
-                                    group.add(it)
-                                }
-                            }
-
-                            _listTask = task
-                            setGroupTask(group)
+                            listTaskS.addAll(state.data)
+                            _listTask = listTaskS
 
                             onItemSwipe(_listTask.toMutableList(), rvListTask)
+                        }
+
+                        is ResponseState.Failure -> {
+                            lottieAnim.gone()
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
+
+                listGroupTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                            lottieAnim.visible()
+                            rvListTask.gone()
+                        }
+
+                        is ResponseState.Success -> {
+                            if (state.data.isNotEmpty()) {
+                                setGroupTask(state.data)
+                            } else {
+                                cslGroupTaskLeft.gone()
+                                cslGroupTaskRight.gone()
+                            }
                         }
 
                         is ResponseState.Failure -> {
@@ -167,18 +186,21 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
             }
 
             mListTaskS.collectInViewLifecycle(this@TasksFragment) { list ->
-                taskAdapter.submitList(list) {
-                    lifecycleScope.launch {
-                        delay(1000)
-                        lottieAnim.gone()
-                        rvListTask.visible()
+                if (list.isNotEmpty()) {
+                    taskAdapter.submitList(list) {
+//                        lifecycleScope.launch {
+//                            delay(1000)
+                            lottieAnim.gone()
+                            rvListTask.visible()
+//                        }
                     }
+                    tvEmpty.gone()
+                } else {
+                    lottieAnim.gone()
+                    rvListTask.gone()
+                    tvEmpty.visible()
                 }
             }
-
-//            mListDoneS.collectInViewLifecycle(this@TasksFragment) { list ->
-//                doneTaskAdapter.submitList(list)
-//            }
         }
     }
 
@@ -255,23 +277,14 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
         val leftCallback = GestureManager.SwipeCallbackLeft {
 //            viewModel.deleteCategory(list[it])
-//            if (list[it].taskState) {
-//                list.remove(list[it])
-//                listDone = list
-//            } else {
-//                list.remove(list[it])
-//                listTodo = list
-//            }
+            list.removeAt(it)
+            _listTask = list
         }
-        val rightCallback = GestureManager.SwipeCallbackRight {
-//            viewModel.deleteCategory(list[it])
-//            if (list[it].taskState) {
-//                list.remove(list[it])
-//                listDone = list
-//            } else {
-//                list.remove(list[it])
-//                listTodo = list
-//            }
+        val rightCallback = GestureManager.SwipeCallbackRight {index->
+            listTaskS[index].taskState = true
+            _listTask = listTaskS
+            viewModel.updateTask(list[index])
+            Log.d("list[it].taskState", "${list[index]}")
         }
 
 
@@ -308,38 +321,10 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         startActivity(intent)
     }
 
-    /**
-     * On icon check click
-     */
-    private fun onClickIconChecked(task: Task) {
-//        val tempListTodo = mutableListOf<Task>()
-//        val tempListDone = mutableListOf<Task>()
-//
-//        tempListTodo.addAll(listTodo)
-//        tempListDone.addAll(listDone)
-//
-//        if (task.taskState) {
-//            tempListTodo.add(task)
-//            tempListDone.remove(task)
-//        } else {
-//            tempListTodo.remove(task)
-//            tempListDone.add(task)
-//        }
-//
-//        task.taskState = !task.taskState
-//        viewModel.updateTask(task)
-//
-//        Log.d("Todoooo", "$tempListTodo")
-//        Log.d("Todoooo done", "$tempListDone")
-//
-//        listTodo = tempListTodo
-//        listDone = tempListDone
-    }
-
     @Subscribe
     fun reloadListTask(checked: CheckReloadListTask) {
         if (checked.isReload) {
-            viewModel.getListTask()
+            viewModel.getListTask(userInfoS)
         }
     }
 

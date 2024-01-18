@@ -98,10 +98,16 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         }
     }
 
+    private val categoryList = mutableListOf<Category>()
+
     private val memBerAdapter by lazy {
         MemberAdapter(this) {
-            mListMember.remove(it)
-            _listMember = mListMember
+            if (mTask.userId == Pref.userId) {
+                mListMember.remove(it)
+                _listMember = mListMember
+            } else {
+                toastError("Bạn không có quyền xoá thành viên này!")
+            }
         }
     }
 
@@ -195,6 +201,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private var typeTask = TypeTask.PERSONAL
     private lateinit var mTask: Task
     private var isLoadUser = true
+    private var isFirstLoad = true
 
     /* set up time for schedule notification */
     private val timeNotification = object : TimePickerFragment.TimePickerListener {
@@ -251,7 +258,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             val task = intent.getParcelableExtra<Task>("TODO")
             task?.let {
                 idTodo = it.id
-                loadDataView(it)
+                viewModel.getDetailTask(it.id)
+//                loadDataView(it)
             }
 
             /* id from notification */
@@ -419,10 +427,14 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             btnSubmit.setOnSingleClickListener {
-                if (idTodo.isNullOrEmpty()) {
-                    addTask()
+                if (edtTitle.text.isNullOrEmpty() || edtDescription.text.isNullOrEmpty()) {
+                    toastError("Vui lòng điền đầy đủ tiêu đề và mô tả")
                 } else {
-                    updateTask()
+                    if (idTodo.isNullOrEmpty()) {
+                        addTask()
+                    } else {
+                        updateTask()
+                    }
                 }
             }
 
@@ -449,17 +461,45 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             viewModel.run {
 
                 selectedS
-                    .combine(listCategory.asFlow()) { selected, list -> Pair(selected, list) }
+                    .combine(listCategory.asFlow()) { selected, list ->
+                        Pair(selected, list)
+                    }
                     .collectIn(this@AddTaskActivity) { item ->
                         val (select, state) = item
-                        val listCate = mutableListOf<Category>()
-
-                        listCate.addAll(state)
-                        listCate.mapIndexed { index, category ->
-                            category.isSelected = index == select
-                            mCategory = listCate[select]
+                        if (idTodo == null) {
+                            val listCate = mutableListOf<Category>()
+                            listCate.addAll(state)
+                            listCate.mapIndexed { index, category ->
+                                category.isSelected = index == select
+                                mCategory = listCate[select]
+                            }
+                            categoryAdapter.submitList(listCate.map { it.ownCopy() })
+                        } else {
+                            if (isFirstLoad) {
+                                val listCate = mutableListOf<Category>()
+                                var i = 0
+                                listCate.addAll(state)
+                                listCate.mapIndexed { index, category ->
+                                    category.isSelected = mTask.category.id == category.id
+                                    mCategory = mTask.category
+                                    if (mTask.category.id == category.id) {
+                                        i = index
+                                    }
+                                }
+                                categoryAdapter.submitList(listCate.map { it.ownCopy() }) {
+                                    rvListCategory.scrollToPosition(i)
+                                }
+                                isFirstLoad = false
+                            } else {
+                                val listCate = mutableListOf<Category>()
+                                listCate.addAll(state)
+                                listCate.mapIndexed { index, category ->
+                                    category.isSelected = index == select
+                                    mCategory = listCate[select]
+                                }
+                                categoryAdapter.submitList(listCate.map { it.ownCopy() })
+                            }
                         }
-                        categoryAdapter.submitList(listCate.map { it.ownCopy() })
                     }
 
                 addTaskTriggerS.observe(this@AddTaskActivity) { state ->
@@ -573,7 +613,30 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
                         is ResponseState.Success -> {
                             mListMember.add(state.data)
-                            _listMember = mListMember
+                            _listMember = mListMember.sortedWith(compareByDescending<UserInfo> {
+                                it.uid == mTask.userId
+                            })
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
+                }
+
+                listUserInfo.observe(this@AddTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            state.data.forEach {
+                                mListMember.add(it)
+                            }
+                            _listMember = mListMember.sortedWith(compareByDescending {
+                                it.uid == mTask.userId
+                            })
+                            Log.d("mListMember", "${mListMember}")
                         }
 
                         is ResponseState.Failure -> {
@@ -585,7 +648,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             /* collect list member */
             listMemberTriggerS.collectIn(this@AddTaskActivity) { list ->
-                memBerAdapter.submitList(list)
+                memBerAdapter.submitList(list.map { it.copy() })
             }
 
             /* collect list sub task */
@@ -674,7 +737,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             setTextColor(resourceColor(R.color.black))
             backgroundTintList = getColorStateList(R.color.white)
         }
-
     }
 
     private fun turnOffPushNotification() {
@@ -696,6 +758,12 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             tvEndDay.text = task.endDay
             tvTimeEnd.text = task.timeEnd
 
+            categoryList.mapIndexed { index, category ->
+                if (category.id == mTask.category.id) {
+                    selectedS.tryEmit(index)
+                }
+            }
+
             if (!mTask.scheduledTime.isNullOrEmpty()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (ContextCompat.checkSelfPermission(
@@ -716,7 +784,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             if (task.typeTask == TypeTask.GROUP) {
                 typeTask = TypeTask.GROUP
-                isLoadUser = true // user info being loading
+                isLoadUser = false // user info being loading
                 tvAddMember.visible()
                 rvListMember.visible()
                 tvMember.visible()
@@ -726,6 +794,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     setTextColor(resourceColor(R.color.white))
                 }
                 tvTaskPersonal.run {
+                    isEnabled = false
                     isSelected = false
                     setTextColor(resourceColor(R.color.arsenic))
                 }
@@ -745,8 +814,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             if (mTask.listMember.isNotEmpty()) {
-                mListMember.addAll(mTask.listMember)
-                memBerAdapter.submitList(mTask.listMember)
+                viewModel.getListUserInfo(mTask.listMember)
             }
 
             if (mTask.subTask.isNotEmpty()) {
@@ -928,27 +996,29 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private fun pushNotificationOfGroupTask(task: Task) {
         if (task.listMember.isNotEmpty()) {
             task.listMember.forEach {
-                val data = DataTask(
-                    taskId = task.id,
-                    uniqueId = task.uniqueId.toString(),
-                    title = "Dự án của bạn vừa có cập nhật mới",
-                    content = task.title.toString(),
-                    isScheduled = "false",
-                    scheduledTime = "",
-                    isNotification = "true",
-                    isUpdate = "false"
-                )
+                if (Pref.deviceToken != it.userToken) {
+                    val data = DataTask(
+                        taskId = task.id,
+                        uniqueId = task.uniqueId.toString(),
+                        title = "Dự án của bạn vừa có cập nhật mới",
+                        content = task.title.toString(),
+                        isScheduled = "false",
+                        scheduledTime = "",
+                        isNotification = "true",
+                        isUpdate = "false"
+                    )
 
-                val messageTask = MessageTask(
-                    token = it.userToken,
-                    data = data
-                )
+                    val messageTask = MessageTask(
+                        token = it.userToken,
+                        data = data
+                    )
 
-                val notificationData = NotificationData(
-                    message = messageTask
-                )
+                    val notificationData = NotificationData(
+                        message = messageTask
+                    )
 
-                viewModel.sendNotification(notificationData)
+                    viewModel.sendNotification(notificationData)
+                }
             }
         }
     }

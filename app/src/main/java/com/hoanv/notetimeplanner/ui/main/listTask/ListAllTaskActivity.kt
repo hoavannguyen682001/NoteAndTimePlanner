@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -22,6 +23,7 @@ import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.utils.AppConstant.TASK_TYPE
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
+import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
 import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import com.hoanv.notetimeplanner.utils.extension.visible
@@ -137,34 +139,40 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
-                listTask.observe(this@ListAllTaskActivity) { state ->
+                listTaskPersonal.asFlow().collectIn(this@ListAllTaskActivity) { state ->
                     when (state) {
                         ResponseState.Start -> {
                             lottieAnim.visible()
                             rvListTask.gone()
-                            rvListTaskGroup.gone()
                         }
 
                         is ResponseState.Success -> {
-                            val task = mutableListOf<Task>()
-                            val group = mutableListOf<Task>()
-
-                            state.data.forEach {
-                                if (it.typeTask == TypeTask.PERSONAL) {
-                                    task.add(it)
-                                } else {
-                                    group.add(it)
-                                }
-                            }
                             /* List personal task */
-                            listTaskS = task
+                            listTaskS = state.data
                             mListTaskS.clear()
-                            mListTaskS.addAll(task)
+                            mListTaskS.addAll(state.data)
+                        }
 
+                        is ResponseState.Failure -> {
+                            lottieAnim.gone()
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
+
+                listGroupTask.asFlow().collectIn(this@ListAllTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                            rvListTaskGroup.gone()
+                            lottieAnim.visible()
+                        }
+
+                        is ResponseState.Success -> {
                             /* List group task */
-                            listGroupTaskS = group
+                            listGroupTaskS = state.data
                             mListGroupTaskS.clear()
-                            mListGroupTaskS.addAll(group)
+                            mListGroupTaskS.addAll(state.data)
                         }
 
                         is ResponseState.Failure -> {
@@ -172,6 +180,7 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
                             Log.d("###", "${state.throwable?.message}")
                         }
                     }
+
                 }
 
                 _listTaskS.collectIn(this@ListAllTaskActivity) { list ->

@@ -99,8 +99,8 @@
 
             <ImageView
                 android:id="@+id/ivCategory"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/dp_48"
+                android:layout_height="@dimen/dp_48"
                 android:layout_marginStart="@dimen/dp_12"
                 android:layout_marginTop="@dimen/dp_12"
                 android:background="@drawable/bg_image_item_task"
@@ -187,7 +187,6 @@
         android:elevation="@dimen/dp_2"
         android:maxHeight="@dimen/dp_200"
         android:minHeight="@dimen/dp_200"
-        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/gl50"
         app:layout_constraintTop_toBottomOf="@id/textView8">
@@ -202,8 +201,8 @@
 
             <ImageView
                 android:id="@+id/ivCategoryR"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/dp_48"
+                android:layout_height="@dimen/dp_48"
                 android:layout_marginStart="@dimen/dp_12"
                 android:layout_marginTop="@dimen/dp_12"
                 android:background="@drawable/bg_image_item_task"
@@ -315,6 +314,22 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView9"
         tools:listitem="@layout/item_task" />
+
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Có vẻ như không có công việc nào cả.\n Hãy bắt đầu tạo một công việc mới ngay nhé"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:textColor="@color/arsenic"
+        android:fontFamily="@font/opensans_medium"
+        android:textSize="@dimen/dp_16"
+        app:layout_constraintBottom_toBottomOf="@+id/rvListTask"
+        app:layout_constraintEnd_toEndOf="@+id/rvListTask"
+        app:layout_constraintStart_toStartOf="@+id/rvListTask"
+        app:layout_constraintTop_toTopOf="@+id/rvListTask"
+        app:layout_constraintVertical_bias="0.3" />
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieAnim"
