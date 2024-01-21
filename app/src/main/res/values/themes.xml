@@ -17,6 +17,6 @@
 
     <style name="SearchViewStyle" parent="Widget.AppCompat.Light.SearchView">
         <item name="android:textSize">@dimen/dp_14</item>
-        <item name="textColor">@color/arsenic</item>
+        <item name="android:textColor">@color/arsenic</item>
     </style>
 </resources>

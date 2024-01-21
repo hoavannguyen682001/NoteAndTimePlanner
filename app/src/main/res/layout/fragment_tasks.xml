@@ -127,6 +127,23 @@
                 app:layout_constraintTop_toBottomOf="@+id/ivCategory" />
 
             <TextView
+                android:id="@+id/tvStateTask"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_8"
+                android:background="@drawable/bg_solid_white"
+                android:backgroundTint="@color/light_green"
+                android:fontFamily="@font/opensans_medium"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_2"
+                android:text="@string/text_done"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_10"
+                app:layout_constraintEnd_toEndOf="@+id/tvTaskGroupName"
+                app:layout_constraintTop_toBottomOf="@id/tvTaskGroupName" />
+
+
+            <TextView
                 android:id="@+id/tvTaskNumb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -148,9 +165,9 @@
                 android:fontFamily="@font/opensans_bold"
                 android:text="@string/start_to_end_group_task"
                 android:textColor="@color/dolphin_gray"
-                android:textSize="@dimen/dp_12"
+                android:textSize="@dimen/dp_10"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tvTaskNumb" />
+                app:layout_constraintTop_toBottomOf="@+id/tvStateTask" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
@@ -229,6 +246,23 @@
                 app:layout_constraintTop_toBottomOf="@+id/ivCategoryR" />
 
             <TextView
+                android:id="@+id/tvStateTaskR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_8"
+                android:background="@drawable/bg_solid_white"
+                android:backgroundTint="@color/light_green"
+                android:fontFamily="@font/opensans_medium"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_2"
+                android:text="@string/text_done"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_10"
+                app:layout_constraintEnd_toEndOf="@+id/tvTaskGroupNameR"
+                app:layout_constraintTop_toBottomOf="@id/tvTaskGroupNameR" />
+
+
+            <TextView
                 android:id="@+id/tvTaskNumbR"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -250,9 +284,9 @@
                 android:fontFamily="@font/opensans_bold"
                 android:text="@string/start_to_end_group_task"
                 android:textColor="@color/dolphin_gray"
-                android:textSize="@dimen/dp_12"
+                android:textSize="@dimen/dp_10"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tvTaskNumbR" />
+                app:layout_constraintTop_toBottomOf="@id/tvStateTaskR" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView

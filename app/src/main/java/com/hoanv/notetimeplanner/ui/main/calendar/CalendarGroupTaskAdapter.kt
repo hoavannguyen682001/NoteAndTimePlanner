@@ -1,4 +1,4 @@
-package com.hoanv.notetimeplanner.ui.main.listTask
+package com.hoanv.notetimeplanner.ui.main.calendar
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -23,11 +23,11 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class ListGroupTaskAdapter(
+class CalendarGroupTaskAdapter(
     val context: Context,
     val onClick: (Task) -> Unit,
     val onMoreOptionClick: (Task, View) -> Unit
-) : ListAdapter<Task, ListGroupTaskAdapter.VH>(DiffUtilGroupTask) {
+) : ListAdapter<Task, CalendarGroupTaskAdapter.VH>(DiffUtilGroupTask) {
 
     object DiffUtilGroupTask : DiffUtil.ItemCallback<Task>() {
         override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {

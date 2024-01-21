@@ -116,7 +116,6 @@ dependencies {
     //Custom date picker
     implementation 'com.aminography:primedatepicker:3.6.0'
     implementation 'com.aminography:primecalendar:1.7.0'
-    implementation 'com.github.shrikanth7698:Collapsible-Calendar-View-Android:v1.0.3'
 
     // Toasty
     implementation 'com.github.GrenderG:Toasty:1.5.2'

@@ -361,6 +361,18 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 flImagePreview.gone()
             }
 
+            edtDescription.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    edtDescription.clearFocus()
+                }
+            }
+
+            edtTitle.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    edtTitle.clearFocus()
+                }
+            }
+
             tvTaskPersonal.setOnClickListener {
                 typeTask = TypeTask.PERSONAL
                 tvAddMember.gone()
@@ -430,6 +442,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 if (edtTitle.text.isNullOrEmpty() || edtDescription.text.isNullOrEmpty()) {
                     toastError("Vui lòng điền đầy đủ tiêu đề và mô tả")
                 } else {
+                    showLoadingDialog()
                     if (idTodo.isNullOrEmpty()) {
                         addTask()
                     } else {
@@ -512,10 +525,12 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 //                            pbLoading.gone()
                             toastSuccess(state.data)
                             EventBus.getDefault().post(CheckReloadListTask(true))
+                            dismissLoadingDialog()
                             finish()
                         }
 
                         is ResponseState.Failure -> {
+                            dismissLoadingDialog()
                             toastError(state.throwable?.message)
                         }
                     }
@@ -527,8 +542,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         }
 
                         is ResponseState.Success -> {
-                            toastSuccess(state.data.name)
-                            finish()
+//                            toastSuccess(state.data.name)
+//                            finish()
                         }
 
                         is ResponseState.Failure -> {
@@ -547,10 +562,12 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 //                            pbLoading.gone()
                             EventBus.getDefault().post(CheckReloadListTask(true))
                             toastSuccess(state.data)
+                            dismissLoadingDialog()
                             finish()
                         }
 
                         is ResponseState.Failure -> {
+                            dismissLoadingDialog()
                             toastError(state.throwable?.message)
                         }
                     }
@@ -613,9 +630,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
                         is ResponseState.Success -> {
                             mListMember.add(state.data)
-                            _listMember = mListMember.sortedWith(compareByDescending<UserInfo> {
-                                it.uid == mTask.userId
-                            })
+                            if (idTodo != null) {
+                                _listMember = mListMember.sortedWith(compareByDescending {
+                                    it.uid == mTask.userId
+                                })
+                            } else {
+                                _listMember = mListMember
+                            }
                         }
 
                         is ResponseState.Failure -> {
@@ -1089,9 +1110,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
                         alertDialog.dismiss()
                     }
+                    edtTitle.clearFocus()
+                    edtDescription.clearFocus()
                 }
                 tvCancel.setOnSingleClickListener {
                     edtTitleSubTask.text.clear()
+                    edtTitle.clearFocus()
+                    edtDescription.clearFocus()
                     alertDialog.dismiss()
                 }
             }

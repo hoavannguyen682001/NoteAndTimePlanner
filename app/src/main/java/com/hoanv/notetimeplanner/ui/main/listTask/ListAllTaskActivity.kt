@@ -5,7 +5,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.asFlow
@@ -19,11 +21,11 @@ import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.databinding.ActivityListAllTaskBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
+import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
 import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.utils.AppConstant.TASK_TYPE
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
-import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
 import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import com.hoanv.notetimeplanner.utils.extension.visible
@@ -33,7 +35,9 @@ import fxc.dev.common.extension.resourceColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -46,11 +50,13 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
     }
 
     private val listTaskGroupAdp by lazy {
-        ListGroupTaskAdapter(this) {
+        ListGroupTaskAdapter(this, {
             val intent = Intent(this, AddTaskActivity::class.java)
             intent.putExtra("TODO", it)
             startActivity(intent)
-        }
+        }, { task, view ->
+            handleOptionMenu(task, view)
+        })
     }
 
     private val _listTaskS = MutableSharedFlow<List<Task>>(extraBufferCapacity = 64)
@@ -184,28 +190,59 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
                 }
 
                 _listTaskS.collectIn(this@ListAllTaskActivity) { list ->
-                    listTaskAdapter.submitList(list.map { it.ownCopy() }) {
+                    listTaskAdapter.submitList(list.map { it.copy() }) {
                         if (taskType == TypeTask.PERSONAL.name) {
-                            onItemSwipe(list.toMutableList(), rvListTask)
+                            onItemSwipe(rvListTask)
                             lifecycleScope.launch {
                                 delay(500)
                                 lottieAnim.gone()
                                 rvListTask.visible()
-                                rvListTask.scrollToPosition(0)
                             }
                         }
                     }
+                    rvListTask.adapter?.notifyDataSetChanged()
                 }
 
                 _listGroupTaskS.collectIn(this@ListAllTaskActivity) { list ->
-                    listTaskGroupAdp.submitList(list.map { it.ownCopy() }) {
+                    listTaskGroupAdp.submitList(list.map { it.copy() }) {
                         if (taskType == TypeTask.GROUP.name) {
                             lifecycleScope.launch {
                                 delay(500)
                                 lottieAnim.gone()
                                 rvListTaskGroup.visible()
-                                rvListTaskGroup.scrollToPosition(0)
                             }
+                        }
+                    }
+                    rvListTaskGroup.adapter?.notifyDataSetChanged()
+                }
+
+                updateTaskTriggerS.observe(this@ListAllTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            EventBus.getDefault().post(CheckReloadListTask(true))
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
+                deleteTaskTriggerS.observe(this@ListAllTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            EventBus.getDefault().post(CheckReloadListTask(true))
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                            Log.d("###", "${state.throwable?.message}")
                         }
                     }
                 }
@@ -302,42 +339,43 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
     }
 
     private fun checkExpireDay(task: Task): Boolean {
-        val endDay = task.endDay?.let { day ->
-            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(
-                day
+        val expire = "${task.endDay} ${task.timeEnd}"
+        val endDay =
+            SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).parse(
+                expire
             )
-        }
-        val timeEnd = task.timeEnd?.let { time ->
-            SimpleDateFormat("HH:mm", Locale.getDefault()).parse(
-                time
-            )
-        }/* Check if end day before today or if timeEnd before current time */
-        return (Date() == endDay && Date().after(timeEnd)) || Date() > endDay
+
+        val end = Calendar.getInstance().apply { time = endDay!! }
+        val now = Calendar.getInstance().apply { time = Date() }
+
+        end.set(Calendar.SECOND, 59)
+        now.set(Calendar.SECOND, 0)
+
+        val endTime = end.timeInMillis
+        val timeNow = now.timeInMillis
+        Log.d("SimpleDateFormat", "$endTime - $timeNow")
+        /* Check if end day before today */
+        return timeNow > endTime
     }
 
     /**
      * On item task swipe
      */
-    private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
+    private fun onItemSwipe(recyclerView: RecyclerView) {
         val leftCallback = GestureManager.SwipeCallbackLeft {
-//            viewModel.deleteCategory(list[it])
-//            if (list[it].taskState) {
-//                list.remove(list[it])
-//                listDone = list
-//            } else {
-//                list.remove(list[it])
-//                listTodo = list
-//            }
+            viewModel.deleteTask(mListTaskS[it])
+
+            mListTaskS.removeAt(it)
+            listTaskS = mListTaskS
         }
-        val rightCallback = GestureManager.SwipeCallbackRight {
-//            viewModel.deleteCategory(list[it])
-//            if (list[it].taskState) {
-//                list.remove(list[it])
-//                listDone = list
-//            } else {
-//                list.remove(list[it])
-//                listTodo = list
-//            }
+        val rightCallback = GestureManager.SwipeCallbackRight { index ->
+            val templist = mListTaskS.map {
+                mListTaskS[index].taskState = true
+                it
+            }
+            viewModel.updateTask(mListTaskS[index])
+
+            listTaskS = templist
         }
 
 
@@ -373,6 +411,38 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
         val intent = Intent(this, AddTaskActivity::class.java)
         intent.putExtra("TODO", task)
         startActivity(intent)
+    }
+
+    private fun handleOptionMenu(task: Task, view: View) {
+        val popupMenu = PopupMenu(this@ListAllTaskActivity, view)
+        popupMenu.inflate(R.menu.edit_group_task)
+
+        popupMenu.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.itemDone -> {
+
+                    val tempList = mListGroupTaskS.map { item ->
+                        if (item.id == task.id) {
+                            item.taskState = true
+                            task.taskState = true
+                        }
+                        item
+                    }
+                    listGroupTaskS = tempList
+                    viewModel.updateTask(task)
+                }
+
+                R.id.itemDel -> {
+                    viewModel.deleteTask(task)
+                    mListGroupTaskS.remove(task)
+                    listGroupTaskS = mListGroupTaskS
+                    Log.d("listGroupTaskS", "$listGroupTaskS")
+                }
+            }
+            false
+        }
+
+        popupMenu.show()
     }
 
     private fun setSelected(isSelect: IsSelect) {

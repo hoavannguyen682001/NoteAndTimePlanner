@@ -109,7 +109,7 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    fun deleteCategory(task: Task) {
+    fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
             _deleteTaskTriggerS.postValue(ResponseState.Start)
             remoteRepo.deleteTask(task) {

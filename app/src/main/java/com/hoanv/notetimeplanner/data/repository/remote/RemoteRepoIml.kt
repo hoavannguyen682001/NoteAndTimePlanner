@@ -272,19 +272,16 @@ class RemoteRepoIml(
     override fun getListTask(result: (List<Task>, Boolean) -> Unit) {
         val task = mutableListOf<Task>()
         fireStore.collection(AppConstant.TASK_TBL_NAME)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    result.invoke(emptyList(), false)
-                    Log.d("GET_TASK", "${error.message}")
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-                    for (doc in snapshot) {
-                        task.add(doc.toObject(Task::class.java))
-                    }
+            .get()
+            .addOnSuccessListener { snapshot ->
+                for (doc in snapshot) {
+                    task.add(doc.toObject(Task::class.java))
                 }
                 result.invoke(task, true)
+            }
+            .addOnFailureListener {
+                result.invoke(emptyList(), false)
+                Log.d("GET_TASK", "${it.message}")
             }
     }
 

@@ -312,9 +312,10 @@
                     android:id="@+id/pieChartStatistical"
                     android:layout_width="@dimen/dp_200"
                     android:layout_height="@dimen/dp_200"
-                    android:layout_marginTop="@dimen/dp_16"
+                    android:layout_margin="@dimen/dp_16"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@+id/textView27" />
 
                 <TextView
                     android:id="@+id/textView26"
@@ -326,10 +327,10 @@
                     android:textColor="@color/arsenic"
                     app:drawableStartCompat="@drawable/ic_circle"
                     app:drawableTint="@color/colorPrimary"
-                    app:layout_constraintBottom_toTopOf="@+id/textView27"
+                    app:layout_constraintBottom_toBottomOf="@+id/pieChartStatistical"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/pieChartStatistical"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@+id/textView27" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -348,13 +349,13 @@
                     android:id="@+id/textView27"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/dp_8"
                     android:fontFamily="sans-serif-medium"
-                    android:text="Phân loại công việc chưa hoàn thành"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:text="Phân loại công việc"
+                    android:textColor="@color/arsenic"
+                    android:textSize="@dimen/dp_16"
+                    android:layout_margin="@dimen/dp_16"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/pieChartStatistical" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

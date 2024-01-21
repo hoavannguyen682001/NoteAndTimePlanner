@@ -15,6 +15,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.databinding.FragmentPersonBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
@@ -29,6 +30,7 @@ import fxc.dev.common.extension.resourceColor
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -48,6 +50,11 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
         initListener()
         bindViewModel()
         EventBus.getDefault().register(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.getListTask()
     }
 
     private fun initView() {
@@ -154,8 +161,8 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
 
         binding.run {
             val list = ArrayList<PieEntry>()
-            list.add(PieEntry(listTask.filter { it.taskState }.size.toFloat(), ""))
-            list.add(PieEntry(listTask.filter { !it.taskState }.size.toFloat(), ""))
+            list.add(PieEntry(listTask.filter { it.typeTask == TypeTask.PERSONAL }.size.toFloat(), ""))
+            list.add(PieEntry(listTask.filter { it.typeTask == TypeTask.GROUP }.size.toFloat(), ""))
 
             val pieDataSet = PieDataSet(list, "")
 
@@ -181,12 +188,21 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
 
     private fun expireDay(task: Task): Boolean {
         val expire = "${task.endDay} ${task.timeEnd}"
-        val endDay =
-            SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).parse(
-                expire
-            )
-        /* Check if end day before today or if timeEnd before current time */
-        return Date().after(endDay)
+        val endDay = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).parse(
+            expire
+        )
+
+        val end = Calendar.getInstance().apply { time = endDay!! }
+        val now = Calendar.getInstance().apply { time = Date() }
+
+        end.set(Calendar.SECOND, 59)
+        now.set(Calendar.SECOND, 0)
+
+        val endTime = end.timeInMillis
+        val timeNow = now.timeInMillis
+        Log.d("SimpleDateFormat", "$endTime - $timeNow")
+        /* Check if end day before today */
+        return timeNow > endTime
     }
 
     @Subscribe

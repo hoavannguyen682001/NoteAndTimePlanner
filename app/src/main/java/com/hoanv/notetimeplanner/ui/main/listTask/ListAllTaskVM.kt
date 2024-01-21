@@ -1,12 +1,10 @@
 package com.hoanv.notetimeplanner.ui.main.listTask
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.TypeTask
-import com.hoanv.notetimeplanner.data.models.UserInfo
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
 import com.hoanv.notetimeplanner.utils.Pref
@@ -30,6 +28,16 @@ class ListAllTaskVM @Inject constructor(
         MutableLiveData<ResponseState<List<Task>>>()
     val listGroupTask: LiveData<ResponseState<List<Task>>>
         get() = _listGroupTask
+
+    private val _deleteTaskTriggerS =
+        MutableLiveData<ResponseState<String>>()
+    val deleteTaskTriggerS: LiveData<ResponseState<String>>
+        get() = _deleteTaskTriggerS
+
+    private val _updateTaskTriggerS =
+        MutableLiveData<ResponseState<String>>()
+    val updateTaskTriggerS: LiveData<ResponseState<String>>
+        get() = _updateTaskTriggerS
 
     init {
         getListTask()
@@ -55,7 +63,6 @@ class ListAllTaskVM @Inject constructor(
                                     group.add(it)
                                 }
                             }
-
                         }
                     }
                     _listTaskPersonal.postValue(ResponseState.Success(task))
@@ -66,6 +73,36 @@ class ListAllTaskVM @Inject constructor(
                     )
                     _listGroupTask.postValue(
                         ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateTask(task: Task) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _updateTaskTriggerS.postValue(ResponseState.Start)
+            remoteRepo.updateTask(task) {
+                if (it) {
+                    _updateTaskTriggerS.postValue(ResponseState.Success("Chỉnh sửa công việc thành công."))
+                } else {
+                    _updateTaskTriggerS.postValue(
+                        ResponseState.Failure(Throwable("Chỉnh sửa thất bại. Thử lại sau !!"))
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteTask(task: Task) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _deleteTaskTriggerS.postValue(ResponseState.Start)
+            remoteRepo.deleteTask(task) {
+                if (it) {
+                    _deleteTaskTriggerS.postValue(ResponseState.Success("Xoá công việc thành công."))
+                } else {
+                    _deleteTaskTriggerS.postValue(
+                        ResponseState.Failure(Throwable("Xoá công việc thất bại. Thử lại sau !!"))
                     )
                 }
             }

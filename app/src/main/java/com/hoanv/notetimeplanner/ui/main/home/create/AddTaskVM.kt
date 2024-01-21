@@ -9,13 +9,10 @@ import com.hoanv.notetimeplanner.data.models.FileInfo
 import com.hoanv.notetimeplanner.data.models.ImageInfo
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.UserInfo
-import com.hoanv.notetimeplanner.data.models.group.GroupNotification
-import com.hoanv.notetimeplanner.data.models.group.ResponseKey
 import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
-import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -201,7 +198,7 @@ class AddTaskVM @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun getDetailTask(taskId: String) = viewModelScope.launch(Dispatchers.IO) {
+    fun getDetailTask(taskId: String) = viewModelScope.launch(Dispatchers.Main) {
         remoteRepo.getDetailTask(taskId) {
             _detailTask.postValue(it)
         }

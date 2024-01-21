@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Paint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -16,11 +17,13 @@ import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.databinding.ItemTaskBinding
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class ListTaskAdapter(
-    val context: Context, val onClick: (Task) -> Unit
+    val context: Context,
+    val onClick: (Task) -> Unit,
 ) : ListAdapter<Task, ListTaskAdapter.VH>(TaskDiffUtils) {
 
     object TaskDiffUtils : DiffUtil.ItemCallback<Task>() {
@@ -33,7 +36,7 @@ class ListTaskAdapter(
         }
 
         override fun getChangePayload(oldItem: Task, newItem: Task): Any {
-            return oldItem.taskState == newItem.taskState
+            return oldItem.taskState != newItem.taskState
         }
     }
 
@@ -104,11 +107,20 @@ class ListTaskAdapter(
 
     private fun expireDay(task: Task): Boolean {
         val expire = "${task.endDay} ${task.timeEnd}"
-        val endDay =
-            SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).parse(
-                expire
-            )
-        /* Check if end day before today or if timeEnd before current time */
-        return Date().after(endDay)
+        val endDay = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).parse(
+            expire
+        )
+
+        val end = Calendar.getInstance().apply { time = endDay!! }
+        val now = Calendar.getInstance().apply { time = Date() }
+
+        end.set(Calendar.SECOND, 59)
+        now.set(Calendar.SECOND, 0)
+
+        val endTime = end.timeInMillis
+        val timeNow = now.timeInMillis
+        Log.d("SimpleDateFormat", "$endTime - $timeNow")
+        /* Check if end day before today */
+        return timeNow > endTime
     }
 }

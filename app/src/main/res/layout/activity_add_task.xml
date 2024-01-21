@@ -133,6 +133,7 @@
                 android:hint="Nhập tiêu đề"
                 android:paddingHorizontal="@dimen/dp_12"
                 android:paddingVertical="@dimen/dp_16"
+                android:inputType="text"
                 android:textColor="@color/arsenic"
                 android:textColorHint="@color/dark_gray"
                 app:layout_constraintEnd_toEndOf="parent"

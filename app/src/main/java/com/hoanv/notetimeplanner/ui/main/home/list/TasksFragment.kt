@@ -3,6 +3,7 @@ package com.hoanv.notetimeplanner.ui.main.home.list
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -13,7 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asFlow
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,21 +31,21 @@ import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskAdapter
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
 import com.hoanv.notetimeplanner.utils.AppConstant.TASK_TYPE
-import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
 import com.hoanv.notetimeplanner.utils.extension.gone
-import com.hoanv.notetimeplanner.utils.extension.invisible
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import com.hoanv.notetimeplanner.utils.extension.visible
 import com.hoanv.notetimeplanner.utils.widget.swipe.GestureManager
 import dagger.hilt.android.AndroidEntryPoint
 import fxc.dev.common.extension.resourceColor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
@@ -146,10 +146,12 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                         }
 
                         is ResponseState.Success -> {
-                            listTaskS.addAll(state.data)
-                            _listTask = listTaskS
-
-                            onItemSwipe(_listTask.toMutableList(), rvListTask)
+                            if (state.data.isNotEmpty()) {
+                                listTaskS.clear()
+                                listTaskS.addAll(state.data)
+                                _listTask = listTaskS
+                                onItemSwipe(rvListTask)
+                            }
                         }
 
                         is ResponseState.Failure -> {
@@ -169,7 +171,9 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
                         is ResponseState.Success -> {
                             if (state.data.isNotEmpty()) {
-                                setGroupTask(state.data)
+                                setGroupTask(state.data.sortedByDescending {
+                                    it.createdAt.toLong()
+                                })
                             } else {
                                 cslGroupTaskLeft.gone()
                                 cslGroupTaskRight.gone()
@@ -187,13 +191,11 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
             mListTaskS.collectInViewLifecycle(this@TasksFragment) { list ->
                 if (list.isNotEmpty()) {
-                    taskAdapter.submitList(list) {
-//                        lifecycleScope.launch {
-//                            delay(1000)
-                            lottieAnim.gone()
-                            rvListTask.visible()
-//                        }
+                    taskAdapter.submitList(list.map { it.copy() }) {
+                        lottieAnim.gone()
+                        rvListTask.visible()
                     }
+                    rvListTask.adapter?.notifyDataSetChanged()
                     tvEmpty.gone()
                 } else {
                     lottieAnim.gone()
@@ -235,6 +237,26 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     Color.parseColor(category.icon.iconColor),
                     PorterDuff.Mode.SRC_IN
                 )
+
+                binding.run {
+                    if (taskOne.taskState) {
+                        tvTaskGroupName.paintFlags = tvTaskGroupName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        tvStateTask.text = requireContext().getString(R.string.text_done)
+                        tvStateTask.backgroundTintList = requireContext().getColorStateList(R.color.light_green)
+                    } else {
+                        binding.tvTaskGroupName.paintFlags =
+                            tvTaskGroupName.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                        if (expireDay(taskOne)) {
+                            tvStateTask.text = requireContext().getString(R.string.text_expire)
+                            tvStateTask.backgroundTintList =
+                                requireContext().getColorStateList(R.color.orange_crayola)
+                        } else {
+                            tvStateTask.text = requireContext().getString(R.string.text_todo)
+                            tvStateTask.backgroundTintList =
+                                requireContext().getColorStateList(R.color.tufts_blue)
+                        }
+                    }
+                }
             }
 
             taskTwo.run {
@@ -261,8 +283,47 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     Color.parseColor(category.icon.iconColor),
                     PorterDuff.Mode.SRC_IN
                 )
+
+                binding.run {
+                    if (taskTwo.taskState) {
+                        tvTaskGroupNameR.paintFlags = tvTaskGroupName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        tvStateTaskR.text = requireContext().getString(R.string.text_done)
+                        tvStateTaskR.backgroundTintList = requireContext().getColorStateList(R.color.light_green)
+                    } else {
+                        binding.tvTaskGroupNameR.paintFlags =
+                            tvTaskGroupNameR.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                        if (expireDay(taskTwo)) {
+                            tvStateTaskR.text = requireContext().getString(R.string.text_expire)
+                            tvStateTaskR.backgroundTintList =
+                                requireContext().getColorStateList(R.color.orange_crayola)
+                        } else {
+                            tvStateTaskR.text = requireContext().getString(R.string.text_todo)
+                            tvStateTaskR.backgroundTintList =
+                                requireContext().getColorStateList(R.color.tufts_blue)
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private fun expireDay(task: Task): Boolean {
+        val expire = "${task.endDay} ${task.timeEnd}"
+        val endDay = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).parse(
+            expire
+        )
+
+        val end = Calendar.getInstance().apply { time = endDay!! }
+        val now = Calendar.getInstance().apply { time = Date() }
+
+        end.set(Calendar.SECOND, 59)
+        now.set(Calendar.SECOND, 0)
+
+        val endTime = end.timeInMillis
+        val timeNow = now.timeInMillis
+        Log.d("SimpleDateFormat", "$endTime - $timeNow")
+        /* Check if end day before today */
+        return timeNow > endTime
     }
 
     private fun regexDayMonth(date: String): String {
@@ -274,19 +335,20 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
     /**
      * On item task swipe
      */
-    private fun onItemSwipe(list: MutableList<Task>, recyclerView: RecyclerView) {
+    private fun onItemSwipe(recyclerView: RecyclerView) {
         val leftCallback = GestureManager.SwipeCallbackLeft {
-//            viewModel.deleteCategory(list[it])
-            list.removeAt(it)
-            _listTask = list
-        }
-        val rightCallback = GestureManager.SwipeCallbackRight {index->
-            listTaskS[index].taskState = true
-            _listTask = listTaskS
-            viewModel.updateTask(list[index])
-            Log.d("list[it].taskState", "${list[index]}")
-        }
+            viewModel.deleteTask(listTaskS[it])
 
+            listTaskS.removeAt(it)
+            _listTask = listTaskS
+        }
+        val rightCallback = GestureManager.SwipeCallbackRight { index ->
+            listTaskS[index].taskState = true
+            viewModel.updateTask(listTaskS[index])
+
+            listTaskS.removeAt(index)
+            _listTask = listTaskS
+        }
 
         val gestureManager = GestureManager(rightCallback, leftCallback)
         gestureManager.setBackgroundColorLeft(ColorDrawable(resourceColor(R.color.light_green)))

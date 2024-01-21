@@ -44,7 +44,7 @@
                 android:id="@+id/tvTaskGroupName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_8"
                 android:layout_marginEnd="@dimen/dp_8"
                 android:ellipsize="end"
                 android:fontFamily="@font/opensans_bold"
@@ -55,6 +55,22 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/ivCategory"
                 app:layout_constraintTop_toBottomOf="@+id/ivCategory" />
+
+            <TextView
+                android:id="@+id/tvStateTask"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_8"
+                android:background="@drawable/bg_solid_white"
+                android:backgroundTint="@color/light_green"
+                android:fontFamily="@font/opensans_medium"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_2"
+                android:text="@string/text_done"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_10"
+                app:layout_constraintEnd_toEndOf="@+id/tvTaskGroupName"
+                app:layout_constraintTop_toBottomOf="@id/tvTaskGroupName" />
 
             <TextView
                 android:id="@+id/tvTaskNumb"
@@ -78,9 +94,17 @@
                 android:fontFamily="@font/opensans_bold"
                 android:text="20-12 to 31-12"
                 android:textColor="@color/dolphin_gray"
-                android:textSize="@dimen/dp_12"
+                android:textSize="@dimen/dp_10"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tvTaskNumb" />
+                app:layout_constraintTop_toBottomOf="@+id/tvStateTask" />
+
+            <ImageView
+                android:id="@+id/ivMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_more"
+                app:layout_constraintEnd_toEndOf="@+id/tvTaskGroupName"
+                app:layout_constraintTop_toTopOf="@+id/ivCategory" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView

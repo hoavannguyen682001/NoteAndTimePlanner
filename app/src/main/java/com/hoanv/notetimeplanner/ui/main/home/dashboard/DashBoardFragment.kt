@@ -2,9 +2,11 @@ package com.hoanv.notetimeplanner.ui.main.home.dashboard
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asFlow
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.databinding.FragmentDashboardBinding
@@ -12,12 +14,16 @@ import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.main.home.category.CategoryActivity
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
 import com.hoanv.notetimeplanner.utils.AppConstant
+import com.hoanv.notetimeplanner.utils.ResponseState
+import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@AndroidEntryPoint
 class DashBoardFragment : BaseFragment<FragmentDashboardBinding, DashBoardVM>() {
     override val viewModel: DashBoardVM by viewModels()
 
@@ -31,6 +37,13 @@ class DashBoardFragment : BaseFragment<FragmentDashboardBinding, DashBoardVM>() 
     override fun init(savedInstanceState: Bundle?) {
         initView()
         initListener()
+        bindViewModel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.getListTask()
+        viewModel.getListCategory()
     }
 
     private fun initView() {
@@ -69,7 +82,59 @@ class DashBoardFragment : BaseFragment<FragmentDashboardBinding, DashBoardVM>() 
             }
 
             cslStatistical.setOnSingleClickListener {
-                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+//                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+            }
+        }
+    }
+
+    private fun bindViewModel() {
+        binding.run {
+            viewModel.run {
+                listTaskPersonal.asFlow().collectInViewLifecycle(this@DashBoardFragment) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            tvTaskNumb1.text = state.data.size.toString() + " Công việc"
+                        }
+
+                        is ResponseState.Failure -> {
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
+
+                listGroupTask.asFlow().collectInViewLifecycle(this@DashBoardFragment) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            tvTaskNumb.text = state.data.size.toString() + " Dự án"
+                            tvTaskNumb2.text = sumOfTask.toString() + " Công việc"
+                        }
+
+                        is ResponseState.Failure -> {
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
+
+                listCategory.observe(viewLifecycleOwner) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                        }
+
+                        is ResponseState.Success -> {
+                            tvTaskNumb3.text = state.data.size.toString() + " Thể loại"
+                        }
+
+                        is ResponseState.Failure -> {
+                            Log.d("###", "${state.throwable?.message}")
+                        }
+                    }
+                }
             }
         }
     }

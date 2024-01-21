@@ -1,12 +1,12 @@
 package com.hoanv.notetimeplanner.ui.main.person
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.models.Task
+import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
 import com.hoanv.notetimeplanner.utils.Pref
@@ -36,17 +36,32 @@ class PersonViewModel @Inject constructor(
 
 
     init {
-        getListCategory()
-        getListTask()
+//        getListCategory()
     }
 
-    fun getListTask() {
+     fun getListTask() {
         _listTask.postValue(ResponseState.Start)
         viewModelScope.launch(Dispatchers.IO) {
-            remoteRepo.getListTask() { list, state ->
+            remoteRepo.getListTask { list, state ->
                 if (state) {
-                    _listTask.postValue(ResponseState.Success(list))
-                    Log.d("MuTaBleList", "$list")
+                    val task = mutableListOf<Task>()
+//                    val group = mutableListOf<Task>()
+
+                    list.forEach {
+                        if (it.typeTask == TypeTask.PERSONAL) {
+                            if (Pref.userId == it.userId) {
+                                task.add(it)
+                            }
+                        } else {
+                            it.listMember.forEach { u ->
+                                if (u.uid == Pref.userId) {
+                                    task.add(it)
+                                }
+                            }
+                        }
+                    }
+
+                    _listTask.postValue(ResponseState.Success(task))
                 } else {
                     _listTask.postValue(
                         ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))
@@ -56,7 +71,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    fun getListCategory() = viewModelScope.launch(Dispatchers.IO) {
+    private fun getListCategory() = viewModelScope.launch(Dispatchers.IO) {
         remoteRepo.getListCategory() { list, state ->
             if (state) {
                 _listCategories.postValue(list)
