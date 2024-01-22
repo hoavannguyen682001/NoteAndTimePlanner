@@ -44,7 +44,7 @@ class DashBoardVM @Inject constructor(
                 if (state) {
                     val task = mutableListOf<Task>()
                     val group = mutableListOf<Task>()
-
+                    sumOfTask = 0
                     list.forEach {
                         if (it.typeTask == TypeTask.PERSONAL) {
                             if (Pref.userId == it.userId) {

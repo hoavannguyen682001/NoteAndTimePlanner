@@ -9,8 +9,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 
     <uses-feature
@@ -28,10 +27,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NoteTimePlanner"
         tools:targetApi="31">
+
+        <activity
+            android:name=".ui.main.statistics.StatisticsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+
         <activity
             android:name=".ui.main.listTask.ListAllTaskActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan"
+            tools:ignore="LockedOrientationActivity" />
 
         <activity
             android:name=".ui.main.MainActivity"

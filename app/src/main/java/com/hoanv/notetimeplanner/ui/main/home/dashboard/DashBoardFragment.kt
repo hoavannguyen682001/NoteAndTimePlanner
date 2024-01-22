@@ -13,6 +13,7 @@ import com.hoanv.notetimeplanner.databinding.FragmentDashboardBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.main.home.category.CategoryActivity
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
+import com.hoanv.notetimeplanner.ui.main.statistics.StatisticsActivity
 import com.hoanv.notetimeplanner.utils.AppConstant
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
@@ -82,7 +83,7 @@ class DashBoardFragment : BaseFragment<FragmentDashboardBinding, DashBoardVM>() 
             }
 
             cslStatistical.setOnSingleClickListener {
-//                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+                startActivity(Intent(requireContext(), StatisticsActivity::class.java))
             }
         }
     }
