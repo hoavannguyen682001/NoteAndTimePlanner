@@ -199,7 +199,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     /* flag to check property in object task */
     private var isUpdate = false
     private var typeTask = TypeTask.PERSONAL
-    private lateinit var mTask: Task
+    private var mTask: Task = Task()
     private var isLoadUser = true
     private var isFirstLoad = true
 
@@ -254,6 +254,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
     private fun initView() {
         binding.run {
+            cslDetailTask.gone()
+
             /* id from task list */
             val task = intent.getParcelableExtra<Task>("TODO")
             task?.let {
@@ -276,6 +278,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 tvTimeEnd.text = currentTime
                 swcNotification.isChecked = false
                 tvTimeNotification.isEnabled = false
+                viewModel.getListCategory()
             }
 
             rvListCategory.run {
@@ -513,16 +516,16 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                 categoryAdapter.submitList(listCate.map { it.ownCopy() })
                             }
                         }
+                        cslDetailTask.visible()
+                        lottieAnim.gone()
                     }
 
                 addTaskTriggerS.observe(this@AddTaskActivity) { state ->
                     when (state) {
                         ResponseState.Start -> {
-//                            pbLoading.visible()
                         }
 
                         is ResponseState.Success -> {
-//                            pbLoading.gone()
                             toastSuccess(state.data)
                             EventBus.getDefault().post(CheckReloadListTask(true))
                             dismissLoadingDialog()
@@ -573,8 +576,22 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     }
                 }
 
-                detailTask.observe(this@AddTaskActivity) {
-                    loadDataView(it)
+                detailTask.observe(this@AddTaskActivity) { state ->
+                    when (state) {
+                        ResponseState.Start -> {
+                            cslDetailTask.gone()
+                            lottieAnim.visible()
+                        }
+
+                        is ResponseState.Success -> {
+                            loadDataView(state.data)
+                            getListCategory()
+                        }
+
+                        is ResponseState.Failure -> {
+                            toastError(state.throwable?.message)
+                        }
+                    }
                 }
 
                 uploadImageTriggerS.observe(this@AddTaskActivity) { state ->
@@ -942,7 +959,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 viewModel.updateTask(task)
             }
 
-            //TODO check category to increase or decrease list task
+            //TODO get detail category
+            if (mTask.category.id != mCategory.id) {
+                viewModel.updateCategory(mCategory, "listTask")
+
+                mTask.category.listTask--
+                viewModel.updateCategory(mTask.category, "listTask")
+            }
         }
     }
 

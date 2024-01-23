@@ -17,6 +17,8 @@ import com.hoanv.notetimeplanner.databinding.ActivityStatisticsBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
+import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
+import com.shrikanthravi.collapsiblecalendarview.view.ExpandIconView
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.hilt.android.AndroidEntryPoint
 import fxc.dev.common.extension.resourceColor
@@ -41,7 +43,7 @@ class StatisticsActivity : BaseActivity<ActivityStatisticsBinding, StatisticsVM>
 
 
     private val calendar = Calendar.getInstance()
-    private val currentWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+    private val currentWeek = calendar.get(Calendar.WEEK_OF_MONTH)
 
     override fun init(savedInstanceState: Bundle?) {
         initListener()
@@ -50,9 +52,6 @@ class StatisticsActivity : BaseActivity<ActivityStatisticsBinding, StatisticsVM>
 
     private fun initListener() {
         binding.run {
-            collapsingCalendar.setOnClickListener {
-
-            }
             collapsingCalendar.setCalendarListener(object : CollapsibleCalendar.CalendarListener {
                 override fun onClickListener() {
                 }
@@ -67,20 +66,22 @@ class StatisticsActivity : BaseActivity<ActivityStatisticsBinding, StatisticsVM>
                 }
 
                 override fun onItemClick(v: View) {
-                    Log.d("collapsingCalendar", "${collapsingCalendar.expanded}")
                 }
 
                 override fun onMonthChange() {
                     if (collapsingCalendar.expanded) {
-                        filterTask(collapsingCalendar.month + 1, true)
+                        filterTask(collapsingCalendar.month, true)
                     }
                 }
 
                 override fun onWeekChange(position: Int) {
                     filterTask(position + 1, false)
-                    Log.d("onWeekChange", "${position + 1}")
                 }
             })
+
+            btnClose.setOnSingleClickListener {
+                finish()
+            }
         }
     }
 
@@ -97,7 +98,7 @@ class StatisticsActivity : BaseActivity<ActivityStatisticsBinding, StatisticsVM>
 
                             mListTaskS.clear()
                             mListTaskS.addAll(state.data)
-                            listTaskS = mListTaskS
+//                            listTaskS = mListTaskS
                             filterTask(currentWeek, false)
                         }
 
@@ -147,8 +148,7 @@ class StatisticsActivity : BaseActivity<ActivityStatisticsBinding, StatisticsVM>
         dateToCheck.time = dateFormat.parse(dateString)!!
         val dateWeek = dateToCheck.get(Calendar.WEEK_OF_MONTH)
 
-        Log.d("onWeekChange", "${dateString} - $dateWeek")
-
+        Log.d("isDateInCurrentWeek", "${week} - $dateWeek")
 
         return week == dateWeek
     }
@@ -160,8 +160,6 @@ class StatisticsActivity : BaseActivity<ActivityStatisticsBinding, StatisticsVM>
         val dateMonth = dateToCheck.get(Calendar.MONTH)
 
         Log.d("onMonthChange", "${month} - $dateMonth")
-
-
         return month == dateMonth
     }
 

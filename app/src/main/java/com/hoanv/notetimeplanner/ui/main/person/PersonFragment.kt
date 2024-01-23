@@ -200,7 +200,6 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
 
         val endTime = end.timeInMillis
         val timeNow = now.timeInMillis
-        Log.d("SimpleDateFormat", "$endTime - $timeNow")
         /* Check if end day before today */
         return timeNow > endTime
     }

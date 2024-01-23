@@ -79,7 +79,7 @@ class TasksViewModel @Inject constructor(
                         }
                     }
 
-                    getListTask(userInfo)
+//                    getListTask()
 
                     Log.d("USER_ID", Pref.userId)
                     _userInfo.postValue(ResponseState.Success(userInfo))
@@ -125,7 +125,7 @@ class TasksViewModel @Inject constructor(
     }
 
 
-    fun getListTask(userInfo: UserInfo) {
+    fun getListTask() {
         _listTaskPersonal.postValue(ResponseState.Start)
         _listGroupTask.postValue(ResponseState.Start)
         viewModelScope.launch(Dispatchers.IO) {

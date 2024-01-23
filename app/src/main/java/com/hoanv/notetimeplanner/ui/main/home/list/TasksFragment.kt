@@ -79,6 +79,11 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         EventBus.getDefault().register(this)
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getListTask()
+    }
+
     private fun initView() {
         binding.run {
             rvListTask.run {
@@ -148,7 +153,11 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                         is ResponseState.Success -> {
                             if (state.data.isNotEmpty()) {
                                 listTaskS.clear()
-                                listTaskS.addAll(state.data)
+                                state.data.forEach {
+                                    if(!expireDay(it) && !it.taskState){
+                                        listTaskS.add(it)
+                                    }
+                                }
                                 _listTask = listTaskS
                                 onItemSwipe(rvListTask)
                             }
@@ -166,7 +175,8 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     when (state) {
                         ResponseState.Start -> {
                             lottieAnim.visible()
-                            rvListTask.gone()
+                            cslGroupTaskLeft.gone()
+                            cslGroupTaskRight.gone()
                         }
 
                         is ResponseState.Success -> {
@@ -174,6 +184,8 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                                 setGroupTask(state.data.sortedByDescending {
                                     it.createdAt.toLong()
                                 })
+                                cslGroupTaskLeft.visible()
+                                cslGroupTaskRight.visible()
                             } else {
                                 cslGroupTaskLeft.gone()
                                 cslGroupTaskRight.gone()
@@ -197,10 +209,12 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     }
                     rvListTask.adapter?.notifyDataSetChanged()
                     tvEmpty.gone()
+                    ivEmpty.gone()
                 } else {
                     lottieAnim.gone()
                     rvListTask.gone()
                     tvEmpty.visible()
+                    ivEmpty.visible()
                 }
             }
         }
@@ -321,7 +335,6 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
         val endTime = end.timeInMillis
         val timeNow = now.timeInMillis
-        Log.d("SimpleDateFormat", "$endTime - $timeNow")
         /* Check if end day before today */
         return timeNow > endTime
     }
@@ -383,12 +396,12 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         startActivity(intent)
     }
 
-    @Subscribe
-    fun reloadListTask(checked: CheckReloadListTask) {
-        if (checked.isReload) {
-            viewModel.getListTask(userInfoS)
-        }
-    }
+//    @Subscribe
+//    fun reloadListTask(checked: CheckReloadListTask) {
+//        if (checked.isReload) {
+//            viewModel.getListTask(userInfoS)
+//        }
+//    }
 
     @Subscribe
     fun reloadUserInfo(checked: ReloadUserInfo) {

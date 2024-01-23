@@ -54,8 +54,8 @@ class AddTaskVM @Inject constructor(
     val uploadFileTriggerS: LiveData<ResponseState<Task>>
         get() = _uploadFileTriggerS
 
-    private val _detailTask = MutableLiveData<Task>()
-    val detailTask: LiveData<Task>
+    private val _detailTask = MutableLiveData<ResponseState<Task>>()
+    val detailTask: LiveData<ResponseState<Task>>
         get() = _detailTask
 
     private val _sendNotiTriggerS =
@@ -71,10 +71,6 @@ class AddTaskVM @Inject constructor(
         get() = _listUserInfo
 
     private val _list = mutableListOf<UserInfo>()
-
-    init {
-        getListCategory()
-    }
 
     fun getUserInfo(email: String) = viewModelScope.launch(Dispatchers.IO) {
         try {
@@ -113,7 +109,7 @@ class AddTaskVM @Inject constructor(
         }
     }
 
-    private fun getListCategory() {
+     fun getListCategory() {
         viewModelScope.launch(Dispatchers.IO) {
             remoteRepo.getListCategory { list, state ->
                 if (state) {
@@ -199,8 +195,13 @@ class AddTaskVM @Inject constructor(
     }
 
     fun getDetailTask(taskId: String) = viewModelScope.launch(Dispatchers.Main) {
+        _detailTask.postValue(ResponseState.Start)
         remoteRepo.getDetailTask(taskId) {
-            _detailTask.postValue(it)
+            if (it != null) {
+                _detailTask.postValue(ResponseState.Success(it))
+            } else {
+                _detailTask.postValue(ResponseState.Failure(Throwable("Không tìm thấy công việc. Vui lòng thử lại sau!")))
+            }
         }
     }
 }
