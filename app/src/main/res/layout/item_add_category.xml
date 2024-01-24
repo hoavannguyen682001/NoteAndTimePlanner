@@ -41,6 +41,7 @@
         android:text="0"
         android:textColor="@color/lynch_gray"
         android:textSize="@dimen/sp_16"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/tvTitleCat"
         app:layout_constraintEnd_toStartOf="@id/ivOption"
         app:layout_constraintTop_toTopOf="@id/tvTitleCat" />
@@ -49,6 +50,7 @@
         android:id="@+id/ivOption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/dp_8"
         android:src="@drawable/ic_more_vert"
         app:layout_constraintBottom_toBottomOf="@id/tvTitleCat"
         app:layout_constraintEnd_toEndOf="parent"

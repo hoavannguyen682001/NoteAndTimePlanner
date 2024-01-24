@@ -960,12 +960,12 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
 
             //TODO get detail category
-            if (mTask.category.id != mCategory.id) {
-                viewModel.updateCategory(mCategory, "listTask")
-
-                mTask.category.listTask--
-                viewModel.updateCategory(mTask.category, "listTask")
-            }
+//            if (mTask.category.id != mCategory.id) {
+//                viewModel.updateCategory(mCategory, "listTask")
+//
+//                mTask.category.listTask--
+//                viewModel.updateCategory(mTask.category, "listTask")
+//            }
         }
     }
 
