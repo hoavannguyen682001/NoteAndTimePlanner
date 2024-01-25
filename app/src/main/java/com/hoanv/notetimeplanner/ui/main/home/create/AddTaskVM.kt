@@ -13,6 +13,7 @@ import com.hoanv.notetimeplanner.data.models.notification.NotificationData
 import com.hoanv.notetimeplanner.data.models.notification.ResponseNoti
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -198,6 +199,7 @@ class AddTaskVM @Inject constructor(
         _detailTask.postValue(ResponseState.Start)
         remoteRepo.getDetailTask(taskId) {
             if (it != null) {
+                Pref.mTaskUserId = it.userId
                 _detailTask.postValue(ResponseState.Success(it))
             } else {
                 _detailTask.postValue(ResponseState.Failure(Throwable("Không tìm thấy công việc. Vui lòng thử lại sau!")))

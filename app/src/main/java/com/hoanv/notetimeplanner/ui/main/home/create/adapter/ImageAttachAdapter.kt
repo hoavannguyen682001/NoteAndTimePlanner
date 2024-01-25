@@ -15,9 +15,9 @@ class ImageAttachAdapter(
     val context: Context,
     val onItemClick: (ImageInfo) -> Unit,
     val onRemoveClick: (ImageInfo) -> Unit
-) : ListAdapter<ImageInfo, ImageAttachAdapter.VH>(AttachFileDiffUtil) {
+) : ListAdapter<ImageInfo, ImageAttachAdapter.VH>(AttachImageDiffUtil) {
 
-    object AttachFileDiffUtil : DiffUtil.ItemCallback<ImageInfo>() {
+    object AttachImageDiffUtil : DiffUtil.ItemCallback<ImageInfo>() {
         override fun areItemsTheSame(oldItem: ImageInfo, newItem: ImageInfo): Boolean {
             return oldItem.idImage == newItem.idImage
         }

@@ -8,4 +8,5 @@ object Pref : KotprefModel() {
     var userEmail by stringPref(default = "")
     var deviceToken by stringPref(default = "")
     var accessToken by stringPref(default = "")
+    var mTaskUserId by stringPref(default = "")
 }

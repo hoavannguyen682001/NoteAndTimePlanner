@@ -38,7 +38,7 @@ class MemberAdapter(
                     .error(R.drawable.img_user_avatar)
                     .into(ivImage)
 
-                if (item.uid == Pref.userId) {
+                if (item.uid == Pref.mTaskUserId) {
                     ivRemoveImg.gone()
                 }
 

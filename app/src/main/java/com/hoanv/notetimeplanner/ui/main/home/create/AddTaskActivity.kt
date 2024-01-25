@@ -339,7 +339,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
                         mListImage.add(imageInfo)
                         listImageS = mListImage
-
+                        imageAttachAdapter.submitList(listImageS.map { it.copy() })
                         Log.d("listImageS", "$listImageS")
                     }
                 }
@@ -697,6 +697,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             /* collect list image attach */
             listImageTriggerS.collectIn(this@AddTaskActivity) { list ->
                 imageAttachAdapter.submitList(list.map { it.copy() })
+                Log.d("listImageTriggerS", "$list")
             }
 
             /* collect list file attach*/
@@ -862,12 +863,14 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             if (mTask.attachFile.listImage.isNotEmpty()) {
                 mListImage.addAll(mTask.attachFile.listImage)
-                imageAttachAdapter.submitList(mTask.attachFile.listImage.map { it.copy() })
+                listImageS = mListImage
+//                imageAttachAdapter.submitList(mTask.attachFile.listImage.map { it.copy() })
             }
 
             if (mTask.attachFile.listFile.isNotEmpty()) {
                 mListFile.addAll(mTask.attachFile.listFile)
-                fileAttachAdapter.submitList(mTask.attachFile.listFile.map { it.copy() })
+                listFileS = mListFile
+//                fileAttachAdapter.submitList(mTask.attachFile.listFile.map { it.copy() })
             }
         }
     }
