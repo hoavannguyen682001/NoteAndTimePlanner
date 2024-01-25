@@ -2,8 +2,10 @@ package com.hoanv.notetimeplanner.ui.main.home.create
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -27,6 +29,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminography.primecalendar.civil.CivilCalendar
 import com.aminography.primedatepicker.common.BackgroundShapeType
@@ -69,9 +72,11 @@ import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import com.hoanv.notetimeplanner.utils.extension.visible
 import dagger.hilt.android.AndroidEntryPoint
 import fxc.dev.common.extension.resourceColor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -132,7 +137,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private val fileAttachAdapter by lazy {
         FileAttachAdapter(this,
             {
-                downloadFile(it)
+                toastInfo("Chuẩn bị tải xuống file...")
+                lifecycleScope.launch {
+                    delay(1000)
+                    downloadFile(it)
+                }
             },
             {
                 mListFile.remove(it)
@@ -243,13 +252,20 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         }
     }
 
+    private var onCompleteReceiver = DownloadManagerReceiver()
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun init(savedInstanceState: Bundle?) {
         timePickerFrag.setDataTimePicker(this@AddTaskActivity)
         timeNotiPicker.setDataTimePicker(timeNotification)
         initView()
         initListener()
         bindViewModel()
+
+        registerReceiver(
+            onCompleteReceiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+        )
     }
 
     private fun initView() {
@@ -563,6 +579,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
                         is ResponseState.Success -> {
 //                            pbLoading.gone()
+                            Log.d("updateTaskTriggerS", "Success")
                             EventBus.getDefault().post(CheckReloadListTask(true))
                             toastSuccess(state.data)
                             dismissLoadingDialog()
@@ -611,6 +628,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                     viewModel.updateTask(state.data)
                                 }
                             }
+
+                            Log.d("uploadImageTriggerS", "Success")
                         }
 
                         is ResponseState.Failure -> {
@@ -632,6 +651,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                             } else {
                                 viewModel.updateTask(state.data)
                             }
+                            Log.d("uploadFileTriggerS", "Success")
                         }
 
                         is ResponseState.Failure -> {
@@ -719,9 +739,12 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     )
 
                     listFileUri.add(fileInfo)
+
                     mListFile.add(fileInfo)
                     listFileS = mListFile
-                    Log.d("documentFile", "${listFileS}")
+
+                    fileAttachAdapter.submitList(listFileS.map { it.copy() })
+                    Log.d("documentFile", "${listFileS} $listFileUri")
                 }
             }
         }
@@ -751,16 +774,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
         // Lấy DownloadManager và gửi yêu cầu tải về
         val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        val downloadId = downloadManager.enqueue(request)
-
-        // Optional: Lắng nghe sự kiện khi tải về hoàn tất
-        val onCompleteReceiver = DownloadManagerReceiver(downloadId)
-        ContextCompat.registerReceiver(
-            this@AddTaskActivity,
-            onCompleteReceiver,
-            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
+        downloadManager.enqueue(request)
     }
 
     private fun turnOnPushNotification() {
@@ -847,6 +861,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                     tvTaskPersonal.setTextColor(resourceColor(R.color.white))
                 }
                 tvTaskGroup.run {
+                    isEnabled = false
                     isSelected = false
                     setTextColor(resourceColor(R.color.arsenic))
                 }
@@ -904,6 +919,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             if (listImageUri.isNotEmpty()) {
                 viewModel.uploadImageOfTask(task, listImageUri)
+            } else if (listFileUri.isNotEmpty()) {
+                viewModel.uploadFileOfTask(task, listFileUri)
             } else {
                 viewModel.addNewTask(task)
                 mCategory.listTask++
@@ -958,6 +975,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             if (listImageUri.isNotEmpty()) {
                 viewModel.uploadImageOfTask(task, listImageUri)
+            } else if (listFileUri.isNotEmpty()) {
+                viewModel.uploadFileOfTask(task, listFileUri)
             } else {
                 viewModel.updateTask(task)
             }
@@ -1274,8 +1293,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         val primeDatePicker = PrimeDatePicker.Companion
             .dialogWith(CivilCalendar())
             .pickRangeDays(callback)
+            .initiallyPickedRangeDays(startDay, endDay)
         primeDatePicker.applyTheme(themeFactory)
-        primeDatePicker.initiallyPickedRangeDays(startDay, endDay)
 
         return primeDatePicker.build()
     }
@@ -1309,6 +1328,11 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             }
             turnOffPushNotification()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(onCompleteReceiver)
     }
 
     override fun setupViewBinding(inflater: LayoutInflater): ActivityAddTaskBinding =

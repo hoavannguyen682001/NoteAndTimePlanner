@@ -222,13 +222,16 @@ class RemoteRepoIml(
                                 it.imageUrl = downloadUri.toString()
                             }
                         }
-                        if ((index + 1) == task.attachFile.listImage.size) {
+                        Log.d("uploadImageOfTask", "$index")
+
+                        if ((index + 1) == listUri.size) {
                             result.invoke(task, true)
                         }
                     }
                 } else {
                     result.invoke(task, false)
                     Log.d("uploadImageOfTask", "${mTask.exception}")
+                    return@addOnCompleteListener
                 }
             }
         }
@@ -240,30 +243,31 @@ class RemoteRepoIml(
         result: (Task, Boolean) -> Unit
     ) {
         listUri.forEachIndexed { index, item ->
-            val imageRef =
+            val fileRef =
                 firebaseStorage.reference.child(
                     "tasks/${task.id}/files/${item.idFile}-${item.title}"
                 )
 
             // Upload the file and metadata
-            val uploadTask = item.fileUrl?.let { imageRef.putFile(it.toUri()) }
+            val uploadTask = item.fileUrl?.let { fileRef.putFile(it.toUri()) }
             uploadTask?.addOnCompleteListener { mTask ->
                 if (mTask.isSuccessful) {
                     // Image uploaded successfully
-                    imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    fileRef.downloadUrl.addOnSuccessListener { downloadUri ->
                         //map download url
                         task.attachFile.listFile.map {
                             if (it.idFile == item.idFile) {
                                 it.fileUrl = downloadUri.toString()
                             }
+                            Log.d("uploadFileOfTask", "${it.fileUrl}")
                         }
-                        if ((index + 1) == task.attachFile.listFile.size) {
+                        if ((index + 1) == listUri.size) {
                             result.invoke(task, true)
                         }
                     }
                 } else {
                     result.invoke(task, false)
-                    Log.d("uploadImageOfTask", "${mTask.exception}")
+                    Log.d("uploadFileOfTask", "${mTask.exception}")
                 }
             }
         }

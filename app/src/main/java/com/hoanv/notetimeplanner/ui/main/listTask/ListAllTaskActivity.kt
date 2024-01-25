@@ -82,6 +82,11 @@ class ListAllTaskActivity : BaseActivity<ActivityListAllTaskBinding, ListAllTask
         bindViewModel()
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getListTask()
+    }
+
     private fun initView() {
         binding.run {
             taskType = intent.getStringExtra(TASK_TYPE) ?: "Personal"

@@ -39,10 +39,6 @@ class ListAllTaskVM @Inject constructor(
     val updateTaskTriggerS: LiveData<ResponseState<String>>
         get() = _updateTaskTriggerS
 
-    init {
-        getListTask()
-    }
-
     fun getListTask() {
         _listTaskPersonal.postValue(ResponseState.Start)
         _listGroupTask.postValue(ResponseState.Start)
