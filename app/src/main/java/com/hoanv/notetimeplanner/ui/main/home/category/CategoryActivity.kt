@@ -223,7 +223,7 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                             toastError("Vui lòng điền tiêu đề thể loại!")
                         } else {
                             val category = edtInputCate.text.toString()
-                            viewModel.addNewCategory(Category(title = category, icon = mIcon))
+                            viewModel.addNewCategory(Category(title = category, icon = mIcon, isDefault = false))
                             viewModel.getListCategory()
                             alertDialog.dismiss()
                         }

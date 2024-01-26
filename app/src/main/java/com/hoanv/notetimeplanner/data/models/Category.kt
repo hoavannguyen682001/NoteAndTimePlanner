@@ -11,6 +11,7 @@ data class Category(
     var title: String? = "",
     var listTask: Int = 0,
     var icon: Icon = Icon(),
+    var isDefault: Boolean = false,
     var createdAt: String = Calendar.getInstance().timeInMillis.toString(),
     var isSelected: Boolean = false
 ) : Parcelable {
@@ -19,6 +20,7 @@ data class Category(
             "id" to id,
             "title" to title,
             "icon" to icon,
+            "default" to isDefault,
             "listTask" to listTask,
             "createdAt" to createdAt
         )

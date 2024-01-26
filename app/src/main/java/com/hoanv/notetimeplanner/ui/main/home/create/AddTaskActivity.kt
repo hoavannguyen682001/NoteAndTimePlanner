@@ -394,6 +394,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTaskPersonal.setOnClickListener {
                 typeTask = TypeTask.PERSONAL
+                selectedS.tryEmit(0)
+
                 tvAddMember.gone()
                 rvListMember.gone()
                 tvMember.gone()
@@ -414,6 +416,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTaskGroup.setOnClickListener {
                 typeTask = TypeTask.GROUP
+                selectedS.tryEmit(1)
+
                 if (isLoadUser) {
                     viewModel.getUserInfo(Pref.userEmail)
                     isLoadUser = false
@@ -497,7 +501,17 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         Pair(selected, list)
                     }
                     .collectIn(this@AddTaskActivity) { item ->
-                        val (select, state) = item
+                        var (select, state) = item
+
+                        if (typeTask == TypeTask.GROUP) {
+                            val tempList = state.filter {
+                                it.isDefault
+                            }
+                            state = tempList
+                        }
+
+                        Log.d("listCategory", "${state.size}")
+
                         if (idTodo == null) {
                             val listCate = mutableListOf<Category>()
                             listCate.addAll(state)
@@ -505,7 +519,10 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                 category.isSelected = index == select
                                 mCategory = listCate[select]
                             }
-                            categoryAdapter.submitList(listCate.map { it.ownCopy() })
+                            categoryAdapter.submitList(listCate.map { it.ownCopy() }){
+//                                rvListCategory.scrollToPosition(0)
+                            }
+//                            rvListCategory.adapter?.notifyDataSetChanged()
                         } else {
                             if (isFirstLoad) {
                                 val listCate = mutableListOf<Category>()
@@ -521,6 +538,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                 categoryAdapter.submitList(listCate.map { it.ownCopy() }) {
                                     rvListCategory.scrollToPosition(i)
                                 }
+//                                rvListCategory.adapter?.notifyDataSetChanged()
+
                                 isFirstLoad = false
                             } else {
                                 val listCate = mutableListOf<Category>()
@@ -529,9 +548,15 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                     category.isSelected = index == select
                                     mCategory = listCate[select]
                                 }
-                                categoryAdapter.submitList(listCate.map { it.ownCopy() })
+                                categoryAdapter.submitList(listCate.map { it.ownCopy() }){
+//                                    rvListCategory.scrollToPosition(0)
+                                }
+//                                rvListCategory.adapter?.notifyDataSetChanged()
+
                             }
                         }
+                        Log.d("listCategory", "${mCategory}")
+
                         cslDetailTask.visible()
                         lottieAnim.gone()
                     }
@@ -574,11 +599,9 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 updateTaskTriggerS.observe(this@AddTaskActivity) { state ->
                     when (state) {
                         ResponseState.Start -> {
-//                            pbLoading.visible()
                         }
 
                         is ResponseState.Success -> {
-//                            pbLoading.gone()
                             Log.d("updateTaskTriggerS", "Success")
                             EventBus.getDefault().post(CheckReloadListTask(true))
                             toastSuccess(state.data)
@@ -622,8 +645,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                             } else {
                                 if (idTodo.isNullOrEmpty()) {
                                     viewModel.addNewTask(state.data)
-                                    mCategory.listTask++
-                                    viewModel.updateCategory(mCategory, "listTask")
+//                                    mCategory.listTask++
+//                                    viewModel.updateCategory(mCategory, "listTask")
                                 } else {
                                     viewModel.updateTask(state.data)
                                 }
@@ -646,8 +669,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         is ResponseState.Success -> {
                             if (idTodo.isNullOrEmpty()) {
                                 viewModel.addNewTask(state.data)
-                                mCategory.listTask++
-                                viewModel.updateCategory(mCategory, "listTask")
+//                                mCategory.listTask++
+//                                viewModel.updateCategory(mCategory, "listTask")
                             } else {
                                 viewModel.updateTask(state.data)
                             }
@@ -923,8 +946,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 viewModel.uploadFileOfTask(task, listFileUri)
             } else {
                 viewModel.addNewTask(task)
-                mCategory.listTask++
-                viewModel.updateCategory(mCategory, "listTask")
+//                mCategory.listTask++
+//                viewModel.updateCategory(mCategory, "listTask")
             }
         }
     }

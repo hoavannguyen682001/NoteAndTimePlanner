@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.databinding.ItemAddCategoryBinding
+import com.hoanv.notetimeplanner.utils.extension.gone
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import fxc.dev.common.extension.getHexColorFromResource
 
@@ -49,6 +50,10 @@ class CategoryAdapter(
                     .into(ivIcon)
                 ivIcon.backgroundTintList =
                     ColorStateList.valueOf(Color.parseColor(item.icon.iconColor))
+
+                if (item.isDefault) {
+                    ivOption.gone()
+                }
 
                 ivOption.setOnSingleClickListener {
                     onOptionClick.invoke(item, it)
