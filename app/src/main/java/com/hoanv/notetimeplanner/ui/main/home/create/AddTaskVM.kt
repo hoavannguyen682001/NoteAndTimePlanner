@@ -36,6 +36,11 @@ class AddTaskVM @Inject constructor(
     val listCategory: LiveData<List<Category>>
         get() = _listCategory
 
+    private val _listDefaultCategory =
+        MutableLiveData<List<Category>>()
+    val listDefaultCategory: LiveData<List<Category>>
+        get() = _listDefaultCategory
+
     private val _addTaskTriggerS = MutableLiveData<ResponseState<String>>()
     val addTaskTriggerS: LiveData<ResponseState<String>>
         get() = _addTaskTriggerS
@@ -114,9 +119,22 @@ class AddTaskVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             remoteRepo.getListCategory { list, state ->
                 if (state) {
-                    _listCategory.postValue((list.toMutableList()))
+                    val tempList = list.filter {
+                        it.isDefault || it.userId == Pref.userId
+                    }
+                    _listCategory.postValue((tempList.toMutableList()))
+
+                    val defaultList = list.filter {
+                        it.isDefault
+                    }
+
+                    _listDefaultCategory.postValue(defaultList.toMutableList())
                 } else {
                     _listCategory.postValue(
+                        emptyList()
+                    )
+
+                    _listDefaultCategory.postValue(
                         emptyList()
                     )
                 }

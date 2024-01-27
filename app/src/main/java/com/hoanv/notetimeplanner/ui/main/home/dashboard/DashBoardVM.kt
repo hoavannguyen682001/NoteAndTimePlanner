@@ -79,7 +79,10 @@ class DashBoardVM @Inject constructor(
             _listCategory.postValue(ResponseState.Start)
             remoteRepo.getListCategory { list, state ->
                 if (state) {
-                    _listCategory.postValue(ResponseState.Success(list.toMutableList()))
+                    val tempList = list.filter {
+                        it.isDefault || it.userId == Pref.userId
+                    }
+                    _listCategory.postValue(ResponseState.Success(tempList.toMutableList()))
                 } else {
                     _listCategory.postValue(
                         ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))

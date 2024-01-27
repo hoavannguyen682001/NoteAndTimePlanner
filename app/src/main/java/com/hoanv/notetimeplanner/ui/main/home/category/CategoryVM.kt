@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.Category
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +70,10 @@ class CategoryVM
             _listCategory.postValue(ResponseState.Start)
             remoteRepo.getListCategory { list, state ->
                 if (state) {
-                    _listCategory.postValue(ResponseState.Success(list.toMutableList()))
+                    val tempList = list.filter {
+                        it.isDefault || it.userId == Pref.userId
+                    }
+                    _listCategory.postValue(ResponseState.Success(tempList.toMutableList()))
                 } else {
                     _listCategory.postValue(
                         ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))

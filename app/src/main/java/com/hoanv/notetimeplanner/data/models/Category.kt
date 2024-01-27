@@ -9,6 +9,7 @@ import java.util.UUID
 data class Category(
     var id: String = UUID.randomUUID().toString(),
     var title: String? = "",
+    var userId: String? = "",
     var listTask: Int = 0,
     var icon: Icon = Icon(),
     var isDefault: Boolean = false,
@@ -19,6 +20,7 @@ data class Category(
         return hashMapOf(
             "id" to id,
             "title" to title,
+            "userId" to userId,
             "icon" to icon,
             "default" to isDefault,
             "listTask" to listTask,

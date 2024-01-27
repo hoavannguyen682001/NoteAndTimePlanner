@@ -138,6 +138,7 @@
         android:layout_marginTop="@dimen/dp_20"
         android:autofillHints="name"
         android:background="@drawable/bg_border_gray"
+        android:enabled="false"
         android:fontFamily="@font/opensans_medium"
         android:hint="E-Mail"
         android:inputType="textEmailAddress"
@@ -145,8 +146,6 @@
         android:paddingVertical="@dimen/dp_12"
         android:textColor="@color/arsenic"
         android:textSize="@dimen/dp_16"
-        app:layout_constraintEnd_toStartOf="@+id/gl50"
-        app:layout_constraintStart_toStartOf="@+id/gl50"
         app:layout_constraintTop_toBottomOf="@+id/textView22" />
 
     <TextView

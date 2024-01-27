@@ -183,19 +183,44 @@
                 app:layout_constraintStart_toStartOf="@+id/textView3"
                 app:layout_constraintTop_toBottomOf="@id/edtDescription" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvListCategory"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cslRvListCate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_12"
-                android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/dp_8"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView4"
-                tools:itemCount="10"
-                tools:listitem="@layout/item_category" />
+                app:layout_constraintTop_toBottomOf="@id/textView4">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvListCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_12"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/dp_8"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:itemCount="10"
+                    tools:listitem="@layout/item_category" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvListCategoryDefault"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_12"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/dp_8"
+                    android:visibility="gone"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:itemCount="10"
+                    tools:listitem="@layout/item_category" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/gl50"
@@ -214,7 +239,7 @@
                 android:textColor="@color/arsenic"
                 android:textSize="@dimen/dp_16"
                 app:layout_constraintStart_toStartOf="@+id/textView4"
-                app:layout_constraintTop_toBottomOf="@id/rvListCategory" />
+                app:layout_constraintTop_toBottomOf="@id/cslRvListCate" />
 
             <TextView
                 android:id="@+id/tvStartDay"
@@ -470,13 +495,13 @@
         android:id="@+id/lottieAnim"
         android:layout_width="@dimen/dp_100"
         android:layout_height="@dimen/dp_100"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        android:visibility="gone"
         app:lottie_rawRes="@raw/loading_home_fragment" />
 
     <FrameLayout

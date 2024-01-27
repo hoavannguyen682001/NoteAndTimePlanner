@@ -15,6 +15,7 @@ import com.hoanv.notetimeplanner.data.models.Icon
 import com.hoanv.notetimeplanner.databinding.ActivityCategoryBinding
 import com.hoanv.notetimeplanner.databinding.DialogAddCategoryBinding
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectIn
 import com.hoanv.notetimeplanner.utils.extension.gone
@@ -223,7 +224,14 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
                             toastError("Vui lòng điền tiêu đề thể loại!")
                         } else {
                             val category = edtInputCate.text.toString()
-                            viewModel.addNewCategory(Category(title = category, icon = mIcon, isDefault = false))
+                            viewModel.addNewCategory(
+                                Category(
+                                    title = category,
+                                    userId = Pref.userId,
+                                    icon = mIcon,
+                                    isDefault = false
+                                )
+                            )
                             viewModel.getListCategory()
                             alertDialog.dismiss()
                         }

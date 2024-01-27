@@ -2,10 +2,8 @@ package com.hoanv.notetimeplanner.ui.main.home.create
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -58,6 +56,7 @@ import com.hoanv.notetimeplanner.service.boardcast.DownloadManagerReceiver
 import com.hoanv.notetimeplanner.ui.base.BaseActivity
 import com.hoanv.notetimeplanner.ui.evenbus.CheckReloadListTask
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.CategoryAdapter
+import com.hoanv.notetimeplanner.ui.main.home.create.adapter.CategoryDefaultAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.FileAttachAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.ImageAttachAdapter
 import com.hoanv.notetimeplanner.ui.main.home.create.adapter.MemberAdapter
@@ -100,6 +99,13 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     private val categoryAdapter by lazy {
         CategoryAdapter(this) { category, position ->
             selectedS.tryEmit(position)
+            Log.d("position", "$position")
+        }
+    }
+    private val categoryDefaultAdapter by lazy {
+        CategoryDefaultAdapter(this) { category, position ->
+            selectedDefaultS.tryEmit(position)
+            Log.d("position-default", "$position")
         }
     }
 
@@ -150,6 +156,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
     }
 
     private var selectedS = MutableStateFlow(0)
+    private var selectedDefaultS = MutableStateFlow(0)
 
     /* Trigger list member */
     private var listMemberTriggerS = MutableSharedFlow<List<UserInfo>>(extraBufferCapacity = 64)
@@ -305,6 +312,14 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 itemAnimator = null
             }
 
+            rvListCategoryDefault.run {
+                adapter = categoryDefaultAdapter
+                layoutManager = LinearLayoutManager(
+                    this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
+                )
+                itemAnimator = null
+            }
+
             rvListMember.run {
                 layoutManager = LinearLayoutManager(
                     this@AddTaskActivity, LinearLayoutManager.HORIZONTAL, false
@@ -395,6 +410,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             tvTaskPersonal.setOnClickListener {
                 typeTask = TypeTask.PERSONAL
                 selectedS.tryEmit(0)
+                rvListCategoryDefault.gone()
+                rvListCategory.visible()
 
                 tvAddMember.gone()
                 rvListMember.gone()
@@ -416,7 +433,9 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
 
             tvTaskGroup.setOnClickListener {
                 typeTask = TypeTask.GROUP
-                selectedS.tryEmit(1)
+                selectedDefaultS.tryEmit(0)
+                rvListCategoryDefault.visible()
+                rvListCategory.gone()
 
                 if (isLoadUser) {
                     viewModel.getUserInfo(Pref.userEmail)
@@ -501,16 +520,7 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         Pair(selected, list)
                     }
                     .collectIn(this@AddTaskActivity) { item ->
-                        var (select, state) = item
-
-                        if (typeTask == TypeTask.GROUP) {
-                            val tempList = state.filter {
-                                it.isDefault
-                            }
-                            state = tempList
-                        }
-
-                        Log.d("listCategory", "${state.size}")
+                        val (select, state) = item
 
                         if (idTodo == null) {
                             val listCate = mutableListOf<Category>()
@@ -519,10 +529,8 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                 category.isSelected = index == select
                                 mCategory = listCate[select]
                             }
-                            categoryAdapter.submitList(listCate.map { it.ownCopy() }){
-//                                rvListCategory.scrollToPosition(0)
-                            }
-//                            rvListCategory.adapter?.notifyDataSetChanged()
+
+                            categoryAdapter.submitList(listCate.map { it.ownCopy() })
                         } else {
                             if (isFirstLoad) {
                                 val listCate = mutableListOf<Category>()
@@ -530,15 +538,16 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                 listCate.addAll(state)
                                 listCate.mapIndexed { index, category ->
                                     category.isSelected = mTask.category.id == category.id
-                                    mCategory = mTask.category
                                     if (mTask.category.id == category.id) {
                                         i = index
                                     }
                                 }
+                                if (typeTask == TypeTask.PERSONAL) {
+                                    mCategory = mTask.category
+                                }
                                 categoryAdapter.submitList(listCate.map { it.ownCopy() }) {
                                     rvListCategory.scrollToPosition(i)
                                 }
-//                                rvListCategory.adapter?.notifyDataSetChanged()
 
                                 isFirstLoad = false
                             } else {
@@ -546,16 +555,63 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                                 listCate.addAll(state)
                                 listCate.mapIndexed { index, category ->
                                     category.isSelected = index == select
+                                }
+                                if (typeTask == TypeTask.PERSONAL) {
                                     mCategory = listCate[select]
                                 }
-                                categoryAdapter.submitList(listCate.map { it.ownCopy() }){
-//                                    rvListCategory.scrollToPosition(0)
-                                }
-//                                rvListCategory.adapter?.notifyDataSetChanged()
-
+                                categoryAdapter.submitList(listCate.map { it.ownCopy() })
                             }
                         }
-                        Log.d("listCategory", "${mCategory}")
+
+                        cslDetailTask.visible()
+                        lottieAnim.gone()
+                    }
+
+                selectedDefaultS
+                    .combine(listDefaultCategory.asFlow()) { selected, list ->
+                        Pair(selected, list)
+                    }.collectIn(this@AddTaskActivity) { item ->
+                        val (select, state) = item
+
+                        if (idTodo == null) {
+                            val listCate = mutableListOf<Category>()
+                            listCate.addAll(state)
+                            listCate.mapIndexed { index, category ->
+                                category.isSelected = index == select
+                                mCategory = listCate[select]
+                            }
+                            categoryDefaultAdapter.submitList(listCate.map { it.ownCopy() })
+                        } else {
+                            if (isFirstLoad) {
+                                val listCate = mutableListOf<Category>()
+                                var i = 0
+                                listCate.addAll(state)
+                                listCate.mapIndexed { index, category ->
+                                    category.isSelected = mTask.category.id == category.id
+                                    if (mTask.category.id == category.id) {
+                                        i = index
+                                    }
+                                }
+                                if (typeTask == TypeTask.GROUP) {
+                                    mCategory = mTask.category
+                                }
+                                categoryDefaultAdapter.submitList(listCate.map { it.ownCopy() }) {
+                                    rvListCategoryDefault.scrollToPosition(i)
+                                }
+
+                                isFirstLoad = false
+                            } else {
+                                val listCate = mutableListOf<Category>()
+                                listCate.addAll(state)
+                                listCate.mapIndexed { index, category ->
+                                    category.isSelected = index == select
+                                }
+                                if (typeTask == TypeTask.GROUP) {
+                                    mCategory = listCate[select]
+                                }
+                                categoryDefaultAdapter.submitList(listCate.map { it.ownCopy() })
+                            }
+                        }
 
                         cslDetailTask.visible()
                         lottieAnim.gone()
@@ -586,8 +642,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         }
 
                         is ResponseState.Success -> {
-//                            toastSuccess(state.data.name)
-//                            finish()
                         }
 
                         is ResponseState.Failure -> {
@@ -669,8 +723,6 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                         is ResponseState.Success -> {
                             if (idTodo.isNullOrEmpty()) {
                                 viewModel.addNewTask(state.data)
-//                                mCategory.listTask++
-//                                viewModel.updateCategory(mCategory, "listTask")
                             } else {
                                 viewModel.updateTask(state.data)
                             }
@@ -788,14 +840,14 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
         request.setTitle("Tải xuống ${fileInfo.title}")
         request.setDescription("Tệp tin đang được tải xuống")
 
-        // Thiết lập đường dẫn lưu trữ của tệp tin
+        // Set path to save file
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileInfo.title)
 
-        // Đặt những cờ cho request
+        // Set flag of internet to request
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
-        // Lấy DownloadManager và gửi yêu cầu tải về
+        // Get DownloadManager và send request download
         val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         downloadManager.enqueue(request)
     }
@@ -834,9 +886,14 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             tvEndDay.text = task.endDay
             tvTimeEnd.text = task.timeEnd
 
-            categoryList.mapIndexed { index, category ->
+            categoryList.forEachIndexed { index, category ->
                 if (category.id == mTask.category.id) {
-                    selectedS.tryEmit(index)
+                    if (task.typeTask == TypeTask.PERSONAL) {
+                        selectedS.tryEmit(index)
+                    }
+                    if (task.typeTask == TypeTask.GROUP) {
+                        selectedDefaultS.tryEmit(index)
+                    }
                 }
             }
 
@@ -861,6 +918,9 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
             if (task.typeTask == TypeTask.GROUP) {
                 typeTask = TypeTask.GROUP
                 isLoadUser = false // user info being loading
+                rvListCategory.gone()
+                rvListCategoryDefault.visible()
+
                 tvAddMember.visible()
                 rvListMember.visible()
                 tvMember.visible()
@@ -876,6 +936,9 @@ class AddTaskActivity : BaseActivity<ActivityAddTaskBinding, AddTaskVM>(),
                 }
             } else {
                 typeTask = TypeTask.PERSONAL
+                rvListCategory.visible()
+                rvListCategoryDefault.gone()
+
                 tvAddMember.gone()
                 rvListMember.gone()
                 tvMember.gone()
