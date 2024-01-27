@@ -95,19 +95,14 @@ class CategoryActivity : BaseActivity<ActivityCategoryBinding, CategoryVM>() {
     private fun bindViewModel() {
         binding.run {
             viewModel.run {
-                val listIcon = mutableListOf<Icon>()
 
                 selectedS.combine(iconCategory.asFlow()) { selected, list -> Pair(selected, list) }
                     .collectIn(this@CategoryActivity) { pair ->
                         val (select, listUrl) = pair
-
-                        listIcon.clear()
-                        listUrl.forEachIndexed { index, url ->
-                            listIcon.add(Icon(iconUrl = url, isSelected = select == index))
+                        listUrl.mapIndexed { index, icon ->
+                            icon.isSelected = select == index
                         }
-
-                        //TODO bug when scroll to end and click item icon
-                        iconAdapter.submitList(listIcon.map { it.ownCopy() })
+                        iconAdapter.submitList(listUrl.map { it.ownCopy() })
                     }
 
                 addCategoryTriggerS.observe(this@CategoryActivity) { state ->

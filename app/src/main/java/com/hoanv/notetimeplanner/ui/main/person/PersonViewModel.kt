@@ -41,7 +41,7 @@ class PersonViewModel @Inject constructor(
 
      fun getListTask() {
         _listTask.postValue(ResponseState.Start)
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             remoteRepo.getListTask { list, state ->
                 if (state) {
                     val task = mutableListOf<Task>()

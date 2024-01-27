@@ -9,4 +9,6 @@ object Pref : KotprefModel() {
     var deviceToken by stringPref(default = "")
     var accessToken by stringPref(default = "")
     var mTaskUserId by stringPref(default = "")
+    var isLoading by booleanPref(default = false)
+
 }

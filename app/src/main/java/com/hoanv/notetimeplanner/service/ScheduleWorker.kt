@@ -21,8 +21,6 @@ class ScheduledWorker(appContext: Context, workerParams: WorkerParameters) :
         // Show Notification
         NotificationUtil(applicationContext).showNotification(taskId!!, title!!, message!!)
 
-        // TODO Do your other Background Processing
-
         Log.d(TAG, "Work DONE")
         // Return result
 

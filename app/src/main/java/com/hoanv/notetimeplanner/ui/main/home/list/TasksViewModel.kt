@@ -58,6 +58,7 @@ class TasksViewModel @Inject constructor(
         if (currentUser != null) {
             getUserInfo()
         }
+        getListTask()
     }
 
     fun getUserInfo() = viewModelScope.launch(Dispatchers.IO) {
@@ -93,22 +94,6 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-
-    fun getListCategory() {
-        _listCategory.postValue(ResponseState.Start)
-        viewModelScope.launch(Dispatchers.IO) {
-            remoteRepo.getListCategory { list, state ->
-                if (state) {
-                    _listCategory.postValue(ResponseState.Success(list.toMutableList()))
-                } else {
-                    _listCategory.postValue(
-                        ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))
-                    )
-                }
-            }
-        }
-    }
-
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
             _deleteTaskTriggerS.postValue(ResponseState.Start)
@@ -128,7 +113,7 @@ class TasksViewModel @Inject constructor(
     fun getListTask() {
         _listTaskPersonal.postValue(ResponseState.Start)
         _listGroupTask.postValue(ResponseState.Start)
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             remoteRepo.getListTask { list, state ->
                 if (state) {
                     val task = mutableListOf<Task>()
@@ -170,21 +155,6 @@ class TasksViewModel @Inject constructor(
                 } else {
                     _updateTaskTriggerS.postValue(
                         ResponseState.Failure(Throwable("Chỉnh sửa thất bại. Thử lại sau !!"))
-                    )
-                }
-            }
-        }
-    }
-
-    fun getListTaskByCategory(category: Category) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _listTaskPersonal.postValue(ResponseState.Start)
-            remoteRepo.getListTaskByCategory(category) { list, state ->
-                if (state) {
-                    _listTaskPersonal.postValue(ResponseState.Success(list.toMutableList()))
-                } else {
-                    _listTaskPersonal.postValue(
-                        ResponseState.Failure(Throwable("Không tìm thấy dữ liệu. Thử lại sau !!"))
                     )
                 }
             }

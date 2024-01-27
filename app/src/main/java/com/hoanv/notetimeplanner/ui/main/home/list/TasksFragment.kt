@@ -31,6 +31,7 @@ import com.hoanv.notetimeplanner.ui.main.home.create.AddTaskActivity
 import com.hoanv.notetimeplanner.ui.main.home.list.adapter.TaskAdapter
 import com.hoanv.notetimeplanner.ui.main.listTask.ListAllTaskActivity
 import com.hoanv.notetimeplanner.utils.AppConstant.TASK_TYPE
+import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.flow.collectInViewLifecycle
 import com.hoanv.notetimeplanner.utils.extension.gone
@@ -81,7 +82,10 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.getListTask()
+        if (Pref.isLoading) {
+            viewModel.getListTask()
+        }
+        Pref.isLoading = true
     }
 
     private fun initView() {
@@ -143,7 +147,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     }
                 }
 
-                listTaskPersonal.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
+                listTaskPersonal.observe(this@TasksFragment) { state ->
                     when (state) {
                         ResponseState.Start -> {
                             lottieAnim.visible()
@@ -154,7 +158,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                             if (state.data.isNotEmpty()) {
                                 listTaskS.clear()
                                 state.data.forEach {
-                                    if(!expireDay(it) && !it.taskState){
+                                    if (!expireDay(it) && !it.taskState) {
                                         listTaskS.add(it)
                                     }
                                 }
@@ -171,10 +175,9 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
                     }
                 }
 
-                listGroupTask.asFlow().collectInViewLifecycle(this@TasksFragment) { state ->
+                listGroupTask.observe(this@TasksFragment) { state ->
                     when (state) {
                         ResponseState.Start -> {
-                            lottieAnim.visible()
                             cslGroupTaskLeft.gone()
                             cslGroupTaskRight.gone()
                         }
@@ -254,9 +257,11 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
                 binding.run {
                     if (taskOne.taskState) {
-                        tvTaskGroupName.paintFlags = tvTaskGroupName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        tvTaskGroupName.paintFlags =
+                            tvTaskGroupName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                         tvStateTask.text = requireContext().getString(R.string.text_done)
-                        tvStateTask.backgroundTintList = requireContext().getColorStateList(R.color.light_green)
+                        tvStateTask.backgroundTintList =
+                            requireContext().getColorStateList(R.color.light_green)
                     } else {
                         binding.tvTaskGroupName.paintFlags =
                             tvTaskGroupName.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
@@ -300,9 +305,11 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
 
                 binding.run {
                     if (taskTwo.taskState) {
-                        tvTaskGroupNameR.paintFlags = tvTaskGroupName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        tvTaskGroupNameR.paintFlags =
+                            tvTaskGroupName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                         tvStateTaskR.text = requireContext().getString(R.string.text_done)
-                        tvStateTaskR.backgroundTintList = requireContext().getColorStateList(R.color.light_green)
+                        tvStateTaskR.backgroundTintList =
+                            requireContext().getColorStateList(R.color.light_green)
                     } else {
                         binding.tvTaskGroupNameR.paintFlags =
                             tvTaskGroupNameR.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
@@ -395,13 +402,6 @@ class TasksFragment : BaseFragment<FragmentTasksBinding, TasksViewModel>() {
         intent.putExtra("TODO", task)
         startActivity(intent)
     }
-
-//    @Subscribe
-//    fun reloadListTask(checked: CheckReloadListTask) {
-//        if (checked.isReload) {
-//            viewModel.getListTask(userInfoS)
-//        }
-//    }
 
     @Subscribe
     fun reloadUserInfo(checked: ReloadUserInfo) {

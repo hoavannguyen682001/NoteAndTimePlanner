@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.github.mikephil.charting.data.PieData
@@ -14,9 +15,12 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.hoanv.notetimeplanner.R
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.SubTask
 import com.hoanv.notetimeplanner.data.models.Task
 import com.hoanv.notetimeplanner.data.models.TypeTask
 import com.hoanv.notetimeplanner.data.models.UserInfo
+import com.hoanv.notetimeplanner.databinding.DialogAddSubtaskBinding
+import com.hoanv.notetimeplanner.databinding.DialogLogoutBinding
 import com.hoanv.notetimeplanner.databinding.FragmentPersonBinding
 import com.hoanv.notetimeplanner.ui.base.BaseFragment
 import com.hoanv.notetimeplanner.ui.evenbus.UserInfoEvent
@@ -41,6 +45,9 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
 
     private val listCategoriesS = mutableListOf<Category>()
     private var user = UserInfo()
+
+    private lateinit var dialogBinding: DialogLogoutBinding
+    private lateinit var alertDialog: AlertDialog
     override fun setupViewBinding(
         inflater: LayoutInflater, container: ViewGroup?
     ): FragmentPersonBinding = FragmentPersonBinding.inflate(inflater, container, false)
@@ -58,6 +65,12 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
     }
 
     private fun initView() {
+        dialogBinding =
+            DialogLogoutBinding.inflate(LayoutInflater.from(requireContext()))
+        alertDialog =
+            AlertDialog.Builder(requireContext(), R.style.AppCompat_AlertDialog)
+                .setView(dialogBinding.root)
+                .setCancelable(false).create()
     }
 
     private fun initListener() {
@@ -71,7 +84,7 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
             }
 
             ivSignOut.setOnSingleClickListener {
-                viewModel.logoutCurrentUser()
+                dialogLogout()
             }
         }
     }
@@ -111,6 +124,7 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
                         Pref.userId = ""
                         Pref.userEmail = ""
                         Pref.isSaveLogin = false
+                        Pref.isLoading = false
                         startActivity(Intent(requireActivity(), LoginActivity::class.java))
                         requireActivity().finish()
                     } else {
@@ -119,6 +133,21 @@ class PersonFragment : BaseFragment<FragmentPersonBinding, PersonViewModel>() {
                 }
             }
         }
+    }
+
+    private fun dialogLogout() {
+        binding.run {
+            dialogBinding.run {
+                tvBack.setOnSingleClickListener {
+                    alertDialog.dismiss()
+                }
+
+                tvAccept.setOnSingleClickListener {
+                    viewModel.logoutCurrentUser()
+                }
+            }
+        }
+        alertDialog.show()
     }
 
     private fun progressChart(list: List<Task>) {

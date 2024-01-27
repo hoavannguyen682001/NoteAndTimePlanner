@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -24,6 +25,7 @@ import com.hoanv.notetimeplanner.utils.Pref
 import com.hoanv.notetimeplanner.utils.ResponseState
 import com.hoanv.notetimeplanner.utils.extension.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class LoginActivity : BaseActivity<ActivityLoginBinding, LoginVM>() {
@@ -36,6 +38,10 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginVM>() {
     }
 
     private fun initView() {
+        onBackPressedDispatcher.addCallback {
+            finishAffinity()
+            exitProcess(0)
+        }
     }
 
     private fun initListener() {

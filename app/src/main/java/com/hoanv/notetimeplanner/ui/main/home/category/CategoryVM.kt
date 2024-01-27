@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hoanv.notetimeplanner.data.models.Category
+import com.hoanv.notetimeplanner.data.models.Icon
 import com.hoanv.notetimeplanner.data.repository.remote.RemoteRepo
 import com.hoanv.notetimeplanner.ui.base.BaseViewModel
 import com.hoanv.notetimeplanner.utils.Pref
@@ -38,8 +39,8 @@ class CategoryVM
     val deleteCategoryTriggerS: LiveData<ResponseState<String>>
         get() = _deleteCategoryTriggerS
 
-    private val _iconCategory = MutableLiveData<List<String>>()
-    val iconCategory: LiveData<List<String>>
+    private val _iconCategory = MutableLiveData<List<Icon>>()
+    val iconCategory: LiveData<List<Icon>>
         get() = _iconCategory
 
     init {
@@ -48,8 +49,12 @@ class CategoryVM
     }
 
     private fun getIconCategories() = viewModelScope.launch(Dispatchers.IO) {
-        remoteRepo.getIconCategories {
-            _iconCategory.postValue(it.sorted())
+        remoteRepo.getIconCategories { listUrl ->
+            val listIcon = mutableListOf<Icon>()
+            listUrl.sorted().forEach { url ->
+                listIcon.add(Icon(iconUrl = url))
+            }
+            _iconCategory.postValue(listIcon)
         }
     }
 
